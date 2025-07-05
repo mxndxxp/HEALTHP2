@@ -12,42 +12,41 @@ type ToothProps = {
   textPos: { x: number; y: number };
 };
 
-const Tooth = ({ id, d, isSelected, onToggle, transform, textPos }: ToothProps) => (
-  <g transform={transform} className="cursor-pointer" onClick={() => onToggle(id)}>
-    <defs>
-        <radialGradient id={`grad-${id}`} cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
-            <stop offset="0%" style={{stopColor: 'hsl(var(--card))', stopOpacity: 1}} />
-            <stop offset="100%" style={{stopColor: 'hsl(var(--border))', stopOpacity: 1}} />
-        </radialGradient>
-        <radialGradient id={`grad-selected-${id}`} cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
-            <stop offset="0%" style={{stopColor: 'hsl(var(--primary))', stopOpacity: 0.6}} />
-            <stop offset="100%" style={{stopColor: 'hsl(var(--primary))', stopOpacity: 1}} />
-        </radialGradient>
-    </defs>
-    <path
-      d={d}
-      className={cn(
-        'stroke-gray-400 stroke-[0.5] transition-all duration-200 hover:opacity-80',
-        isSelected ? 'fill-primary' : ''
-      )}
-      style={!isSelected ? { fill: `url(#grad-${id})` } : {}}
-    />
-     <path
-      d={d}
-      className={'transition-all duration-200'}
-      style={{ fill: isSelected ? `url(#grad-selected-${id})` : 'transparent' }}
-    />
-    <text
-      x={textPos.x}
-      y={textPos.y}
-      textAnchor="middle"
-      dy="0.3em"
-      className={cn("text-[8px] pointer-events-none", isSelected ? 'fill-primary-foreground': 'fill-muted-foreground')}
-    >
-      {id}
-    </text>
-  </g>
-);
+const Tooth = ({ id, d, isSelected, onToggle, transform, textPos }: ToothProps) => {
+    const fillStyle = isSelected ? `url(#grad-selected-${id})` : `url(#grad-${id})`;
+
+    return (
+        <g transform={transform} className="cursor-pointer group" onClick={() => onToggle(id)}>
+            <defs>
+                <radialGradient id={`grad-${id}`} cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+                    <stop offset="0%" style={{stopColor: 'hsl(var(--card))', stopOpacity: 1}} />
+                    <stop offset="100%" style={{stopColor: 'hsl(var(--border))', stopOpacity: 1}} />
+                </radialGradient>
+                <radialGradient id={`grad-selected-${id}`} cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+                    <stop offset="0%" style={{stopColor: 'hsl(var(--primary))', stopOpacity: 0.6}} />
+                    <stop offset="100%" style={{stopColor: 'hsl(var(--primary))', stopOpacity: 1}} />
+                </radialGradient>
+            </defs>
+            <path
+              d={d}
+              className='stroke-gray-400 stroke-[0.5] transition-all duration-200 group-hover:opacity-80'
+              style={{ fill: fillStyle }}
+            />
+            <text
+              x={textPos.x}
+              y={textPos.y}
+              textAnchor="middle"
+              dy="0.3em"
+              className={cn(
+                "text-[8px] pointer-events-none transition-colors", 
+                isSelected ? 'fill-primary-foreground': 'fill-muted-foreground'
+              )}
+            >
+              {id}
+            </text>
+        </g>
+    );
+};
 
 const teethData: Omit<ToothProps, 'isSelected' | 'onToggle'>[] = [
   // Upper Right (Quadrant 1)
