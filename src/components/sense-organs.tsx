@@ -1,3 +1,4 @@
+
 'use client';
 
 import {
@@ -32,7 +33,11 @@ import {
   Bone,
   Shield,
   Fingerprint,
+  Upload,
 } from 'lucide-react';
+import { Textarea } from './ui/textarea';
+import { Input } from './ui/input';
+import { Button } from './ui/button';
 
 const dentalConditions = [
   'Tooth Decay',
@@ -43,6 +48,10 @@ const dentalConditions = [
   'Teeth Grinding',
   'Tooth Fracture',
   'Missing Teeth',
+  'Jaw Pain (TMJ)',
+  'Bad Breath (Halitosis)',
+  'Mouth Sores',
+  'Discolored Teeth'
 ];
 
 const organSystems = [
@@ -50,14 +59,32 @@ const organSystems = [
     name: 'Eyes',
     icon: Eye,
     conditions: [
-      'Myopia',
-      'Hyperopia',
+      'Myopia (Nearsighted)',
+      'Hyperopia (Farsighted)',
       'Astigmatism',
-      'Cataract',
+      'Presbyopia (Age-related)',
+      'Cataracts',
       'Glaucoma',
       'Dry Eyes',
+      'Watery Eyes',
+      'Floaters or Flashes',
+      'Redness or Itching',
+      'Double Vision',
+      'Stye or Chalazion',
     ],
   },
+   {
+    name: 'Ears',
+    icon: Ear,
+    conditions: [
+        'Hearing Loss',
+        'Tinnitus (Ringing)',
+        'Earache or Pain',
+        'Dizziness or Vertigo',
+        'Ear Discharge',
+        'Blocked Ears'
+    ]
+   },
   {
     name: 'Nose/Sinuses',
     icon: Wind,
@@ -67,39 +94,59 @@ const organSystems = [
       'Deviated Septum',
       'Nasal Polyps',
       'Loss of Smell',
+      'Nosebleeds',
+      'Congestion'
     ],
   },
   {
     name: 'Throat',
     icon: Mic,
-    conditions: ['Sore throat', 'Laryngitis', 'Tonsillitis'],
+    conditions: ['Sore throat', 'Laryngitis', 'Tonsillitis', 'Difficulty Swallowing', 'Hoarseness'],
   },
   {
     name: 'Skin',
     icon: Fingerprint,
-    conditions: ['Acne', 'Eczema', 'Psoriasis', 'Dermatitis'],
+    conditions: ['Acne', 'Eczema', 'Psoriasis', 'Dermatitis', 'Rash or Hives', 'Moles or Skin Growths', 'Dryness or Itching'],
   },
   {
     name: 'Cardiovascular',
     icon: Heart,
-    conditions: ['Chest Pain', 'Palpitations', 'Shortness of Breath'],
+    conditions: ['Chest Pain', 'Palpitations', 'Shortness of Breath', 'Swelling in Legs', 'High Blood Pressure', 'Dizziness'],
   },
   {
     name: 'Neurological',
     icon: BrainCircuit,
-    conditions: ['Headaches', 'Dizziness', 'Numbness', 'Memory Issues'],
+    conditions: ['Headaches/Migraines', 'Dizziness/Vertigo', 'Numbness or Tingling', 'Memory Issues', 'Seizures', 'Tremors'],
   },
   {
     name: 'Musculoskeletal',
     icon: Bone,
-    conditions: ['Joint Pain', 'Back Pain', 'Muscle Weakness'],
+    conditions: ['Joint Pain/Stiffness', 'Back Pain', 'Neck Pain', 'Muscle Weakness', 'Sprains or Strains', 'Limited Range of Motion'],
   },
   {
     name: 'Endocrine',
     icon: Shield,
-    conditions: ['Thyroid Issues', 'Fatigue', 'Weight Changes'],
+    conditions: ['Thyroid Issues', 'Excessive Fatigue', 'Unexplained Weight Changes', 'Excessive Thirst/Urination', 'Temperature Intolerance'],
   },
 ];
+
+
+const PhotoAndNotes = ({ section }: { section: string }) => (
+    <div className="mt-4 space-y-4 rounded-lg border bg-muted/20 p-4">
+        <h4 className="font-semibold text-muted-foreground text-sm">Additional Details for {section}</h4>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+                <Label htmlFor={`notes-${section}`}>Problem Details</Label>
+                <Textarea id={`notes-${section}`} placeholder={`Describe the problem in detail...`} rows={3}/>
+            </div>
+            <div className="space-y-2">
+                <Label htmlFor={`photo-${section}`}>Upload Related Photo</Label>
+                <Input id={`photo-${section}`} type="file" />
+            </div>
+        </div>
+    </div>
+);
+
 
 export function SenseOrgans() {
   return (
@@ -126,20 +173,21 @@ export function SenseOrgans() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="rounded-lg border p-4">
+                <div className="rounded-lg border p-4 flex justify-center">
                   <InteractiveDentalChart />
                 </div>
                 <div>
-                  <Label>Dental Conditions</Label>
+                  <Label className="font-semibold">Dental Conditions</Label>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-2">
                     {dentalConditions.map((condition) => (
                       <div key={condition} className="flex items-center gap-2">
                         <Checkbox id={`dental-${condition}`} />
-                        <Label htmlFor={`dental-${condition}`}>{condition}</Label>
+                        <Label htmlFor={`dental-${condition}`} className="font-normal">{condition}</Label>
                       </div>
                     ))}
                   </div>
                 </div>
+                 <PhotoAndNotes section="Dental" />
               </CardContent>
             </Card>
           </TabsContent>
@@ -170,11 +218,14 @@ export function SenseOrgans() {
                               className="flex items-center gap-2"
                             >
                               <Checkbox id={`${system.name}-${condition}`} />
-                              <Label htmlFor={`${system.name}-${condition}`}>
+                              <Label htmlFor={`${system.name}-${condition}`} className="font-normal">
                                 {condition}
                               </Label>
                             </div>
                           ))}
+                        </div>
+                        <div className="px-4 pb-4">
+                           <PhotoAndNotes section={system.name} />
                         </div>
                       </AccordionContent>
                     </AccordionItem>

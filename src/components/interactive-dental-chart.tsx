@@ -1,3 +1,4 @@
+
 'use client';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
@@ -8,72 +9,88 @@ type ToothProps = {
   isSelected: boolean;
   onToggle: (id: number) => void;
   transform?: string;
+  textPos: { x: number; y: number };
 };
 
-const Tooth = ({ id, d, isSelected, onToggle, transform }: ToothProps) => (
-  <g transform={transform}>
+const Tooth = ({ id, d, isSelected, onToggle, transform, textPos }: ToothProps) => (
+  <g transform={transform} className="cursor-pointer" onClick={() => onToggle(id)}>
+    <defs>
+        <radialGradient id={`grad-${id}`} cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+            <stop offset="0%" style={{stopColor: 'hsl(var(--card))', stopOpacity: 1}} />
+            <stop offset="100%" style={{stopColor: 'hsl(var(--border))', stopOpacity: 1}} />
+        </radialGradient>
+        <radialGradient id={`grad-selected-${id}`} cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+            <stop offset="0%" style={{stopColor: 'hsl(var(--primary))', stopOpacity: 0.6}} />
+            <stop offset="100%" style={{stopColor: 'hsl(var(--primary))', stopOpacity: 1}} />
+        </radialGradient>
+    </defs>
     <path
       d={d}
       className={cn(
-        'fill-white stroke-gray-400 stroke-1 transition-all duration-200 cursor-pointer hover:fill-blue-200',
-        isSelected && 'fill-primary stroke-blue-700'
+        'stroke-gray-400 stroke-[0.5] transition-all duration-200 hover:opacity-80',
+        isSelected ? 'fill-primary' : ''
       )}
-      onClick={() => onToggle(id)}
+      style={!isSelected ? { fill: `url(#grad-${id})` } : {}}
+    />
+     <path
+      d={d}
+      className={'transition-all duration-200'}
+      style={{ fill: isSelected ? `url(#grad-selected-${id})` : 'transparent' }}
     />
     <text
-      x="0"
-      y="0"
+      x={textPos.x}
+      y={textPos.y}
       textAnchor="middle"
       dy="0.3em"
-      className="text-[10px] fill-gray-600 pointer-events-none"
+      className={cn("text-[8px] pointer-events-none", isSelected ? 'fill-primary-foreground': 'fill-muted-foreground')}
     >
       {id}
     </text>
   </g>
 );
 
-const teethData = [
+const teethData: Omit<ToothProps, 'isSelected' | 'onToggle'>[] = [
   // Upper Right (Quadrant 1)
-  { id: 18, d: 'M-60,5 L-50,5 L-50,15 L-60,15 Z', transform: 'translate(235, 30)' },
-  { id: 17, d: 'M-60,5 L-50,5 L-50,15 L-60,15 Z', transform: 'translate(215, 30)' },
-  { id: 16, d: 'M-60,5 L-50,5 L-50,15 L-60,15 Z', transform: 'translate(195, 30)' },
-  { id: 15, d: 'M-60,5 L-50,5 L-50,15 L-60,15 Z', transform: 'translate(175, 30)' },
-  { id: 14, d: 'M-60,5 L-50,5 L-50,15 L-60,15 Z', transform: 'translate(155, 30)' },
-  { id: 13, d: 'M-60,5 L-50,5 L-50,15 L-60,15 Z', transform: 'translate(135, 30)' },
-  { id: 12, d: 'M-60,5 L-50,5 L-50,15 L-60,15 Z', transform: 'translate(115, 30)' },
-  { id: 11, d: 'M-60,5 L-50,5 L-50,15 L-60,15 Z', transform: 'translate(95, 30)' },
+  { id: 18, d: "M0,0 Q5, -15 10,0 T20,0 L20,15 Q10,25 0,15 Z", textPos: { x: 10, y: 8 }, transform: "translate(170, 20) scale(0.8)" },
+  { id: 17, d: "M0,0 Q5, -15 10,0 T20,0 L20,15 Q10,25 0,15 Z", textPos: { x: 10, y: 8 }, transform: "translate(150, 22) scale(0.9)" },
+  { id: 16, d: "M0,0 Q5, -15 10,0 T20,0 L20,15 Q10,25 0,15 Z", textPos: { x: 10, y: 8 }, transform: "translate(130, 25) scale(0.9)" },
+  { id: 15, d: "M0,0 Q5, -15 10,0 T18,0 L18,15 Q9,22 0,15 Z", textPos: { x: 9, y: 8 }, transform: "translate(112, 28) scale(0.8)" },
+  { id: 14, d: "M0,0 Q5, -15 10,0 T18,0 L18,15 Q9,22 0,15 Z", textPos: { x: 9, y: 8 }, transform: "translate(94, 28) scale(0.8)" },
+  { id: 13, d: "M0,0 Q4,-18 8,0 L8,15 Q4,20 0,15 Z", textPos: { x: 4, y: 8 }, transform: "translate(80, 28) scale(0.9)" },
+  { id: 12, d: "M0,0 Q4,-18 8,0 L8,15 Q4,20 0,15 Z", textPos: { x: 4, y: 8 }, transform: "translate(68, 28) scale(0.9)" },
+  { id: 11, d: "M0,0 Q5,-18 10,0 L10,15 Q5,20 0,15 Z", textPos: { x: 5, y: 8 }, transform: "translate(52, 28) scale(0.9)" },
   // Upper Left (Quadrant 2)
-  { id: 21, d: 'M-60,5 L-50,5 L-50,15 L-60,15 Z', transform: 'translate(75, 30)' },
-  { id: 22, d: 'M-60,5 L-50,5 L-50,15 L-60,15 Z', transform: 'translate(55, 30)' },
-  { id: 23, d: 'M-60,5 L-50,5 L-50,15 L-60,15 Z', transform: 'translate(35, 30)' },
-  { id: 24, d: 'M-60,5 L-50,5 L-50,15 L-60,15 Z', transform: 'translate(15, 30)' },
-  { id: 25, d: 'M-60,5 L-50,5 L-50,15 L-60,15 Z', transform: 'translate(-5, 30)' },
-  { id: 26, d: 'M-60,5 L-50,5 L-50,15 L-60,15 Z', transform: 'translate(-25, 30)' },
-  { id: 27, d: 'M-60,5 L-50,5 L-50,15 L-60,15 Z', transform: 'translate(-45, 30)' },
-  { id: 28, d: 'M-60,5 L-50,5 L-50,15 L-60,15 Z', transform: 'translate(-65, 30)' },
+  { id: 21, d: "M0,0 Q5,-18 10,0 L10,15 Q5,20 0,15 Z", textPos: { x: 5, y: 8 }, transform: "translate(38, 28) scale(0.9)" },
+  { id: 22, d: "M0,0 Q4,-18 8,0 L8,15 Q4,20 0,15 Z", textPos: { x: 4, y: 8 }, transform: "translate(24, 28) scale(0.9)" },
+  { id: 23, d: "M0,0 Q4,-18 8,0 L8,15 Q4,20 0,15 Z", textPos: { x: 4, y: 8 }, transform: "translate(10, 28) scale(0.9)" },
+  { id: 24, d: "M0,0 Q5, -15 10,0 T18,0 L18,15 Q9,22 0,15 Z", textPos: { x: 9, y: 8 }, transform: "translate(-12, 28) scale(0.8)" },
+  { id: 25, d: "M0,0 Q5, -15 10,0 T18,0 L18,15 Q9,22 0,15 Z", textPos: { x: 9, y: 8 }, transform: "translate(-30, 28) scale(0.8)" },
+  { id: 26, d: "M0,0 Q5, -15 10,0 T20,0 L20,15 Q10,25 0,15 Z", textPos: { x: 10, y: 8 }, transform: "translate(-54, 25) scale(0.9)" },
+  { id: 27, d: "M0,0 Q5, -15 10,0 T20,0 L20,15 Q10,25 0,15 Z", textPos: { x: 10, y: 8 }, transform: "translate(-74, 22) scale(0.9)" },
+  { id: 28, d: "M0,0 Q5, -15 10,0 T20,0 L20,15 Q10,25 0,15 Z", textPos: { x: 10, y: 8 }, transform: "translate(-94, 20) scale(0.8)" },
 
   // Lower Left (Quadrant 3)
-  { id: 38, d: 'M-60,5 L-50,5 L-50,15 L-60,15 Z', transform: 'translate(-65, 80)' },
-  { id: 37, d: 'M-60,5 L-50,5 L-50,15 L-60,15 Z', transform: 'translate(-45, 80)' },
-  { id: 36, d: 'M-60,5 L-50,5 L-50,15 L-60,15 Z', transform: 'translate(-25, 80)' },
-  { id: 35, d: 'M-60,5 L-50,5 L-50,15 L-60,15 Z', transform: 'translate(-5, 80)' },
-  { id: 34, d: 'M-60,5 L-50,5 L-50,15 L-60,15 Z', transform: 'translate(15, 80)' },
-  { id: 33, d: 'M-60,5 L-50,5 L-50,15 L-60,15 Z', transform: 'translate(35, 80)' },
-  { id: 32, d: 'M-60,5 L-50,5 L-50,15 L-60,15 Z', transform: 'translate(55, 80)' },
-  { id: 31, d: 'M-60,5 L-50,5 L-50,15 L-60,15 Z', transform: 'translate(75, 80)' },
+  { id: 38, d: "M0,15 Q5,30 10,15 T20,15 L20,0 Q10,-10 0,0 Z", textPos: { x: 10, y: 7 }, transform: "translate(-94, 75) scale(0.8)" },
+  { id: 37, d: "M0,15 Q5,30 10,15 T20,15 L20,0 Q10,-10 0,0 Z", textPos: { x: 10, y: 7 }, transform: "translate(-74, 73) scale(0.9)" },
+  { id: 36, d: "M0,15 Q5,30 10,15 T20,15 L20,0 Q10,-10 0,0 Z", textPos: { x: 10, y: 7 }, transform: "translate(-54, 70) scale(0.9)" },
+  { id: 35, d: "M0,15 Q5,27 10,15 T18,15 L18,0 Q9,-7 0,0 Z", textPos: { x: 9, y: 7 }, transform: "translate(-30, 67) scale(0.8)" },
+  { id: 34, d: "M0,15 Q5,27 10,15 T18,15 L18,0 Q9,-7 0,0 Z", textPos: { x: 9, y: 7 }, transform: "translate(-12, 67) scale(0.8)" },
+  { id: 33, d: "M0,15 Q4,33 8,15 L8,0 Q4,-5 0,0 Z", textPos: { x: 4, y: 7 }, transform: "translate(10, 67) scale(0.9)" },
+  { id: 32, d: "M0,15 Q4,33 8,15 L8,0 Q4,-5 0,0 Z", textPos: { x: 4, y: 7 }, transform: "translate(24, 67) scale(0.9)" },
+  { id: 31, d: "M0,15 Q5,33 10,15 L10,0 Q5,-5 0,0 Z", textPos: { x: 5, y: 7 }, transform: "translate(38, 67) scale(0.9)" },
   // Lower Right (Quadrant 4)
-  { id: 41, d: 'M-60,5 L-50,5 L-50,15 L-60,15 Z', transform: 'translate(95, 80)' },
-  { id: 42, d: 'M-60,5 L-50,5 L-50,15 L-60,15 Z', transform: 'translate(115, 80)' },
-  { id: 43, d: 'M-60,5 L-50,5 L-50,15 L-60,15 Z', transform: 'translate(135, 80)' },
-  { id: 44, d: 'M-60,5 L-50,5 L-50,15 L-60,15 Z', transform: 'translate(155, 80)' },
-  { id: 45, d: 'M-60,5 L-50,5 L-50,15 L-60,15 Z', transform: 'translate(175, 80)' },
-  { id: 46, d: 'M-60,5 L-50,5 L-50,15 L-60,15 Z', transform: 'translate(195, 80)' },
-  { id: 47, d: 'M-60,5 L-50,5 L-50,15 L-60,15 Z', transform: 'translate(215, 80)' },
-  { id: 48, d: 'M-60,5 L-50,5 L-50,15 L-60,15 Z', transform: 'translate(235, 80)' },
+  { id: 41, d: "M0,15 Q5,33 10,15 L10,0 Q5,-5 0,0 Z", textPos: { x: 5, y: 7 }, transform: "translate(52, 67) scale(0.9)" },
+  { id: 42, d: "M0,15 Q4,33 8,15 L8,0 Q4,-5 0,0 Z", textPos: { x: 4, y: 7 }, transform: "translate(68, 67) scale(0.9)" },
+  { id: 43, d: "M0,15 Q4,33 8,15 L8,0 Q4,-5 0,0 Z", textPos: { x: 4, y: 7 }, transform: "translate(80, 67) scale(0.9)" },
+  { id: 44, d: "M0,15 Q5,27 10,15 T18,15 L18,0 Q9,-7 0,0 Z", textPos: { x: 9, y: 7 }, transform: "translate(94, 67) scale(0.8)" },
+  { id: 45, d: "M0,15 Q5,27 10,15 T18,15 L18,0 Q9,-7 0,0 Z", textPos: { x: 9, y: 7 }, transform: "translate(112, 67) scale(0.8)" },
+  { id: 46, d: "M0,15 Q5,30 10,15 T20,15 L20,0 Q10,-10 0,0 Z", textPos: { x: 10, y: 7 }, transform: "translate(130, 70) scale(0.9)" },
+  { id: 47, d: "M0,15 Q5,30 10,15 T20,15 L20,0 Q10,-10 0,0 Z", textPos: { x: 10, y: 7 }, transform: "translate(150, 73) scale(0.9)" },
+  { id: 48, d: "M0,15 Q5,30 10,15 T20,15 L20,0 Q10,-10 0,0 Z", textPos: { x: 10, y: 7 }, transform: "translate(170, 75) scale(0.8)" },
 ];
 
 export function InteractiveDentalChart() {
-  const [selectedTeeth, setSelectedTeeth] = useState<number[]>([]);
+  const [selectedTeeth, setSelectedTeeth] = useState<number[]>([14, 24]);
 
   const handleToggleTooth = (id: number) => {
     setSelectedTeeth((prev) =>
@@ -83,9 +100,8 @@ export function InteractiveDentalChart() {
 
   return (
     <div className="w-full overflow-x-auto">
-      <svg viewBox="-90 -10 450 150" className="max-w-full h-auto">
-        <path d="M 85 55 C 40 55, 40 55, -10 55" stroke="#F87171" strokeWidth="2" fill="none" />
-        <path d="M 85 65 C 40 65, 40 65, -10 65" stroke="#F87171" strokeWidth="2" fill="none" />
+      <svg viewBox="-100 0 400 130" className="max-w-full h-auto">
+        <path d="M 90 60 C -10 40, -10 80, 90 60" stroke="hsl(var(--border))" strokeWidth="1" fill="hsl(var(--muted))" />
         {teethData.map((tooth) => (
           <Tooth
             key={tooth.id}
@@ -94,10 +110,11 @@ export function InteractiveDentalChart() {
             transform={tooth.transform}
             isSelected={selectedTeeth.includes(tooth.id)}
             onToggle={handleToggleTooth}
+            textPos={tooth.textPos}
           />
         ))}
-        <text x="165" y="15" className="text-sm font-bold fill-gray-500">Upper Jaw</text>
-        <text x="165" y="115" className="text-sm font-bold fill-gray-500">Lower Jaw</text>
+        <text x="0" y="15" className="text-xs font-bold fill-gray-500">Upper Jaw</text>
+        <text x="0" y="118" className="text-xs font-bold fill-gray-500">Lower Jaw</text>
       </svg>
     </div>
   );

@@ -1,3 +1,4 @@
+
 'use client';
 
 import {
@@ -24,6 +25,9 @@ import { Label } from './ui/label';
 import { Slider } from './ui/slider';
 import { Checkbox } from './ui/checkbox';
 import { Input } from './ui/input';
+import { Textarea } from './ui/textarea';
+import { Button } from './ui/button';
+import { Upload } from 'lucide-react';
 
 const stoolColors = [
   { name: 'Brown', color: '#8B4513' },
@@ -46,6 +50,23 @@ const urineColors = [
     { name: 'Red/Pink', color: '#FF69B4' },
     { name: 'Brown', color: '#8B4513' },
 ];
+
+const PhotoAndNotes = ({ section }: { section: string }) => (
+    <div className="mt-6 space-y-4 rounded-lg border bg-muted/20 p-4">
+        <h4 className="font-semibold text-muted-foreground">Additional Information</h4>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+                <Label htmlFor={`notes-${section}`}>Notes</Label>
+                <Textarea id={`notes-${section}`} placeholder={`Any additional notes for ${section.toLowerCase()}...`} />
+            </div>
+            <div className="space-y-2">
+                <Label htmlFor={`photo-${section}`}>Upload Related Photo</Label>
+                <Input id={`photo-${section}`} type="file" />
+            </div>
+        </div>
+    </div>
+);
+
 
 export function LifestyleAssessment() {
   return (
@@ -109,6 +130,19 @@ export function LifestyleAssessment() {
                         ))}
                     </div>
                 </div>
+                 <div className="space-y-2">
+                    <Label>Dreams</Label>
+                    <Select defaultValue="sometimes">
+                        <SelectTrigger><SelectValue placeholder="Select dream frequency" /></SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="never">Never / Rarely</SelectItem>
+                            <SelectItem value="sometimes">Sometimes</SelectItem>
+                            <SelectItem value="often">Often</SelectItem>
+                            <SelectItem value="vivid">Vivid / Memorable</SelectItem>
+                        </SelectContent>
+                    </Select>
+                </div>
+                <PhotoAndNotes section="Sleep" />
               </CardContent>
             </Card>
           </TabsContent>
@@ -134,6 +168,11 @@ export function LifestyleAssessment() {
                         <Slider defaultValue={[2.5]} max={5} step={0.5} />
                         <div className="text-center text-sm text-muted-foreground">2.5 L</div>
                     </div>
+                     <div className="space-y-2">
+                        <Label>Food Allergies/Intolerances</Label>
+                        <Input placeholder="e.g., Lactose, Gluten, Nuts"/>
+                    </div>
+                    <PhotoAndNotes section="Diet" />
                 </CardContent>
              </Card>
           </TabsContent>
@@ -154,6 +193,7 @@ export function LifestyleAssessment() {
                             </SelectContent>
                         </Select>
                     </div>
+                    <PhotoAndNotes section="Activity" />
                 </CardContent>
              </Card>
           </TabsContent>
@@ -187,6 +227,7 @@ export function LifestyleAssessment() {
                             </SelectContent>
                         </Select>
                     </div>
+                    <PhotoAndNotes section="Stress and Caffeine" />
                 </CardContent>
              </Card>
           </TabsContent>
@@ -220,6 +261,7 @@ export function LifestyleAssessment() {
                             </SelectContent>
                         </Select>
                     </div>
+                    <PhotoAndNotes section="Substance Use" />
                 </CardContent>
              </Card>
           </TabsContent>
@@ -239,6 +281,33 @@ export function LifestyleAssessment() {
                             ))}
                         </div>
                     </div>
+                     <div className="space-y-2">
+                        <Label>Stool Type (Bristol Stool Chart)</Label>
+                        <Select>
+                            <SelectTrigger><SelectValue placeholder="Select stool type" /></SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="1">Type 1: Separate hard lumps (hard to pass)</SelectItem>
+                                <SelectItem value="2">Type 2: Sausage-shaped, but lumpy</SelectItem>
+                                <SelectItem value="3">Type 3: Like a sausage but with cracks on surface</SelectItem>
+                                <SelectItem value="4">Type 4: Like a sausage or snake, smooth and soft</SelectItem>
+                                <SelectItem value="5">Type 5: Soft blobs with clear-cut edges</SelectItem>
+                                <SelectItem value="6">Type 6: Fluffy pieces with ragged edges, mushy</SelectItem>
+                                <SelectItem value="7">Type 7: Watery, no solid pieces, liquid</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+                    <div className="space-y-2">
+                        <Label>Stool Problems (select all that apply)</Label>
+                        <div className="grid grid-cols-2 gap-2">
+                            {['Constipation', 'Diarrhea', 'Painful Movements', 'Blood in Stool', 'Mucus in Stool', 'Undigested Food'].map(issue => (
+                                <div key={issue} className="flex items-center gap-2">
+                                    <Checkbox id={`stool-issue-${issue}`} />
+                                    <Label htmlFor={`stool-issue-${issue}`} className="font-normal">{issue}</Label>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                    <PhotoAndNotes section="Stool" />
                 </CardContent>
              </Card>
           </TabsContent>
@@ -258,6 +327,30 @@ export function LifestyleAssessment() {
                             ))}
                         </div>
                     </div>
+                    <div className="space-y-2">
+                        <Label>Frequency</Label>
+                        <Select>
+                            <SelectTrigger><SelectValue placeholder="Select urination frequency" /></SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="normal">Normal (4-7 times/day)</SelectItem>
+                                <SelectItem value="frequent">Frequent (>7 times/day)</SelectItem>
+                                <SelectItem value="infrequent">Infrequent (&lt;4 times/day)</SelectItem>
+                                <SelectItem value="nocturia">Waking up at night to urinate</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+                    <div className="space-y-2">
+                        <Label>Urine Problems (select all that apply)</Label>
+                        <div className="grid grid-cols-2 gap-2">
+                            {['Pain or Burning', 'Difficulty Starting', 'Weak Stream', 'Urgency', 'Incontinence / Leakage', 'Cloudy Urine', 'Strong Odor'].map(issue => (
+                                <div key={issue} className="flex items-center gap-2">
+                                    <Checkbox id={`urine-issue-${issue}`} />
+                                    <Label htmlFor={`urine-issue-${issue}`} className="font-normal">{issue}</Label>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                    <PhotoAndNotes section="Urine" />
                 </CardContent>
              </Card>
           </TabsContent>
