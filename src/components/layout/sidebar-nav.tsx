@@ -6,7 +6,6 @@ import {
   FileText,
   HeartPulse,
   LayoutDashboard,
-  Mic,
   Smile,
   User,
 } from 'lucide-react';
@@ -17,19 +16,20 @@ type SidebarNavProps = {
   activeSection: string;
   setActiveSection: (section: string) => void;
   className?: string;
+  sectionTitles: { [key: string]: string };
 };
 
 const navItems = [
-  { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { id: 'patientInfo', label: 'Patient Information', icon: User },
-  { id: 'medicalHistory', label: 'Medical History', icon: HeartPulse },
-  { id: 'lifestyle', label: 'Lifestyle Assessment', icon: Activity },
-  { id: 'senses', label: 'Sense Organs', icon: Smile },
-  { id: 'healthReport', label: 'Health Report', icon: FileText },
-  { id: 'aiInsights', label: 'AI Health Insights', icon: BotMessageSquare },
+  { id: 'dashboard', icon: LayoutDashboard },
+  { id: 'patientInfo', icon: User },
+  { id: 'medicalHistory', icon: HeartPulse },
+  { id: 'lifestyle', icon: Activity },
+  { id: 'senses', icon: Smile },
+  { id: 'healthReport', icon: FileText },
+  { id: 'aiInsights', icon: BotMessageSquare },
 ];
 
-export function SidebarNav({ activeSection, setActiveSection, className }: SidebarNavProps) {
+export function SidebarNav({ activeSection, setActiveSection, className, sectionTitles }: SidebarNavProps) {
   return (
     <div className={`flex flex-col h-full ${className}`}>
       <div className="flex h-16 items-center border-b px-4 lg:h-[60px] lg:px-6">
@@ -48,7 +48,7 @@ export function SidebarNav({ activeSection, setActiveSection, className }: Sideb
               onClick={() => setActiveSection(item.id)}
             >
               <item.icon className="h-4 w-4" />
-              {item.label}
+              {sectionTitles[item.id]}
             </Button>
           ))}
         </nav>

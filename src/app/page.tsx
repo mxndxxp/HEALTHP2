@@ -12,6 +12,7 @@ import { ChatBot } from '@/components/chat-bot';
 import { HealthReport } from '@/components/health-report';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import type { HealthData } from '@/lib/types';
+import { translateText } from '@/ai/flows/translator';
 
 const sectionComponents: { [key: string]: React.ComponentType<any> } = {
   dashboard: Dashboard,
@@ -23,7 +24,7 @@ const sectionComponents: { [key: string]: React.ComponentType<any> } = {
   aiInsights: AiInsights,
 };
 
-const sectionTitles: { [key: string]: string } = {
+const initialSectionTitles: { [key: string]: string } = {
     dashboard: 'Dashboard',
     patientInfo: 'Patient Information',
     medicalHistory: 'Medical History',
@@ -52,12 +53,16 @@ const initialHealthData: HealthData = {
     weight: '75',
     uniqueId: `HC-${Date.now()}-A9B8C7`,
     avatar: "https://placehold.co/200x200.png",
+    dob: '',
+    birthTime: '',
+    birthPlace: '',
+    deliveryType: 'normal',
+    deliveryTime: '',
   },
   medicalHistory: {
     familyHistory: ['Hypertension'],
     pastHistory: [
       { id: 1, condition: 'Appendectomy', date: '2015-06-20', cured: true },
-      { id: 2, condition: 'Broken Arm', date: '2010-02-14', cured: true },
     ],
     currentSituation: {
       symptoms: '',
@@ -73,17 +78,44 @@ const initialHealthData: HealthData = {
       photos: null,
     },
   },
+  lifestyleAssessment: {
+      hungerLevel: 5,
+      favoriteFood: '',
+  }
 };
 
 
 export default function Home() {
   const [activeSection, setActiveSection] = useState('dashboard');
   const [healthData, setHealthData] = useState<HealthData>(initialHealthData);
+  const [sectionTitles, setSectionTitles] = useState(initialSectionTitles);
+  const [isTranslating, setIsTranslating] = useState(false);
+
+  const handleLanguageChange = async (language: string) => {
+    if (language === 'en') {
+      setSectionTitles(initialSectionTitles);
+      return;
+    }
+    setIsTranslating(true);
+    try {
+      const translationPromises = Object.entries(initialSectionTitles).map(async ([key, title]) => {
+        const result = await translateText({ text: title, targetLanguage: language });
+        return { [key]: result.translatedText };
+      });
+      const translatedPairs = await Promise.all(translationPromises);
+      const newTitles = Object.assign({}, ...translatedPairs);
+      setSectionTitles(newTitles);
+    } catch (error) {
+      console.error("Translation failed", error);
+    } finally {
+      setIsTranslating(false);
+    }
+  };
 
   const ActiveComponent = sectionComponents[activeSection];
   const activeTitle = sectionTitles[activeSection];
 
-  const sidebar = <SidebarNav activeSection={activeSection} setActiveSection={setActiveSection} />;
+  const sidebar = <SidebarNav activeSection={activeSection} setActiveSection={setActiveSection} sectionTitles={sectionTitles} />;
 
   const handleDataChange = (section: keyof HealthData, data: any) => {
     setHealthData(prev => ({
@@ -98,6 +130,7 @@ export default function Home() {
   const componentProps = {
     data: healthData,
     setData: setHealthData,
+    onDataChange: handleDataChange,
   };
 
   return (
@@ -106,7 +139,7 @@ export default function Home() {
         {sidebar}
       </div>
       <div className="flex flex-col">
-        <Header title={activeTitle} sidebar={sidebar} />
+        <Header title={activeTitle} sidebar={sidebar} onLanguageChange={handleLanguageChange} isTranslating={isTranslating} />
         <main className="flex-1 overflow-auto bg-muted/40">
             <ScrollArea className="h-[calc(100vh-65px)]">
                  <div className="p-4 sm:p-6">

@@ -16,6 +16,11 @@ export type PatientInfo = {
   weight: string;
   uniqueId: string;
   avatar: string;
+  dob: string;
+  birthTime: string;
+  birthPlace: string;
+  deliveryType: 'normal' | 'c-section' | 'forceps' | 'vacuum';
+  deliveryTime: string;
 };
 
 export type PastCondition = {
@@ -48,8 +53,14 @@ export type MedicalHistoryInfo = {
   };
 };
 
+export type LifestyleAssessmentInfo = {
+    hungerLevel: number;
+    favoriteFood: string;
+};
+
 export type HealthData = {
   patientInfo: PatientInfo;
   medicalHistory: MedicalHistoryInfo;
+  lifestyleAssessment: LifestyleAssessmentInfo;
   // Other sections would be added here
 }

@@ -15,6 +15,13 @@ import {
   RadioGroupItem,
 } from '@/components/ui/radio-group';
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
   User,
   Calendar,
   Heart,
@@ -25,6 +32,10 @@ import {
   Weight,
   BadgeInfo,
   Upload,
+  Clock,
+  Map,
+  Baby,
+  Truck,
 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { Button } from './ui/button';
@@ -84,7 +95,7 @@ export function PatientInformation({ data, setData }: PatientInformationProps) {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+        <div className="grid grid-cols-1 gap-x-6 gap-y-8 md:grid-cols-3">
           <div className="md:col-span-1 flex flex-col items-center gap-4 pt-4">
             <Avatar className="h-32 w-32">
               <AvatarImage src={patientData.avatar} alt="User" data-ai-hint="user avatar" />
@@ -104,7 +115,7 @@ export function PatientInformation({ data, setData }: PatientInformationProps) {
                 onChange={handleAvatarChange}
             />
           </div>
-          <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-8">
             <div className="space-y-2">
               <Label htmlFor="name">
                 <IconLabel icon={User}>Full Name</IconLabel>
@@ -182,6 +193,49 @@ export function PatientInformation({ data, setData }: PatientInformationProps) {
                 <IconLabel icon={BadgeInfo}>Unique ID</IconLabel>
                 </Label>
                 <Input id="uniqueId" value={patientData.uniqueId} readOnly className="font-mono bg-muted" />
+            </div>
+          </div>
+
+          <div className="md:col-span-3 border-t pt-8 mt-2 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="space-y-2">
+                <Label htmlFor="dob">
+                    <IconLabel icon={Calendar}>Date of Birth</IconLabel>
+                </Label>
+                <Input id="dob" type="date" value={patientData.dob} onChange={(e) => handleFieldChange('dob', e.target.value)} />
+            </div>
+            <div className="space-y-2">
+                <Label htmlFor="birth-time">
+                    <IconLabel icon={Clock}>Birth Time</IconLabel>
+                </Label>
+                <Input id="birth-time" type="time" value={patientData.birthTime} onChange={(e) => handleFieldChange('birthTime', e.target.value)} />
+            </div>
+            <div className="space-y-2">
+                <Label htmlFor="birth-place">
+                    <IconLabel icon={Map}>Birth Place</IconLabel>
+                </Label>
+                <Input id="birth-place" placeholder="City, State, Country" value={patientData.birthPlace} onChange={(e) => handleFieldChange('birthPlace', e.target.value)} />
+            </div>
+            <div className="space-y-2">
+                <Label>
+                    <IconLabel icon={Baby}>Delivery Type</IconLabel>
+                </Label>
+                <Select value={patientData.deliveryType} onValueChange={(value) => handleFieldChange('deliveryType', value)}>
+                    <SelectTrigger>
+                        <SelectValue placeholder="Select type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="normal">Normal</SelectItem>
+                        <SelectItem value="c-section">C-Section</SelectItem>
+                        <SelectItem value="forceps">Forceps</SelectItem>
+                        <SelectItem value="vacuum">Vacuum</SelectItem>
+                    </SelectContent>
+                </Select>
+            </div>
+            <div className="space-y-2">
+                <Label htmlFor="delivery-time">
+                    <IconLabel icon={Truck}>Delivery Time</IconLabel>
+                </Label>
+                <Input id="delivery-time" placeholder="e.g., Full-term, Preterm" value={patientData.deliveryTime} onChange={(e) => handleFieldChange('deliveryTime', e.target.value)} />
             </div>
           </div>
         </div>

@@ -28,6 +28,7 @@ import { Textarea } from './ui/textarea';
 import { Button } from './ui/button';
 import { Upload } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import type { HealthData } from '@/lib/types';
 
 
 const stoolColors = [
@@ -77,10 +78,24 @@ const TestTubeIcon = ({ color, name, selected, onClick }: { color: string, name:
     </button>
 )
 
-export function LifestyleAssessment() {
+type LifestyleAssessmentProps = {
+  data: HealthData;
+  onDataChange: (section: keyof HealthData, data: any) => void;
+};
+
+
+export function LifestyleAssessment({ data, onDataChange }: LifestyleAssessmentProps) {
   const [selectedStoolColor, setSelectedStoolColor] = useState<string | null>(null);
   const [selectedUrineColor, setSelectedUrineColor] = useState<string | null>(null);
   const [waterIntake, setWaterIntake] = useState(2.5);
+
+  const handleSliderChange = (value: number[]) => {
+    onDataChange('lifestyleAssessment', { hungerLevel: value[0] });
+  };
+  
+  const handleInputChange = (field: string, value: string) => {
+    onDataChange('lifestyleAssessment', { [field]: value });
+  };
 
   return (
     <Card>
@@ -180,6 +195,25 @@ export function LifestyleAssessment() {
                         <Label>Daily Water Intake (Liters)</Label>
                         <Slider value={[waterIntake]} onValueChange={(value) => setWaterIntake(value[0])} max={5} step={0.5} />
                         <div className="text-center text-sm text-muted-foreground">{waterIntake.toFixed(1)} L</div>
+                    </div>
+                    <div className="space-y-2">
+                        <Label>Hunger Level (1-10)</Label>
+                        <Slider 
+                            value={[data.lifestyleAssessment.hungerLevel]} 
+                            onValueChange={handleSliderChange} 
+                            max={10} 
+                            step={1} 
+                        />
+                         <div className="text-center text-sm text-muted-foreground">{data.lifestyleAssessment.hungerLevel}</div>
+                    </div>
+                    <div className="space-y-2">
+                        <Label htmlFor="favorite-food">Favorite Food</Label>
+                        <Input 
+                            id="favorite-food" 
+                            placeholder="e.g., Pizza, Salad, Sushi" 
+                            value={data.lifestyleAssessment.favoriteFood}
+                            onChange={(e) => handleInputChange('favoriteFood', e.target.value)}
+                        />
                     </div>
                      <div className="space-y-2">
                         <Label>Food Allergies/Intolerances</Label>
