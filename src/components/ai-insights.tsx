@@ -11,7 +11,7 @@ import {
 import { Button } from './ui/button';
 import { healthInsights } from '@/ai/flows/health-insights';
 import type { HealthInsightsOutput } from '@/ai/flows/health-insights';
-import { Loader2, Lightbulb, Sparkles, AlertTriangle } from 'lucide-react';
+import { Loader2, Lightbulb, Sparkles, AlertTriangle, TestTube, HeartPulse } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { HealthData } from '@/lib/types';
 
@@ -103,19 +103,24 @@ export function AiInsights({ data, t }: AiInsightsProps) {
         <Card>
             <CardHeader>
                 <CardTitle className="flex items-center gap-2"><Lightbulb /> {t.resultsTitle}</CardTitle>
+                <CardDescription>{t.disclaimer}</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-6">
+            <CardContent className="space-y-8">
                 <div>
-                    <h3 className="font-semibold text-lg">{t.summary}</h3>
-                    <p className="text-muted-foreground mt-1 whitespace-pre-wrap">{result.diagnosticSummary}</p>
+                    <h3 className="font-semibold text-lg flex items-center gap-2"><Sparkles /> {t.summary}</h3>
+                    <p className="text-muted-foreground mt-2 whitespace-pre-wrap">{result.diagnosticSummary}</p>
                 </div>
                  <div>
-                    <h3 className="font-semibold text-lg">{t.conditions}</h3>
-                    <p className="text-muted-foreground mt-1 whitespace-pre-wrap">{result.potentialConditions}</p>
+                    <h3 className="font-semibold text-lg flex items-center gap-2"><AlertTriangle /> {t.conditions}</h3>
+                    <p className="text-muted-foreground mt-2 whitespace-pre-wrap">{result.potentialConditions}</p>
                 </div>
                  <div>
-                    <h3 className="font-semibold text-lg">{t.recommendations}</h3>
-                    <p className="text-muted-foreground mt-1 whitespace-pre-wrap">{result.lifestyleRecommendations}</p>
+                    <h3 className="font-semibold text-lg flex items-center gap-2"><HeartPulse /> {t.recommendations}</h3>
+                    <p className="text-muted-foreground mt-2 whitespace-pre-wrap">{result.lifestyleRecommendations}</p>
+                </div>
+                 <div>
+                    <h3 className="font-semibold text-lg flex items-center gap-2"><TestTube /> {t.nextSteps}</h3>
+                    <p className="text-muted-foreground mt-2 whitespace-pre-wrap">{result.suggestedNextSteps}</p>
                 </div>
             </CardContent>
         </Card>
