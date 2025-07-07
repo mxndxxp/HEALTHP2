@@ -15,6 +15,16 @@ import type { HealthData } from '@/lib/types';
 import { translateText } from '@/ai/flows/translator';
 import { initialUiText } from '@/lib/ui-text';
 import { useToast } from '@/hooks/use-toast';
+import { SectionNavigator } from '@/components/layout/section-navigator';
+import {
+  Activity,
+  BotMessageSquare,
+  FileText,
+  HeartPulse,
+  LayoutDashboard,
+  Smile,
+  User,
+} from 'lucide-react';
 
 const sectionComponents: { [key: string]: React.ComponentType<any> } = {
   dashboard: Dashboard,
@@ -25,6 +35,18 @@ const sectionComponents: { [key: string]: React.ComponentType<any> } = {
   healthReport: HealthReport,
   aiInsights: AiInsights,
 };
+
+const navItems = [
+  { id: 'dashboard', icon: LayoutDashboard },
+  { id: 'patientInfo', icon: User },
+  { id: 'medicalHistory', icon: HeartPulse },
+  { id: 'lifestyle', icon: Activity },
+  { id: 'senses', icon: Smile },
+  { id: 'healthReport', icon: FileText },
+  { id: 'aiInsights', icon: BotMessageSquare },
+];
+
+const sectionOrder = navItems.map(item => item.id);
 
 const initialHealthData: HealthData = {
   patientInfo: {
@@ -194,7 +216,12 @@ export default function Home() {
   const activeTitle = uiText.sectionTitles[activeSection as keyof typeof uiText.sectionTitles];
   const componentStrings = uiText.components[activeSection as keyof typeof uiText.components];
 
-  const sidebar = <SidebarNav activeSection={activeSection} setActiveSection={setActiveSection} sectionTitles={uiText.sectionTitles} />;
+  const sidebar = <SidebarNav
+    activeSection={activeSection}
+    setActiveSection={setActiveSection}
+    sectionTitles={uiText.sectionTitles}
+    navItems={navItems}
+  />;
 
   const handleDataChange = (section: keyof HealthData, data: any) => {
     setHealthData(prev => ({
@@ -230,6 +257,12 @@ export default function Home() {
             <ScrollArea className="h-[calc(100vh-65px)]">
                  <div className="p-4 sm:p-6">
                     {ActiveComponent && <ActiveComponent {...componentProps} />}
+                    <SectionNavigator
+                      activeSection={activeSection}
+                      setActiveSection={setActiveSection}
+                      sectionOrder={sectionOrder}
+                      sectionTitles={uiText.sectionTitles}
+                    />
                  </div>
             </ScrollArea>
         </main>

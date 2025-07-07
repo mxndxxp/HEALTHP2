@@ -1,35 +1,22 @@
 'use client';
-import {
-  Activity,
-  BotMessageSquare,
-  ClipboardList,
-  FileText,
-  HeartPulse,
-  LayoutDashboard,
-  Smile,
-  User,
-} from 'lucide-react';
-import Link from 'next/link';
 import { Button } from '../ui/button';
+import Link from 'next/link';
+import { ClipboardList, type LucideIcon } from 'lucide-react';
+
+type NavItem = {
+    id: string;
+    icon: LucideIcon;
+};
 
 type SidebarNavProps = {
   activeSection: string;
   setActiveSection: (section: string) => void;
-  className?: string;
+  navItems: NavItem[];
   sectionTitles: { [key: string]: string };
+  className?: string;
 };
 
-const navItems = [
-  { id: 'dashboard', icon: LayoutDashboard },
-  { id: 'patientInfo', icon: User },
-  { id: 'medicalHistory', icon: HeartPulse },
-  { id: 'lifestyle', icon: Activity },
-  { id: 'senses', icon: Smile },
-  { id: 'healthReport', icon: FileText },
-  { id: 'aiInsights', icon: BotMessageSquare },
-];
-
-export function SidebarNav({ activeSection, setActiveSection, className, sectionTitles }: SidebarNavProps) {
+export function SidebarNav({ activeSection, setActiveSection, navItems, sectionTitles, className }: SidebarNavProps) {
   return (
     <div className={`flex flex-col h-full ${className}`}>
       <div className="flex h-16 items-center border-b px-4 lg:h-[60px] lg:px-6">

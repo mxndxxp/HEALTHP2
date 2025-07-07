@@ -129,7 +129,7 @@ const organSystems = [
 
 
 const PhotoAndNotes = ({ section, t }: { section: string, t: any }) => (
-    <div className="mt-4 space-y-4 rounded-lg border bg-muted/20 p-4">
+    <div className="space-y-4 rounded-lg border bg-muted/20 p-4">
         <h4 className="font-semibold text-muted-foreground text-sm">{t.title.replace('{section}', section)}</h4>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
@@ -168,11 +168,11 @@ export function SenseOrgans({ t }: SenseOrgansProps) {
                 <CardTitle>{t.dental.title}</CardTitle>
                 <CardDescription>{t.dental.description}</CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-6">
                 <div className="rounded-lg border p-4 flex justify-center">
                   <InteractiveDentalChart />
                 </div>
-                <div>
+                <div className="space-y-4">
                   <Label className="font-semibold">{t.dental.conditionsLabel}</Label>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-2">
                     {dentalConditions.map((condition) => (
@@ -205,21 +205,21 @@ export function SenseOrgans({ t }: SenseOrgansProps) {
                         </div>
                       </AccordionTrigger>
                       <AccordionContent>
-                        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 p-4">
-                          {system.conditions.map((condition) => (
-                            <div
-                              key={condition}
-                              className="flex items-center gap-2"
-                            >
-                              <Checkbox id={`${system.name}-${condition}`} />
-                              <Label htmlFor={`${system.name}-${condition}`} className="font-normal">
-                                {condition}
-                              </Label>
+                        <div className="p-4 space-y-6">
+                            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                            {system.conditions.map((condition) => (
+                                <div
+                                key={condition}
+                                className="flex items-center gap-2"
+                                >
+                                <Checkbox id={`${system.name}-${condition}`} />
+                                <Label htmlFor={`${system.name}-${condition}`} className="font-normal">
+                                    {condition}
+                                </Label>
+                                </div>
+                            ))}
                             </div>
-                          ))}
-                        </div>
-                        <div className="px-4 pb-4">
-                           <PhotoAndNotes section={system.name} t={t.photoAndNotes}/>
+                            <PhotoAndNotes section={system.name} t={t.photoAndNotes}/>
                         </div>
                       </AccordionContent>
                     </AccordionItem>
