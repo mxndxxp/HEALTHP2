@@ -72,20 +72,51 @@ const initialHealthData: HealthData = {
     birthPlace: '',
     deliveryType: 'normal',
     deliveryTime: '',
+    occupation: '',
+    maritalStatus: '',
+    dateOfVisit: new Date().toISOString().split('T')[0], // Default to today
+    referredBy: '',
   },
   medicalHistory: {
-    familyHistory: ['Hypertension'],
-    pastHistory: [
-      { id: 1, condition: 'Appendectomy', date: '2015-06-20', cured: true },
-    ],
-    currentSituation: {
+    chiefComplaints: [],
+    historyOfPresentIllness: {
       symptoms: '',
+      onset: '',
+      duration: '',
+      frequencyTiming: '',
+      progression: '',
+      location: '',
+      radiation: '',
+      character: '',
       severity: 5,
+      associatedSymptoms: '',
+      aggravatingFactors: '',
+      relievingFactors: '',
+      previousEpisodes: '',
       impact: '',
     },
-    medications: [
-      { id: 1, name: 'Lisinopril', dosage: '10mg, once daily', description: 'For high blood pressure' },
-    ],
+    pastHistory: {
+      conditions: [
+        { id: 1, condition: 'Appendectomy', date: '2015-06-20', cured: true },
+      ],
+      trauma: '',
+      bloodTransfusions: '',
+      allergies: '',
+      immunizations: '',
+    },
+    medications: {
+      prescribed: [
+        { id: 1, name: 'Lisinopril', dosage: '10mg, once daily', description: 'For high blood pressure' },
+      ],
+      supplements: '',
+      compliance: 'good',
+      recentChanges: '',
+    },
+    familyHistory: {
+      conditions: ['Hypertension'],
+      familyHealthStatus: '',
+      consanguinity: '',
+    },
     documents: {
       reports: null,
       prescriptions: null,
@@ -226,16 +257,13 @@ export default function Home() {
   const handleDataChange = (section: keyof HealthData, data: any) => {
     setHealthData(prev => ({
       ...prev,
-      [section]: {
-        ...prev[section],
-        ...data,
-      }
+      [section]: data,
     }));
   };
 
   const componentProps = {
     data: healthData,
-    setData: setHealthData, // Passing full setter for complex state updates
+    setData: setHealthData,
     onDataChange: handleDataChange,
     t: componentStrings,
   };

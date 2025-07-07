@@ -9,7 +9,7 @@ import {
 import { Separator } from '@/components/ui/separator';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import type { HealthData } from '@/lib/types';
-import { User, File as FileIcon } from 'lucide-react';
+import { User, File as FileIcon, Stethoscope, Briefcase, Users, CalendarDays, Handshake } from 'lucide-react';
 
 type HealthReportProps = {
   data: HealthData;
@@ -17,23 +17,26 @@ type HealthReportProps = {
 };
 
 const ReportItem = ({ label, value }: { label: string, value: React.ReactNode }) => (
-    <div className="grid grid-cols-3 gap-4">
+    <div className="grid grid-cols-3 gap-4 py-1.5">
         <dt className="text-sm font-medium text-muted-foreground">{label}</dt>
         <dd className="text-sm col-span-2">{value || 'N/A'}</dd>
     </div>
 );
 
-const Section = ({ title, children }: { title: string, children: React.ReactNode }) => (
+const Section = ({ title, children, icon: Icon }: { title: string, children: React.ReactNode, icon?: React.ElementType }) => (
     <div className="space-y-4">
-        <h3 className="text-lg font-semibold text-primary">{title}</h3>
+        <h3 className="text-lg font-semibold text-primary flex items-center gap-2">
+            {Icon && <Icon className="h-5 w-5" />}
+            {title}
+        </h3>
         <div className="space-y-3">{children}</div>
     </div>
 );
 
 
 export function HealthReport({ data, t }: HealthReportProps) {
-  const { patientInfo, medicalHistory } = data;
-  const { patientInfo: tPatient, medicalHistory: tMedical } = t;
+  const { patientInfo, medicalHistory, lifestyleAssessment } = data;
+  const { patientInfo: tPatient, medicalHistory: tMedical, lifestyle: tLifestyle } = t;
 
   return (
     <Card className="w-full max-w-4xl mx-auto">
@@ -43,61 +46,114 @@ export function HealthReport({ data, t }: HealthReportProps) {
         <Separator className="my-4"/>
       </CardHeader>
       <CardContent className="space-y-8">
-        {/* Patient Information */}
-        <Section title={tPatient.title}>
-            <div className="flex items-start gap-8">
-                <Avatar className="h-32 w-32 border">
-                    <AvatarImage src={patientInfo.avatar} alt={patientInfo.name} />
-                    <AvatarFallback><User className="h-16 w-16" /></AvatarFallback>
-                </Avatar>
-                <dl className="space-y-3 flex-1">
-                    <ReportItem label={tPatient.name} value={patientInfo.name} />
-                    <ReportItem label={tPatient.uniqueId} value={<span className="font-mono">{patientInfo.uniqueId}</span>} />
+        
+        <Section title={tPatient.title} icon={User}>
+            <div className="flex flex-col md:flex-row items-start gap-8">
+                <div className="flex flex-col items-center gap-4">
+                    <Avatar className="h-32 w-32 border">
+                        <AvatarImage src={patientInfo.avatar} alt={patientInfo.name} />
+                        <AvatarFallback><User className="h-16 w-16" /></AvatarFallback>
+                    </Avatar>
+                     <p className="text-sm text-muted-foreground text-center">ID: <span className="font-mono">{patientInfo.uniqueId}</span></p>
+                </div>
+                <dl className="space-y-1 flex-1 grid grid-cols-1 md:grid-cols-2 gap-x-8">
+                    <ReportItem label={tPatient.fullName} value={patientInfo.name} />
                     <ReportItem label={tPatient.age} value={patientInfo.age} />
                     <ReportItem label={tPatient.gender} value={patientInfo.gender} />
+                    <ReportItem label={tPatient.dob} value={patientInfo.dob} />
                     <ReportItem label={tPatient.email} value={patientInfo.email} />
                     <ReportItem label={tPatient.phone} value={patientInfo.phone} />
                     <ReportItem label={tPatient.height} value={`${patientInfo.height} cm`} />
                     <ReportItem label={tPatient.weight} value={`${patientInfo.weight} kg`} />
-                    <ReportItem label={tPatient.address} value={`${patientInfo.address.line1}, ${patientInfo.address.line2}, ${patientInfo.address.city}, ${patientInfo.address.district}, ${patientInfo.address.state}, ${patientInfo.address.postalCode}`} />
+                    <ReportItem label={tPatient.occupation} value={patientInfo.occupation} />
+                    <ReportItem label={tPatient.maritalStatus.label} value={patientInfo.maritalStatus} />
+                    <ReportItem label={tPatient.dateOfVisit} value={patientInfo.dateOfVisit} />
+                    <ReportItem label={tPatient.referredBy} value={patientInfo.referredBy} />
+                    <div className="md:col-span-2">
+                        <ReportItem label={tPatient.address.label} value={`${patientInfo.address.line1}, ${patientInfo.address.line2 || ''}, ${patientInfo.address.city}, ${patientInfo.address.district}, ${patientInfo.address.state}, ${patientInfo.address.postalCode}`} />
+                    </div>
                 </dl>
             </div>
         </Section>
         
         <Separator />
 
-        {/* Medical History */}
-        <Section title={tMedical.title}>
-            <h4 className="font-medium">{tMedical.pastConditions}</h4>
-            {medicalHistory.pastHistory.length > 0 ? (
-                <ul className="list-disc pl-5 space-y-1 text-sm">
-                    {medicalHistory.pastHistory.map(item => (
-                        <li key={item.id}>{item.condition} ({tMedical.diagnosed}: {item.date}) - {item.cured ? tMedical.resolved : tMedical.ongoing}</li>
-                    ))}
-                </ul>
-            ) : <p className="text-sm text-muted-foreground">{tMedical.noPastConditions}</p>}
+        <Section title={tMedical.title} icon={Stethoscope}>
+            <div className="space-y-6">
+                <div>
+                    <h4 className="font-medium text-lg">{tMedical.chiefComplaints.title}</h4>
+                    {medicalHistory.chiefComplaints.length > 0 ? (
+                        <ul className="list-disc pl-5 space-y-1 text-sm mt-2">
+                            {medicalHistory.chiefComplaints.map(item => (
+                                <li key={item.id}><strong>{item.complaint}</strong> ({tMedical.chiefComplaints.duration}: {item.duration}, {tMedical.chiefComplaints.order}: {item.order})</li>
+                            ))}
+                        </ul>
+                    ) : <p className="text-sm text-muted-foreground">{tMedical.chiefComplaints.noComplaints}</p>}
+                </div>
 
-            <h4 className="font-medium pt-2">{tMedical.currentMedications}</h4>
-            {medicalHistory.medications.length > 0 ? (
-                 <ul className="list-disc pl-5 space-y-1 text-sm">
-                    {medicalHistory.medications.map(item => (
-                        <li key={item.id}>{item.name} ({item.dosage}) - {item.description}</li>
-                    ))}
-                </ul>
-            ) : <p className="text-sm text-muted-foreground">{tMedical.noCurrentMedications}</p>}
-            
-            <h4 className="font-medium pt-2">{tMedical.uploadedDocuments}</h4>
-            <div className="flex flex-wrap gap-4">
-                {medicalHistory.documents.reports && <div className="flex items-center gap-2 text-sm"><FileIcon className="h-4 w-4" /> {tMedical.report}: {medicalHistory.documents.reports.name}</div>}
-                {medicalHistory.documents.prescriptions && <div className="flex items-center gap-2 text-sm"><FileIcon className="h-4 w-4" /> {tMedical.prescription}: {medicalHistory.documents.prescriptions.name}</div>}
-                {medicalHistory.documents.photos && <div className="flex items-center gap-2 text-sm"><FileIcon className="h-4 w-4" /> {tMedical.photo}: {medicalHistory.documents.photos.name}</div>}
-                {!medicalHistory.documents.reports && !medicalHistory.documents.prescriptions && !medicalHistory.documents.photos && (
-                    <p className="text-sm text-muted-foreground">{tMedical.noDocuments}</p>
-                )}
+                <div>
+                    <h4 className="font-medium text-lg">{tMedical.presentIllness.title}</h4>
+                    <dl className="mt-2 space-y-1 text-sm grid grid-cols-1 md:grid-cols-2 gap-x-8">
+                        <ReportItem label={tMedical.presentIllness.symptomsLabel} value={medicalHistory.historyOfPresentIllness.symptoms} />
+                        <ReportItem label={tMedical.presentIllness.onset.label} value={medicalHistory.historyOfPresentIllness.onset} />
+                        <ReportItem label={tMedical.presentIllness.duration.label} value={medicalHistory.historyOfPresentIllness.duration} />
+                        <ReportItem label={tMedical.presentIllness.progression.label} value={medicalHistory.historyOfPresentIllness.progression} />
+                        <ReportItem label={tMedical.presentIllness.frequencyTiming} value={medicalHistory.historyOfPresentIllness.frequencyTiming} />
+                        <ReportItem label={tMedical.presentIllness.location} value={medicalHistory.historyOfPresentIllness.location} />
+                        <ReportItem label={tMedical.presentIllness.radiation} value={medicalHistory.historyOfPresentIllness.radiation} />
+                        <ReportItem label={tMedical.presentIllness.character} value={medicalHistory.historyOfPresentIllness.character} />
+                        <ReportItem label={tMedical.presentIllness.severityLabel} value={medicalHistory.historyOfPresentIllness.severity} />
+                        <ReportItem label={tMedical.presentIllness.associatedSymptoms} value={medicalHistory.historyOfPresentIllness.associatedSymptoms} />
+                        <ReportItem label={tMedical.presentIllness.aggravatingFactors} value={medicalHistory.historyOfPresentIllness.aggravatingFactors} />
+                        <ReportItem label={tMedical.presentIllness.relievingFactors} value={medicalHistory.historyOfPresentIllness.relievingFactors} />
+                        <ReportItem label={tMedical.presentIllness.previousEpisodes} value={medicalHistory.historyOfPresentIllness.previousEpisodes} />
+                    </dl>
+                </div>
+
+                <div>
+                    <h4 className="font-medium text-lg">{tMedical.pastHistory.title}</h4>
+                    <dl className="mt-2 space-y-1 text-sm">
+                        <ReportItem label={tMedical.pastHistory.hospitalizations.title} value={medicalHistory.pastHistory.conditions.map(c => `${c.condition} (${c.date})`).join(', ') || 'N/A'} />
+                        <ReportItem label={tMedical.pastHistory.trauma} value={medicalHistory.pastHistory.trauma} />
+                        <ReportItem label={tMedical.pastHistory.bloodTransfusions} value={medicalHistory.pastHistory.bloodTransfusions} />
+                        <ReportItem label={tMedical.pastHistory.allergies} value={medicalHistory.pastHistory.allergies} />
+                        <ReportItem label={tMedical.pastHistory.immunizations} value={medicalHistory.pastHistory.immunizations} />
+                    </dl>
+                </div>
+
+                 <div>
+                    <h4 className="font-medium text-lg">{tMedical.medications.title}</h4>
+                    <dl className="mt-2 space-y-1 text-sm">
+                        <ReportItem label={tMedical.medications.prescribed.title} value={medicalHistory.medications.prescribed.map(m => `${m.name} - ${m.dosage}`).join(', ') || 'N/A'} />
+                        <ReportItem label={tMedical.medications.supplements} value={medicalHistory.medications.supplements} />
+                        <ReportItem label={tMedical.medications.compliance.label} value={medicalHistory.medications.compliance} />
+                        <ReportItem label={tMedical.medications.recentChanges} value={medicalHistory.medications.recentChanges} />
+                    </dl>
+                </div>
+
+                 <div>
+                    <h4 className="font-medium text-lg">{tMedical.familyHistory.title}</h4>
+                     <dl className="mt-2 space-y-1 text-sm">
+                        <ReportItem label={tMedical.familyHistory.conditions.title} value={medicalHistory.familyHistory.conditions.join(', ') || 'N/A'} />
+                        <ReportItem label={tMedical.familyHistory.healthStatus} value={medicalHistory.familyHistory.familyHealthStatus} />
+                        <ReportItem label={tMedical.familyHistory.consanguinity.label} value={medicalHistory.familyHistory.consanguinity} />
+                    </dl>
+                </div>
+
+                <div>
+                    <h4 className="font-medium text-lg">{tMedical.documents.title}</h4>
+                    <div className="flex flex-wrap gap-4 text-sm mt-2">
+                        {medicalHistory.documents.reports && <div className="flex items-center gap-2"><FileIcon className="h-4 w-4" /> {tMedical.documents.reports}: {medicalHistory.documents.reports.name}</div>}
+                        {medicalHistory.documents.prescriptions && <div className="flex items-center gap-2"><FileIcon className="h-4 w-4" /> {tMedical.documents.prescriptions}: {medicalHistory.documents.prescriptions.name}</div>}
+                        {medicalHistory.documents.photos && <div className="flex items-center gap-2"><FileIcon className="h-4 w-4" /> {tMedical.documents.photos}: {medicalHistory.documents.photos.name}</div>}
+                        {!medicalHistory.documents.reports && !medicalHistory.documents.prescriptions && !medicalHistory.documents.photos && (
+                            <p className="text-sm text-muted-foreground">{tMedical.documents.noDocuments}</p>
+                        )}
+                    </div>
+                </div>
             </div>
         </Section>
         
-        {/* Placeholder for other sections */}
         <Separator />
          <div className="text-center text-muted-foreground text-sm">
             <p>{t.placeholder}</p>

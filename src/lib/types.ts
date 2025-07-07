@@ -21,11 +21,15 @@ export type PatientInfo = {
   birthPlace: string;
   deliveryType: 'normal' | 'c-section' | 'forceps' | 'vacuum';
   deliveryTime: string;
+  occupation: string;
+  maritalStatus: 'single' | 'married' | 'divorced' | 'widowed' | '';
+  dateOfVisit: string;
+  referredBy: string;
 };
 
 export type PastCondition = {
   id: number;
-  condition: string;
+  condition: string; // Also used for Hospitalizations/surgeries
   date: string;
   cured: boolean;
 };
@@ -37,15 +41,49 @@ export type CurrentMedication = {
   description: string;
 };
 
+export type ChiefComplaint = {
+  id: number;
+  complaint: string;
+  duration: string;
+  order: string;
+};
+
 export type MedicalHistoryInfo = {
-  familyHistory: string[];
-  pastHistory: PastCondition[];
-  currentSituation: {
+  chiefComplaints: ChiefComplaint[];
+  historyOfPresentIllness: {
     symptoms: string;
+    onset: 'sudden' | 'gradual' | '';
+    duration: 'continuous' | 'intermittent' | '';
+    frequencyTiming: string;
+    progression: 'improving' | 'worsening' | 'static' | '';
+    location: string;
+    radiation: string;
+    character: string;
     severity: number;
+    associatedSymptoms: string;
+    aggravatingFactors: string;
+    relievingFactors: string;
+    previousEpisodes: string;
     impact: string;
   };
-  medications: CurrentMedication[];
+  pastHistory: {
+    conditions: PastCondition[];
+    trauma: string;
+    bloodTransfusions: string;
+    allergies: string;
+    immunizations: string;
+  };
+  medications: {
+    prescribed: CurrentMedication[];
+    supplements: string;
+    compliance: 'good' | 'fair' | 'poor' | '';
+    recentChanges: string;
+  };
+  familyHistory: {
+    conditions: string[];
+    familyHealthStatus: string;
+    consanguinity: 'yes' | 'no' | 'unknown' | '';
+  };
   documents: {
     reports: File | null;
     prescriptions: File | null;

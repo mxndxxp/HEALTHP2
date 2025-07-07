@@ -89,13 +89,13 @@ export function Dashboard({ data, t }: DashboardProps) {
           <CardContent className="space-y-2">
             <p className="font-semibold">{t.medicalHistory.keyConditions}:</p>
             <div className="flex flex-wrap gap-1">
-              {data.medicalHistory.pastHistory.slice(0, 2).map(item => (
+              {data.medicalHistory.pastHistory.conditions.slice(0, 2).map(item => (
                 <Badge key={item.id} variant="secondary">{item.condition}</Badge>
               ))}
             </div>
             <p className="font-semibold pt-2">{t.medicalHistory.medications}:</p>
              <div className="flex flex-wrap gap-1">
-              {data.medicalHistory.medications.slice(0, 1).map(med => (
+              {data.medicalHistory.medications.prescribed.slice(0, 1).map(med => (
                 <Badge key={med.id}>{med.name}</Badge>
               ))}
             </div>

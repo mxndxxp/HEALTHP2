@@ -36,6 +36,10 @@ import {
   Map,
   Baby,
   Truck,
+  Briefcase,
+  Users,
+  Handshake,
+  CalendarDays,
 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { Button } from './ui/button';
@@ -151,15 +155,49 @@ export function PatientInformation({ data, setData, t }: PatientInformationProps
               </Label>
               <Input id="email" type="email" placeholder={t.emailPlaceholder} value={patientData.email} onChange={(e) => handleFieldChange('email', e.target.value)} />
             </div>
-            <div className="space-y-2 md:col-span-2">
+             <div className="space-y-2">
               <Label htmlFor="phone">
                 <IconLabel icon={Phone}>{t.phone}</IconLabel>
               </Label>
               <Input id="phone" type="tel" placeholder="+1 (555) 123-4567" value={patientData.phone} onChange={(e) => handleFieldChange('phone', e.target.value)} />
             </div>
+            <div className="space-y-2">
+                <Label htmlFor="occupation">
+                    <IconLabel icon={Briefcase}>{t.occupation}</IconLabel>
+                </Label>
+                <Input id="occupation" placeholder={t.occupationPlaceholder} value={patientData.occupation} onChange={(e) => handleFieldChange('occupation', e.target.value)} />
+            </div>
+             <div className="space-y-2">
+                <Label>
+                    <IconLabel icon={Users}>{t.maritalStatus.label}</IconLabel>
+                </Label>
+                 <Select value={patientData.maritalStatus} onValueChange={(value) => handleFieldChange('maritalStatus', value)}>
+                    <SelectTrigger>
+                        <SelectValue placeholder={t.maritalStatus.placeholder} />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="single">{t.maritalStatus.single}</SelectItem>
+                        <SelectItem value="married">{t.maritalStatus.married}</SelectItem>
+                        <SelectItem value="divorced">{t.maritalStatus.divorced}</SelectItem>
+                        <SelectItem value="widowed">{t.maritalStatus.widowed}</SelectItem>
+                    </SelectContent>
+                </Select>
+            </div>
+             <div className="space-y-2">
+                <Label htmlFor="dateOfVisit">
+                    <IconLabel icon={CalendarDays}>{t.dateOfVisit}</IconLabel>
+                </Label>
+                <Input id="dateOfVisit" type="date" value={patientData.dateOfVisit} onChange={(e) => handleFieldChange('dateOfVisit', e.target.value)} />
+            </div>
+             <div className="space-y-2">
+                <Label htmlFor="referredBy">
+                    <IconLabel icon={Handshake}>{t.referredBy}</IconLabel>
+                </Label>
+                <Input id="referredBy" placeholder={t.referredByPlaceholder} value={patientData.referredBy} onChange={(e) => handleFieldChange('referredBy', e.target.value)} />
+            </div>
           </div>
 
-          <div className="md:col-span-3 space-y-4">
+          <div className="md:col-span-3 space-y-4 border-t pt-8 mt-2">
              <Label>
               <IconLabel icon={MapPin}>{t.address.label}</IconLabel>
             </Label>
@@ -173,7 +211,7 @@ export function PatientInformation({ data, setData, t }: PatientInformationProps
             </div>
           </div>
           
-          <div className="md:col-span-3 grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="md:col-span-3 grid grid-cols-1 md:grid-cols-3 gap-6 border-t pt-8 mt-2">
             <div className="space-y-2">
               <Label htmlFor="height">
                 <IconLabel icon={Ruler}>{t.height}</IconLabel>
