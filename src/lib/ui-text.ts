@@ -149,7 +149,7 @@ export const initialUiText = {
     },
     lifestyle: {
         title: 'Lifestyle Assessment',
-        description: 'Comprehensive lifestyle evaluation across 7 key areas.',
+        description: 'Comprehensive lifestyle evaluation across key areas.',
         tabs: {
             sleep: 'Sleep',
             diet: 'Diet',
@@ -158,9 +158,10 @@ export const initialUiText = {
             substance: 'Substance',
             stool: 'Stool',
             urine: 'Urine',
+            menstruation: 'Menstruation',
         },
         photoAndNotes: {
-            title: 'Additional Information',
+            title: 'Additional Information for {section}',
             notesLabel: 'Notes',
             notesPlaceholder: 'Any additional notes for {section}...',
             photoLabel: 'Upload Related Photo',
@@ -172,6 +173,7 @@ export const initialUiText = {
             quality: 'Sleep Quality',
             selectQuality: 'Select quality',
             qualityOptions: ['Excellent', 'Good', 'Fair', 'Poor'],
+            qualityValues: { excellent: 'Excellent', good: 'Good', fair: 'Fair', poor: 'Poor' },
             issues: 'Sleep Issues (select all that apply)',
             issueOptions: ['Insomnia', 'Sleep apnea', 'Snoring', 'Restless legs', 'Nightmares', 'Frequent awakening'],
             dreams: 'Dreams',
@@ -191,6 +193,15 @@ export const initialUiText = {
             favoriteFoodPlaceholder: 'e.g., Pizza, Salad, Sushi',
             allergies: 'Food Allergies/Intolerances',
             allergiesPlaceholder: 'e.g., Lactose, Gluten, Nuts',
+            taste: {
+                title: 'Predominant Tastes (select all that apply)',
+                options: { sweet: 'Sweet', sour: 'Sour', salty: 'Salty', bitter: 'Bitter', pungent: 'Pungent', astringent: 'Astringent' },
+            },
+            thirst: {
+                title: 'Thirst Level',
+                select: 'Select thirst level',
+                options: { low: 'Low', normal: 'Normal', high: 'High' },
+            },
         },
         activity: {
             title: 'Physical Activity',
@@ -200,7 +211,7 @@ export const initialUiText = {
             levelValues: { sedentary: 'Sedentary', lightly: 'Lightly Active', moderately: 'Moderately Active', very: 'Very Active' },
         },
         stress: {
-            title: 'Stress & Caffeine',
+            title: 'Stress & Emotion',
             level: 'Stress Level',
             selectLevel: 'Select stress level',
             levelOptions: ['😌 Low', '😐 Moderate', '😰 High', '😱 Very High'],
@@ -209,6 +220,12 @@ export const initialUiText = {
             selectCaffeine: 'Select caffeine intake',
             caffeineOptions: ['None (0mg)', 'Low (1-100mg)', 'Moderate (100-300mg)', 'High (300-500mg)', 'Excessive (>500mg)'],
             caffeineValues: { none: 'None', low: 'Low', moderate: 'Moderate', high: 'High', excessive: 'Excessive' },
+            emotion: {
+                title: 'Primary Emotion Lately',
+                select: 'Select primary emotion',
+                options: { happy: 'Happy', sad: 'Sad', anxious: 'Anxious', angry: 'Angry', calm: 'Calm', other: 'Other' },
+                otherPlaceholder: 'Please specify other emotion',
+            }
         },
         substance: {
             title: 'Smoking & Alcohol',
@@ -233,13 +250,40 @@ export const initialUiText = {
         urine: {
             title: 'Urine Analysis',
             color: 'Urine Color',
-            frequency: 'Frequency',
-            selectFrequency: 'Select urination frequency',
-            frequencyOptions: ['Normal (4-7 times/day)', 'Frequent (>7 times/day)', 'Infrequent (<4 times/day)', 'Waking up at night to urinate'],
-            frequencyValues: { normal: 'Normal', frequent: 'Frequent', infrequent: 'Infrequent', nocturia: 'Nocturia' },
+            day_frequency: 'Daytime Frequency',
+            select_day_frequency: 'Select daytime frequency',
+            dayFrequencyOptions: { normal: 'Normal (4-7 times)', frequent: 'Frequent (>7 times)', infrequent: 'Infrequent (<4 times)'},
+            night_frequency: 'Nighttime Frequency',
+            select_night_frequency: 'Select nighttime frequency',
+            nightFrequencyOptions: { '0-1': '0-1 time', '2-3': '2-3 times', '4+': '4+ times' },
             problems: 'Urine Problems (select all that apply)',
             problemOptions: ['Pain or Burning', 'Difficulty Starting', 'Weak Stream', 'Urgency', 'Incontinence / Leakage', 'Cloudy Urine', 'Strong Odor'],
         },
+        menstruation: {
+            title: 'Menstrual Cycle Details',
+            lastPeriod: 'Last Period Start Date',
+            cycleLength: 'Cycle Length (days)',
+            duration: 'Duration (days)',
+            regularity: {
+                title: 'Is your cycle regular?',
+                select: 'Select option',
+                yes: 'Yes',
+                no: 'No',
+            },
+            flow: {
+                title: 'Flow',
+                select: 'Select flow type',
+                options: { light: 'Light', medium: 'Medium', heavy: 'Heavy' },
+            },
+            bloodColor: {
+                title: 'Blood Color',
+            },
+            symptoms: {
+                title: 'Symptoms (select all that apply)',
+                options: ['Cramps', 'Bloating', 'Headaches', 'Mood Swings', 'Fatigue', 'Acne', 'Breast Tenderness'],
+            },
+            painLevel: 'Pain Level (1-10)',
+        }
     },
     senses: {
         title: 'Sense Organ & System Assessment',

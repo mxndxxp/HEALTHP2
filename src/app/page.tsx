@@ -71,9 +71,80 @@ const initialHealthData: HealthData = {
     },
   },
   lifestyleAssessment: {
+    sleep: {
+      bedtime: '22:30',
+      wakeTime: '06:30',
+      quality: 'good',
+      issues: [],
+      dreamFrequency: 'sometimes',
+      notes: '',
+      photo: null,
+    },
+    diet: {
+      dietType: 'omnivore',
+      waterIntake: 2.5,
       hungerLevel: 5,
       favoriteFood: '',
-  }
+      foodAllergies: '',
+      tastes: {
+        sweet: false,
+        sour: false,
+        salty: false,
+        bitter: false,
+        pungent: false,
+        astringent: false,
+      },
+      thirstLevel: 'normal',
+      notes: '',
+      photo: null,
+    },
+    activity: {
+      level: 'moderately',
+      notes: '',
+      photo: null,
+    },
+    stress: {
+      level: 'moderate',
+      caffeineIntake: 'low',
+      primaryEmotion: 'calm',
+      emotionNotes: '',
+      notes: '',
+      photo: null,
+    },
+    substance: {
+      smokingStatus: 'never',
+      alcoholConsumption: 'occasionally',
+      notes: '',
+      photo: null,
+    },
+    stool: {
+      color: 'Brown',
+      type: '4',
+      problems: [],
+      notes: '',
+      photo: null,
+    },
+    urine: {
+      color: 'Yellow',
+      dayFrequency: 'normal',
+      nightFrequency: '0-1',
+      problems: [],
+      notes: '',
+      photo: null,
+    },
+    menstruation: {
+      lastPeriodDate: '',
+      cycleLength: 28,
+      duration: 5,
+      isRegular: 'yes',
+      flow: 'medium',
+      bloodColor: 'Bright Red',
+      symptoms: [],
+      painLevel: 3,
+      notes: '',
+      photo: null,
+    },
+  },
 };
 
 
@@ -137,7 +208,7 @@ export default function Home() {
 
   const componentProps = {
     data: healthData,
-    setData: setHealthData,
+    setData: setHealthData, // Passing full setter for complex state updates
     onDataChange: handleDataChange,
     t: componentStrings,
   };

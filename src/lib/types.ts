@@ -54,8 +54,79 @@ export type MedicalHistoryInfo = {
 };
 
 export type LifestyleAssessmentInfo = {
+  sleep: {
+    bedtime: string;
+    wakeTime: string;
+    quality: 'excellent' | 'good' | 'fair' | 'poor' | '';
+    issues: string[];
+    dreamFrequency: 'never' | 'sometimes' | 'often' | 'vivid' | '';
+    notes: string;
+    photo: File | null;
+  };
+  diet: {
+    dietType: 'omnivore' | 'vegetarian' | 'vegan' | 'pescatarian' | '';
+    waterIntake: number;
     hungerLevel: number;
     favoriteFood: string;
+    foodAllergies: string;
+    tastes: {
+      sweet: boolean;
+      sour: boolean;
+      salty: boolean;
+      bitter: boolean;
+      pungent: boolean;
+      astringent: boolean;
+    };
+    thirstLevel: 'low' | 'normal' | 'high' | '';
+    notes: string;
+    photo: File | null;
+  };
+  activity: {
+    level: 'sedentary' | 'lightly' | 'moderately' | 'very' | '';
+    notes: string;
+    photo: File | null;
+  };
+  stress: {
+    level: 'low' | 'moderate' | 'high' | 'very-high' | '';
+    caffeineIntake: 'none' | 'low' | 'moderate' | 'high' | 'excessive' | '';
+    primaryEmotion: 'happy' | 'sad' | 'anxious' | 'angry' | 'calm' | 'other' | '';
+    emotionNotes: string;
+    notes: string;
+    photo: File | null;
+  };
+  substance: {
+    smokingStatus: 'never' | 'former' | 'occasional' | 'regular' | '';
+    alcoholConsumption: 'never' | 'rarely' | 'occasionally' | 'weekly' | 'daily' | '';
+    notes: string;
+    photo: File | null;
+  };
+  stool: {
+    color: string;
+    type: string;
+    problems: string[];
+    notes: string;
+    photo: File | null;
+  };
+  urine: {
+    color: string;
+    dayFrequency: 'normal' | 'frequent' | 'infrequent' | '';
+    nightFrequency: '0-1' | '2-3' | '4+' | '';
+    problems: string[];
+    notes: string;
+    photo: File | null;
+  };
+  menstruation: {
+    lastPeriodDate: string;
+    cycleLength: number;
+    duration: number;
+    isRegular: 'yes' | 'no' | 'na';
+    flow: 'light' | 'medium' | 'heavy' | '';
+    bloodColor: string;
+    symptoms: string[];
+    painLevel: number;
+    notes: string;
+    photo: File | null;
+  };
 };
 
 export type HealthData = {
