@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { SidebarNav } from '@/components/layout/sidebar-nav';
 import { Header } from '@/components/layout/header';
 import { PatientInformation } from '@/components/patient-information';
@@ -43,7 +43,7 @@ const initialHealthData: HealthData = {
     },
     height: '180',
     weight: '75',
-    uniqueId: `HC-${Date.now()}-A9B8C7`,
+    uniqueId: 'Generating...',
     avatar: "https://placehold.co/200x200.png",
     dob: '',
     birthTime: '',
@@ -83,6 +83,17 @@ export default function Home() {
   const [uiText, setUiText] = useState(initialUiText);
   const [isTranslating, setIsTranslating] = useState(false);
   const { toast } = useToast();
+
+  useEffect(() => {
+    // Generate unique ID on the client side after mount to avoid hydration mismatch
+    setHealthData(prev => ({
+      ...prev,
+      patientInfo: {
+        ...prev.patientInfo,
+        uniqueId: `HC-${Date.now()}-A9B8C7`
+      }
+    }));
+  }, []); // Empty dependency array ensures this runs only once on mount
 
   const handleLanguageChange = async (language: string) => {
     if (language === 'en') {
