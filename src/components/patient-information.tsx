@@ -57,9 +57,10 @@ const IconLabel = ({
 type PatientInformationProps = {
   data: HealthData;
   setData: (data: HealthData) => void;
+  t: any;
 };
 
-export function PatientInformation({ data, setData }: PatientInformationProps) {
+export function PatientInformation({ data, setData, t }: PatientInformationProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const patientData = data.patientInfo;
 
@@ -88,11 +89,8 @@ export function PatientInformation({ data, setData }: PatientInformationProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Patient Basic Information</CardTitle>
-        <CardDescription>
-          Collect comprehensive demographic and physical information about the
-          patient.
-        </CardDescription>
+        <CardTitle>{t.title}</CardTitle>
+        <CardDescription>{t.description}</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-1 gap-x-6 gap-y-8 md:grid-cols-3">
@@ -105,7 +103,7 @@ export function PatientInformation({ data, setData }: PatientInformationProps) {
             </Avatar>
             <Button variant="outline" onClick={() => fileInputRef.current?.click()}>
                 <Upload className="mr-2 h-4 w-4" />
-                Upload Photo
+                {t.uploadButton}
             </Button>
             <Input 
                 type="file" 
@@ -118,44 +116,44 @@ export function PatientInformation({ data, setData }: PatientInformationProps) {
           <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-8">
             <div className="space-y-2">
               <Label htmlFor="name">
-                <IconLabel icon={User}>Full Name</IconLabel>
+                <IconLabel icon={User}>{t.fullName}</IconLabel>
               </Label>
-              <Input id="name" placeholder="John Doe" value={patientData.name} onChange={(e) => handleFieldChange('name', e.target.value)} />
+              <Input id="name" placeholder={t.fullNamePlaceholder} value={patientData.name} onChange={(e) => handleFieldChange('name', e.target.value)} />
             </div>
             <div className="space-y-2">
               <Label htmlFor="age">
-                <IconLabel icon={Calendar}>Age</IconLabel>
+                <IconLabel icon={Calendar}>{t.age}</IconLabel>
               </Label>
               <Input id="age" type="number" placeholder="35" value={patientData.age} onChange={(e) => handleFieldChange('age', e.target.value)} />
             </div>
             <div className="space-y-2">
               <Label>
-                <IconLabel icon={Heart}>Gender</IconLabel>
+                <IconLabel icon={Heart}>{t.gender}</IconLabel>
               </Label>
               <RadioGroup value={patientData.gender} onValueChange={(value) => handleFieldChange('gender', value)} className="flex items-center gap-4 pt-2">
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="male" id="male" />
-                  <Label htmlFor="male">Male</Label>
+                  <Label htmlFor="male">{t.genderMale}</Label>
                 </div>
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="female" id="female" />
-                  <Label htmlFor="female">Female</Label>
+                  <Label htmlFor="female">{t.genderFemale}</Label>
                 </div>
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="non-binary" id="non-binary" />
-                  <Label htmlFor="non-binary">Non-binary</Label>
+                  <Label htmlFor="non-binary">{t.genderNonBinary}</Label>
                 </div>
               </RadioGroup>
             </div>
             <div className="space-y-2">
               <Label htmlFor="email">
-                <IconLabel icon={Mail}>Email</IconLabel>
+                <IconLabel icon={Mail}>{t.email}</IconLabel>
               </Label>
-              <Input id="email" type="email" placeholder="john.doe@example.com" value={patientData.email} onChange={(e) => handleFieldChange('email', e.target.value)} />
+              <Input id="email" type="email" placeholder={t.emailPlaceholder} value={patientData.email} onChange={(e) => handleFieldChange('email', e.target.value)} />
             </div>
             <div className="space-y-2 md:col-span-2">
               <Label htmlFor="phone">
-                <IconLabel icon={Phone}>Phone Number</IconLabel>
+                <IconLabel icon={Phone}>{t.phone}</IconLabel>
               </Label>
               <Input id="phone" type="tel" placeholder="+1 (555) 123-4567" value={patientData.phone} onChange={(e) => handleFieldChange('phone', e.target.value)} />
             </div>
@@ -163,34 +161,34 @@ export function PatientInformation({ data, setData }: PatientInformationProps) {
 
           <div className="md:col-span-3 space-y-4">
              <Label>
-              <IconLabel icon={MapPin}>Address</IconLabel>
+              <IconLabel icon={MapPin}>{t.address.label}</IconLabel>
             </Label>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                 <Input id="address1" placeholder="Address Line 1" value={patientData.address.line1} onChange={(e) => handleFieldChange('address.line1', e.target.value)} />
-                 <Input id="address2" placeholder="Address Line 2 (Optional)" value={patientData.address.line2} onChange={(e) => handleFieldChange('address.line2', e.target.value)} />
-                 <Input id="city" placeholder="City" value={patientData.address.city} onChange={(e) => handleFieldChange('address.city', e.target.value)} />
-                 <Input id="district" placeholder="District / County" value={patientData.address.district} onChange={(e) => handleFieldChange('address.district', e.target.value)} />
-                 <Input id="state" placeholder="State / Province" value={patientData.address.state} onChange={(e) => handleFieldChange('address.state', e.target.value)} />
-                 <Input id="postal-code" placeholder="Postal / Zip Code" value={patientData.address.postalCode} onChange={(e) => handleFieldChange('address.postalCode', e.target.value)} />
+                 <Input id="address1" placeholder={t.address.line1} value={patientData.address.line1} onChange={(e) => handleFieldChange('address.line1', e.target.value)} />
+                 <Input id="address2" placeholder={t.address.line2} value={patientData.address.line2} onChange={(e) => handleFieldChange('address.line2', e.target.value)} />
+                 <Input id="city" placeholder={t.address.city} value={patientData.address.city} onChange={(e) => handleFieldChange('address.city', e.target.value)} />
+                 <Input id="district" placeholder={t.address.district} value={patientData.address.district} onChange={(e) => handleFieldChange('address.district', e.target.value)} />
+                 <Input id="state" placeholder={t.address.state} value={patientData.address.state} onChange={(e) => handleFieldChange('address.state', e.target.value)} />
+                 <Input id="postal-code" placeholder={t.address.postalCode} value={patientData.address.postalCode} onChange={(e) => handleFieldChange('address.postalCode', e.target.value)} />
             </div>
           </div>
           
           <div className="md:col-span-3 grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="space-y-2">
               <Label htmlFor="height">
-                <IconLabel icon={Ruler}>Height (cm)</IconLabel>
+                <IconLabel icon={Ruler}>{t.height}</IconLabel>
               </Label>
               <Input id="height" type="number" placeholder="180" value={patientData.height} onChange={(e) => handleFieldChange('height', e.target.value)} />
             </div>
             <div className="space-y-2">
               <Label htmlFor="weight">
-                <IconLabel icon={Weight}>Weight (kg)</IconLabel>
+                <IconLabel icon={Weight}>{t.weight}</IconLabel>
               </Label>
               <Input id="weight" type="number" placeholder="75" value={patientData.weight} onChange={(e) => handleFieldChange('weight', e.target.value)} />
             </div>
             <div className="space-y-2">
                 <Label>
-                <IconLabel icon={BadgeInfo}>Unique ID</IconLabel>
+                <IconLabel icon={BadgeInfo}>{t.uniqueId}</IconLabel>
                 </Label>
                 <Input id="uniqueId" value={patientData.uniqueId} readOnly className="font-mono bg-muted" />
             </div>
@@ -199,43 +197,43 @@ export function PatientInformation({ data, setData }: PatientInformationProps) {
           <div className="md:col-span-3 border-t pt-8 mt-2 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <div className="space-y-2">
                 <Label htmlFor="dob">
-                    <IconLabel icon={Calendar}>Date of Birth</IconLabel>
+                    <IconLabel icon={Calendar}>{t.dob}</IconLabel>
                 </Label>
                 <Input id="dob" type="date" value={patientData.dob} onChange={(e) => handleFieldChange('dob', e.target.value)} />
             </div>
             <div className="space-y-2">
                 <Label htmlFor="birth-time">
-                    <IconLabel icon={Clock}>Birth Time</IconLabel>
+                    <IconLabel icon={Clock}>{t.birthTime}</IconLabel>
                 </Label>
                 <Input id="birth-time" type="time" value={patientData.birthTime} onChange={(e) => handleFieldChange('birthTime', e.target.value)} />
             </div>
             <div className="space-y-2">
                 <Label htmlFor="birth-place">
-                    <IconLabel icon={Map}>Birth Place</IconLabel>
+                    <IconLabel icon={Map}>{t.birthPlace}</IconLabel>
                 </Label>
-                <Input id="birth-place" placeholder="City, State, Country" value={patientData.birthPlace} onChange={(e) => handleFieldChange('birthPlace', e.target.value)} />
+                <Input id="birth-place" placeholder={t.birthPlacePlaceholder} value={patientData.birthPlace} onChange={(e) => handleFieldChange('birthPlace', e.target.value)} />
             </div>
             <div className="space-y-2">
                 <Label>
-                    <IconLabel icon={Baby}>Delivery Type</IconLabel>
+                    <IconLabel icon={Baby}>{t.deliveryType.label}</IconLabel>
                 </Label>
                 <Select value={patientData.deliveryType} onValueChange={(value) => handleFieldChange('deliveryType', value)}>
                     <SelectTrigger>
-                        <SelectValue placeholder="Select type" />
+                        <SelectValue placeholder={t.deliveryType.placeholder} />
                     </SelectTrigger>
                     <SelectContent>
-                        <SelectItem value="normal">Normal</SelectItem>
-                        <SelectItem value="c-section">C-Section</SelectItem>
-                        <SelectItem value="forceps">Forceps</SelectItem>
-                        <SelectItem value="vacuum">Vacuum</SelectItem>
+                        <SelectItem value="normal">{t.deliveryType.normal}</SelectItem>
+                        <SelectItem value="c-section">{t.deliveryType.cSection}</SelectItem>
+                        <SelectItem value="forceps">{t.deliveryType.forceps}</SelectItem>
+                        <SelectItem value="vacuum">{t.deliveryType.vacuum}</SelectItem>
                     </SelectContent>
                 </Select>
             </div>
             <div className="space-y-2">
                 <Label htmlFor="delivery-time">
-                    <IconLabel icon={Truck}>Delivery Time</IconLabel>
+                    <IconLabel icon={Truck}>{t.deliveryTime.label}</IconLabel>
                 </Label>
-                <Input id="delivery-time" placeholder="e.g., Full-term, Preterm" value={patientData.deliveryTime} onChange={(e) => handleFieldChange('deliveryTime', e.target.value)} />
+                <Input id="delivery-time" placeholder={t.deliveryTime.placeholder} value={patientData.deliveryTime} onChange={(e) => handleFieldChange('deliveryTime', e.target.value)} />
             </div>
           </div>
         </div>

@@ -13,6 +13,8 @@ import { HealthReport } from '@/components/health-report';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import type { HealthData } from '@/lib/types';
 import { translateText } from '@/ai/flows/translator';
+import { initialUiText } from '@/lib/ui-text';
+import { useToast } from '@/hooks/use-toast';
 
 const sectionComponents: { [key: string]: React.ComponentType<any> } = {
   dashboard: Dashboard,
@@ -23,16 +25,6 @@ const sectionComponents: { [key: string]: React.ComponentType<any> } = {
   healthReport: HealthReport,
   aiInsights: AiInsights,
 };
-
-const initialSectionTitles: { [key: string]: string } = {
-    dashboard: 'Dashboard',
-    patientInfo: 'Patient Information',
-    medicalHistory: 'Medical History',
-    lifestyle: 'Lifestyle Assessment',
-    senses: 'Sense Organ Assessment',
-    healthReport: 'Health Report',
-    aiInsights: 'AI Health Insights',
-}
 
 const initialHealthData: HealthData = {
   patientInfo: {
@@ -88,34 +80,39 @@ const initialHealthData: HealthData = {
 export default function Home() {
   const [activeSection, setActiveSection] = useState('dashboard');
   const [healthData, setHealthData] = useState<HealthData>(initialHealthData);
-  const [sectionTitles, setSectionTitles] = useState(initialSectionTitles);
+  const [uiText, setUiText] = useState(initialUiText);
   const [isTranslating, setIsTranslating] = useState(false);
+  const { toast } = useToast();
 
   const handleLanguageChange = async (language: string) => {
     if (language === 'en') {
-      setSectionTitles(initialSectionTitles);
+      setUiText(initialUiText);
       return;
     }
     setIsTranslating(true);
     try {
-      const translationPromises = Object.entries(initialSectionTitles).map(async ([key, title]) => {
-        const result = await translateText({ text: title, targetLanguage: language });
-        return { [key]: result.translatedText };
-      });
-      const translatedPairs = await Promise.all(translationPromises);
-      const newTitles = Object.assign({}, ...translatedPairs);
-      setSectionTitles(newTitles);
+      const jsonToTranslate = JSON.stringify(initialUiText);
+      const result = await translateText({ text: jsonToTranslate, targetLanguage: language });
+      const translatedUi = JSON.parse(result.translatedText);
+      setUiText(translatedUi);
     } catch (error) {
       console.error("Translation failed", error);
+      toast({
+        title: "Translation Failed",
+        description: "Could not translate the UI. Please try again or select another language.",
+        variant: "destructive",
+      });
+      setUiText(initialUiText); // Revert to English on failure
     } finally {
       setIsTranslating(false);
     }
   };
 
   const ActiveComponent = sectionComponents[activeSection];
-  const activeTitle = sectionTitles[activeSection];
+  const activeTitle = uiText.sectionTitles[activeSection as keyof typeof uiText.sectionTitles];
+  const componentStrings = uiText.components[activeSection as keyof typeof uiText.components];
 
-  const sidebar = <SidebarNav activeSection={activeSection} setActiveSection={setActiveSection} sectionTitles={sectionTitles} />;
+  const sidebar = <SidebarNav activeSection={activeSection} setActiveSection={setActiveSection} sectionTitles={uiText.sectionTitles} />;
 
   const handleDataChange = (section: keyof HealthData, data: any) => {
     setHealthData(prev => ({
@@ -131,6 +128,7 @@ export default function Home() {
     data: healthData,
     setData: setHealthData,
     onDataChange: handleDataChange,
+    t: componentStrings,
   };
 
   return (
@@ -139,7 +137,13 @@ export default function Home() {
         {sidebar}
       </div>
       <div className="flex flex-col">
-        <Header title={activeTitle} sidebar={sidebar} onLanguageChange={handleLanguageChange} isTranslating={isTranslating} />
+        <Header 
+          title={activeTitle} 
+          sidebar={sidebar} 
+          onLanguageChange={handleLanguageChange} 
+          isTranslating={isTranslating} 
+          t={uiText.components.header} 
+        />
         <main className="flex-1 overflow-auto bg-muted/40">
             <ScrollArea className="h-[calc(100vh-65px)]">
                  <div className="p-4 sm:p-6">
@@ -148,7 +152,7 @@ export default function Home() {
             </ScrollArea>
         </main>
       </div>
-      <ChatBot />
+      <ChatBot t={uiText.components.chatbot} />
     </div>
   );
 }

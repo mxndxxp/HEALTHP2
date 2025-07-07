@@ -17,9 +17,10 @@ import type { HealthData } from '@/lib/types';
 
 type AiInsightsProps = {
   data: HealthData;
+  t: any;
 };
 
-export function AiInsights({ data }: AiInsightsProps) {
+export function AiInsights({ data, t }: AiInsightsProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<HealthInsightsOutput | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -54,7 +55,7 @@ export function AiInsights({ data }: AiInsightsProps) {
       const errorMessage = e instanceof Error ? e.message : 'An unexpected error occurred.';
       setError(errorMessage);
       toast({
-        title: "Error Generating Insights",
+        title: t.errorTitle,
         description: errorMessage,
         variant: "destructive"
       });
@@ -67,22 +68,20 @@ export function AiInsights({ data }: AiInsightsProps) {
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>AI Health Analysis Engine</CardTitle>
-          <CardDescription>
-            Click the button below to generate AI-powered health insights based on the complete patient report. Ensure all sections have been filled out for the most accurate analysis.
-          </CardDescription>
+          <CardTitle>{t.title}</CardTitle>
+          <CardDescription>{t.description}</CardDescription>
         </CardHeader>
         <CardFooter>
           <Button onClick={handleSubmit} disabled={isLoading} size="lg">
             {isLoading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Analyzing Full Report...
+                {t.buttonLoading}
               </>
             ) : (
               <>
                 <Sparkles className="mr-2 h-4 w-4" />
-                Generate Insights from Full Report
+                {t.buttonText}
               </>
             )}
           </Button>
@@ -92,7 +91,7 @@ export function AiInsights({ data }: AiInsightsProps) {
       {error && (
          <Card className="border-destructive">
             <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-destructive"><AlertTriangle /> Error</CardTitle>
+                <CardTitle className="flex items-center gap-2 text-destructive"><AlertTriangle /> {t.errorCardTitle}</CardTitle>
             </CardHeader>
             <CardContent>
                 <p>{error}</p>
@@ -103,19 +102,19 @@ export function AiInsights({ data }: AiInsightsProps) {
       {result && (
         <Card>
             <CardHeader>
-                <CardTitle className="flex items-center gap-2"><Lightbulb /> AI-Generated Insights</CardTitle>
+                <CardTitle className="flex items-center gap-2"><Lightbulb /> {t.resultsTitle}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
                 <div>
-                    <h3 className="font-semibold text-lg">Diagnostic Summary</h3>
+                    <h3 className="font-semibold text-lg">{t.summary}</h3>
                     <p className="text-muted-foreground mt-1 whitespace-pre-wrap">{result.diagnosticSummary}</p>
                 </div>
                  <div>
-                    <h3 className="font-semibold text-lg">Potential Conditions</h3>
+                    <h3 className="font-semibold text-lg">{t.conditions}</h3>
                     <p className="text-muted-foreground mt-1 whitespace-pre-wrap">{result.potentialConditions}</p>
                 </div>
                  <div>
-                    <h3 className="font-semibold text-lg">Lifestyle Recommendations</h3>
+                    <h3 className="font-semibold text-lg">{t.recommendations}</h3>
                     <p className="text-muted-foreground mt-1 whitespace-pre-wrap">{result.lifestyleRecommendations}</p>
                 </div>
             </CardContent>

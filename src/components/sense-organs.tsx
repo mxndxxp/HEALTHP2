@@ -128,53 +128,52 @@ const organSystems = [
 ];
 
 
-const PhotoAndNotes = ({ section }: { section: string }) => (
+const PhotoAndNotes = ({ section, t }: { section: string, t: any }) => (
     <div className="mt-4 space-y-4 rounded-lg border bg-muted/20 p-4">
-        <h4 className="font-semibold text-muted-foreground text-sm">Additional Details for {section}</h4>
+        <h4 className="font-semibold text-muted-foreground text-sm">{t.title.replace('{section}', section)}</h4>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-                <Label htmlFor={`notes-${section}`}>Problem Details</Label>
-                <Textarea id={`notes-${section}`} placeholder={`Describe the problem in detail...`} rows={3}/>
+                <Label htmlFor={`notes-${section}`}>{t.problemDetails}</Label>
+                <Textarea id={`notes-${section}`} placeholder={t.problemPlaceholder} rows={3}/>
             </div>
             <div className="space-y-2">
-                <Label htmlFor={`photo-${section}`}>Upload Related Photo</Label>
+                <Label htmlFor={`photo-${section}`}>{t.photoLabel}</Label>
                 <Input id={`photo-${section}`} type="file" />
             </div>
         </div>
     </div>
 );
 
+type SenseOrgansProps = {
+  t: any;
+};
 
-export function SenseOrgans() {
+export function SenseOrgans({ t }: SenseOrgansProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Sense Organ & System Assessment</CardTitle>
-        <CardDescription>
-          Comprehensive sensory system evaluation with interactive tools.
-        </CardDescription>
+        <CardTitle>{t.title}</CardTitle>
+        <CardDescription>{t.description}</CardDescription>
       </CardHeader>
       <CardContent>
         <Tabs defaultValue="dental">
           <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="dental">Dental</TabsTrigger>
-            <TabsTrigger value="other-systems">Other Systems</TabsTrigger>
+            <TabsTrigger value="dental">{t.tabs.dental}</TabsTrigger>
+            <TabsTrigger value="other-systems">{t.tabs.otherSystems}</TabsTrigger>
           </TabsList>
 
           <TabsContent value="dental" className="mt-4">
             <Card>
               <CardHeader>
-                <CardTitle>Interactive Dental Diagram</CardTitle>
-                <CardDescription>
-                  Select teeth and specify conditions.
-                </CardDescription>
+                <CardTitle>{t.dental.title}</CardTitle>
+                <CardDescription>{t.dental.description}</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="rounded-lg border p-4 flex justify-center">
                   <InteractiveDentalChart />
                 </div>
                 <div>
-                  <Label className="font-semibold">Dental Conditions</Label>
+                  <Label className="font-semibold">{t.dental.conditionsLabel}</Label>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-2">
                     {dentalConditions.map((condition) => (
                       <div key={condition} className="flex items-center gap-2">
@@ -184,7 +183,7 @@ export function SenseOrgans() {
                     ))}
                   </div>
                 </div>
-                 <PhotoAndNotes section="Dental" />
+                 <PhotoAndNotes section={t.tabs.dental} t={t.photoAndNotes}/>
               </CardContent>
             </Card>
           </TabsContent>
@@ -192,10 +191,8 @@ export function SenseOrgans() {
           <TabsContent value="other-systems" className="mt-4">
             <Card>
               <CardHeader>
-                <CardTitle>Organ & System Review</CardTitle>
-                <CardDescription>
-                  Note any issues with the following systems.
-                </CardDescription>
+                <CardTitle>{t.otherSystems.title}</CardTitle>
+                <CardDescription>{t.otherSystems.description}</CardDescription>
               </CardHeader>
               <CardContent>
                 <Accordion type="single" collapsible className="w-full">
@@ -222,7 +219,7 @@ export function SenseOrgans() {
                           ))}
                         </div>
                         <div className="px-4 pb-4">
-                           <PhotoAndNotes section={system.name} />
+                           <PhotoAndNotes section={system.name} t={t.photoAndNotes}/>
                         </div>
                       </AccordionContent>
                     </AccordionItem>

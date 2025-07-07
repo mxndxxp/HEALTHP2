@@ -53,16 +53,16 @@ const urineColors = [
     { name: 'Brown', color: '#8B4513' },
 ];
 
-const PhotoAndNotes = ({ section }: { section: string }) => (
+const PhotoAndNotes = ({ section, t }: { section: string, t: any }) => (
     <div className="mt-6 space-y-4 rounded-lg border bg-muted/20 p-4">
-        <h4 className="font-semibold text-muted-foreground">Additional Information</h4>
+        <h4 className="font-semibold text-muted-foreground">{t.title}</h4>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-                <Label htmlFor={`notes-${section}`}>Notes</Label>
-                <Textarea id={`notes-${section}`} placeholder={`Any additional notes for ${section.toLowerCase()}...`} />
+                <Label htmlFor={`notes-${section}`}>{t.notesLabel}</Label>
+                <Textarea id={`notes-${section}`} placeholder={t.notesPlaceholder.replace('{section}', section)} />
             </div>
             <div className="space-y-2">
-                <Label htmlFor={`photo-${section}`}>Upload Related Photo</Label>
+                <Label htmlFor={`photo-${section}`}>{t.photoLabel}</Label>
                 <Input id={`photo-${section}`} type="file" />
             </div>
         </div>
@@ -81,10 +81,11 @@ const TestTubeIcon = ({ color, name, selected, onClick }: { color: string, name:
 type LifestyleAssessmentProps = {
   data: HealthData;
   onDataChange: (section: keyof HealthData, data: any) => void;
+  t: any;
 };
 
 
-export function LifestyleAssessment({ data, onDataChange }: LifestyleAssessmentProps) {
+export function LifestyleAssessment({ data, onDataChange, t }: LifestyleAssessmentProps) {
   const [selectedStoolColor, setSelectedStoolColor] = useState<string | null>(null);
   const [selectedUrineColor, setSelectedUrineColor] = useState<string | null>(null);
   const [waterIntake, setWaterIntake] = useState(2.5);
@@ -100,57 +101,46 @@ export function LifestyleAssessment({ data, onDataChange }: LifestyleAssessmentP
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Lifestyle Assessment</CardTitle>
-        <CardDescription>
-          Comprehensive lifestyle evaluation across 7 key areas.
-        </CardDescription>
+        <CardTitle>{t.title}</CardTitle>
+        <CardDescription>{t.description}</CardDescription>
       </CardHeader>
       <CardContent>
         <Tabs defaultValue="sleep" className="w-full">
           <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 lg:grid-cols-7">
-            <TabsTrigger value="sleep">Sleep</TabsTrigger>
-            <TabsTrigger value="diet">Diet</TabsTrigger>
-            <TabsTrigger value="activity">Activity</TabsTrigger>
-            <TabsTrigger value="stress">Stress</TabsTrigger>
-            <TabsTrigger value="substance">Substance</TabsTrigger>
-            <TabsTrigger value="stool">Stool</TabsTrigger>
-            <TabsTrigger value="urine">Urine</TabsTrigger>
+            {Object.keys(t.tabs).map(key => <TabsTrigger key={key} value={key}>{t.tabs[key]}</TabsTrigger>)}
           </TabsList>
 
           <TabsContent value="sleep" className="mt-4">
             <Card>
               <CardHeader>
-                <CardTitle>Sleep Patterns</CardTitle>
+                <CardTitle>{t.sleep.title}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                        <Label htmlFor="sleep-time">Bedtime</Label>
+                        <Label htmlFor="sleep-time">{t.sleep.bedtime}</Label>
                         <Input id="sleep-time" type="time" defaultValue="22:30"/>
                     </div>
                      <div className="space-y-2">
-                        <Label htmlFor="wake-time">Wake-up Time</Label>
+                        <Label htmlFor="wake-time">{t.sleep.wakeTime}</Label>
                         <Input id="wake-time" type="time" defaultValue="06:30"/>
                     </div>
                 </div>
                  <div className="space-y-2">
-                    <Label>Sleep Quality</Label>
+                    <Label>{t.sleep.quality}</Label>
                      <Select defaultValue="good">
                       <SelectTrigger>
-                        <SelectValue placeholder="Select quality" />
+                        <SelectValue placeholder={t.sleep.selectQuality} />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="excellent">Excellent</SelectItem>
-                        <SelectItem value="good">Good</SelectItem>
-                        <SelectItem value="fair">Fair</SelectItem>
-                        <SelectItem value="poor">Poor</SelectItem>
+                        {t.sleep.qualityOptions.map((opt: string, i: number) => <SelectItem key={i} value={opt.toLowerCase()}>{opt}</SelectItem>)}
                       </SelectContent>
                     </Select>
                 </div>
                  <div className="space-y-2">
-                    <Label>Sleep Issues (select all that apply)</Label>
+                    <Label>{t.sleep.issues}</Label>
                     <div className="grid grid-cols-2 gap-2">
-                        {['Insomnia', 'Sleep apnea', 'Snoring', 'Restless legs', 'Nightmares', 'Frequent awakening'].map(issue => (
+                        {t.sleep.issueOptions.map((issue: string) => (
                             <div key={issue} className="flex items-center gap-2">
                                 <Checkbox id={`sleep-issue-${issue}`} />
                                 <Label htmlFor={`sleep-issue-${issue}`}>{issue}</Label>
@@ -159,45 +149,39 @@ export function LifestyleAssessment({ data, onDataChange }: LifestyleAssessmentP
                     </div>
                 </div>
                  <div className="space-y-2">
-                    <Label>Dreams</Label>
+                    <Label>{t.sleep.dreams}</Label>
                     <Select defaultValue="sometimes">
-                        <SelectTrigger><SelectValue placeholder="Select dream frequency" /></SelectTrigger>
+                        <SelectTrigger><SelectValue placeholder={t.sleep.selectDream} /></SelectTrigger>
                         <SelectContent>
-                            <SelectItem value="never">Never / Rarely</SelectItem>
-                            <SelectItem value="sometimes">Sometimes</SelectItem>
-                            <SelectItem value="often">Often</SelectItem>
-                            <SelectItem value="vivid">Vivid / Memorable</SelectItem>
+                             {t.sleep.dreamOptions.map((opt: string, i: number) => <SelectItem key={i} value={Object.keys(t.sleep.dreamValues)[i]}>{opt}</SelectItem>)}
                         </SelectContent>
                     </Select>
                 </div>
-                <PhotoAndNotes section="Sleep" />
+                <PhotoAndNotes section={t.tabs.sleep} t={t.photoAndNotes} />
               </CardContent>
             </Card>
           </TabsContent>
 
           <TabsContent value="diet" className="mt-4">
              <Card>
-                <CardHeader><CardTitle>Dietary Habits</CardTitle></CardHeader>
+                <CardHeader><CardTitle>{t.diet.title}</CardTitle></CardHeader>
                 <CardContent className="space-y-4">
                     <div className="space-y-2">
-                        <Label>Diet Type</Label>
+                        <Label>{t.diet.dietType}</Label>
                         <Select defaultValue="omnivore">
-                            <SelectTrigger><SelectValue placeholder="Select diet type" /></SelectTrigger>
+                            <SelectTrigger><SelectValue placeholder={t.diet.selectDiet} /></SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="omnivore">Omnivore</SelectItem>
-                                <SelectItem value="vegetarian">Vegetarian</SelectItem>
-                                <SelectItem value="vegan">Vegan</SelectItem>
-                                <SelectItem value="pescatarian">Pescatarian</SelectItem>
+                                {t.diet.dietOptions.map((opt: string, i: number) => <SelectItem key={i} value={Object.keys(t.diet.dietValues)[i]}>{opt}</SelectItem>)}
                             </SelectContent>
                         </Select>
                     </div>
                     <div className="space-y-2">
-                        <Label>Daily Water Intake (Liters)</Label>
+                        <Label>{t.diet.waterIntake}</Label>
                         <Slider value={[waterIntake]} onValueChange={(value) => setWaterIntake(value[0])} max={5} step={0.5} />
                         <div className="text-center text-sm text-muted-foreground">{waterIntake.toFixed(1)} L</div>
                     </div>
                     <div className="space-y-2">
-                        <Label>Hunger Level (1-10)</Label>
+                        <Label>{t.diet.hungerLevel}</Label>
                         <Slider 
                             value={[data.lifestyleAssessment.hungerLevel]} 
                             onValueChange={handleSliderChange} 
@@ -207,118 +191,101 @@ export function LifestyleAssessment({ data, onDataChange }: LifestyleAssessmentP
                          <div className="text-center text-sm text-muted-foreground">{data.lifestyleAssessment.hungerLevel}</div>
                     </div>
                     <div className="space-y-2">
-                        <Label htmlFor="favorite-food">Favorite Food</Label>
+                        <Label htmlFor="favorite-food">{t.diet.favoriteFood}</Label>
                         <Input 
                             id="favorite-food" 
-                            placeholder="e.g., Pizza, Salad, Sushi" 
+                            placeholder={t.diet.favoriteFoodPlaceholder}
                             value={data.lifestyleAssessment.favoriteFood}
                             onChange={(e) => handleInputChange('favoriteFood', e.target.value)}
                         />
                     </div>
                      <div className="space-y-2">
-                        <Label>Food Allergies/Intolerances</Label>
-                        <Input placeholder="e.g., Lactose, Gluten, Nuts"/>
+                        <Label>{t.diet.allergies}</Label>
+                        <Input placeholder={t.diet.allergiesPlaceholder}/>
                     </div>
-                    <PhotoAndNotes section="Diet" />
+                    <PhotoAndNotes section={t.tabs.diet} t={t.photoAndNotes} />
                 </CardContent>
              </Card>
           </TabsContent>
 
             <TabsContent value="activity" className="mt-4">
              <Card>
-                <CardHeader><CardTitle>Physical Activity</CardTitle></CardHeader>
+                <CardHeader><CardTitle>{t.activity.title}</CardTitle></CardHeader>
                 <CardContent className="space-y-4">
                      <div className="space-y-2">
-                        <Label>Activity Level</Label>
+                        <Label>{t.activity.level}</Label>
                         <Select defaultValue="moderately">
-                            <SelectTrigger><SelectValue placeholder="Select activity level" /></SelectTrigger>
+                            <SelectTrigger><SelectValue placeholder={t.activity.selectLevel} /></SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="sedentary">Sedentary (&lt;30 mins/week)</SelectItem>
-                                <SelectItem value="lightly">Lightly Active (30-90 mins/week)</SelectItem>
-                                <SelectItem value="moderately">Moderately Active (90-270 mins/week)</SelectItem>
-                                <SelectItem value="very">Very Active (&gt;270 mins/week)</SelectItem>
+                                {t.activity.levelOptions.map((opt: string, i: number) => <SelectItem key={i} value={Object.keys(t.activity.levelValues)[i]}>{opt}</SelectItem>)}
                             </SelectContent>
                         </Select>
                     </div>
-                    <PhotoAndNotes section="Activity" />
+                    <PhotoAndNotes section={t.tabs.activity} t={t.photoAndNotes} />
                 </CardContent>
              </Card>
           </TabsContent>
 
            <TabsContent value="stress" className="mt-4">
              <Card>
-                <CardHeader><CardTitle>Stress & Caffeine</CardTitle></CardHeader>
+                <CardHeader><CardTitle>{t.stress.title}</CardTitle></CardHeader>
                 <CardContent className="space-y-4">
                      <div className="space-y-2">
-                        <Label>Stress Level</Label>
+                        <Label>{t.stress.level}</Label>
                         <Select defaultValue="moderate">
-                            <SelectTrigger><SelectValue placeholder="Select stress level" /></SelectTrigger>
+                            <SelectTrigger><SelectValue placeholder={t.stress.selectLevel} /></SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="low">😌 Low</SelectItem>
-                                <SelectItem value="moderate">😐 Moderate</SelectItem>
-                                <SelectItem value="high">😰 High</SelectItem>
-                                <SelectItem value="very-high">😱 Very High</SelectItem>
+                                {t.stress.levelOptions.map((opt: string, i: number) => <SelectItem key={i} value={Object.keys(t.stress.levelValues)[i]}>{opt}</SelectItem>)}
                             </SelectContent>
                         </Select>
                     </div>
                     <div className="space-y-2">
-                        <Label>Caffeine Intake</Label>
+                        <Label>{t.stress.caffeine}</Label>
                          <Select defaultValue="low">
-                            <SelectTrigger><SelectValue placeholder="Select caffeine intake" /></SelectTrigger>
+                            <SelectTrigger><SelectValue placeholder={t.stress.selectCaffeine} /></SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="none">None (0mg)</SelectItem>
-                                <SelectItem value="low">Low (1-100mg)</SelectItem>
-                                <SelectItem value="moderate">Moderate (100-300mg)</SelectItem>
-                                <SelectItem value="high">High (300-500mg)</SelectItem>
-                                <SelectItem value="excessive">Excessive (&gt;500mg)</SelectItem>
+                                {t.stress.caffeineOptions.map((opt: string, i: number) => <SelectItem key={i} value={Object.keys(t.stress.caffeineValues)[i]}>{opt}</SelectItem>)}
                             </SelectContent>
                         </Select>
                     </div>
-                    <PhotoAndNotes section="Stress and Caffeine" />
+                    <PhotoAndNotes section={t.tabs.stress} t={t.photoAndNotes} />
                 </CardContent>
              </Card>
           </TabsContent>
           
            <TabsContent value="substance" className="mt-4">
              <Card>
-                <CardHeader><CardTitle>Smoking & Alcohol</CardTitle></CardHeader>
+                <CardHeader><CardTitle>{t.substance.title}</CardTitle></CardHeader>
                 <CardContent className="space-y-4">
                      <div className="space-y-2">
-                        <Label>Smoking Status</Label>
+                        <Label>{t.substance.smoking}</Label>
                         <Select defaultValue="never">
-                            <SelectTrigger><SelectValue placeholder="Select smoking status" /></SelectTrigger>
+                            <SelectTrigger><SelectValue placeholder={t.substance.selectSmoking} /></SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="never">Never smoked</SelectItem>
-                                <SelectItem value="former">Former smoker</SelectItem>
-                                <SelectItem value="occasional">Occasional smoker</SelectItem>
-                                <SelectItem value="regular">Regular smoker</SelectItem>
+                                {t.substance.smokingOptions.map((opt: string, i: number) => <SelectItem key={i} value={Object.keys(t.substance.smokingValues)[i]}>{opt}</SelectItem>)}
                             </SelectContent>
                         </Select>
                     </div>
                      <div className="space-y-2">
-                        <Label>Alcohol Consumption</Label>
+                        <Label>{t.substance.alcohol}</Label>
                         <Select defaultValue="occasionally">
-                            <SelectTrigger><SelectValue placeholder="Select alcohol consumption" /></SelectTrigger>
+                            <SelectTrigger><SelectValue placeholder={t.substance.selectAlcohol} /></SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="never">Never</SelectItem>
-                                <SelectItem value="rarely">Rarely</SelectItem>
-                                <SelectItem value="occasionally">Occasionally</SelectItem>
-                                <SelectItem value="weekly">Weekly</SelectItem>
-                                <SelectItem value="daily">Daily</SelectItem>
+                                {t.substance.alcoholOptions.map((opt: string, i: number) => <SelectItem key={i} value={Object.keys(t.substance.alcoholValues)[i]}>{opt}</SelectItem>)}
                             </SelectContent>
                         </Select>
                     </div>
-                    <PhotoAndNotes section="Substance Use" />
+                    <PhotoAndNotes section={t.tabs.substance} t={t.photoAndNotes} />
                 </CardContent>
              </Card>
           </TabsContent>
 
            <TabsContent value="stool" className="mt-4">
              <Card>
-                <CardHeader><CardTitle>Stool Analysis</CardTitle></CardHeader>
+                <CardHeader><CardTitle>{t.stool.title}</CardTitle></CardHeader>
                 <CardContent className="space-y-4">
                     <div className="space-y-2">
-                        <Label>Stool Color</Label>
+                        <Label>{t.stool.color}</Label>
                         <div className="p-4 rounded-lg bg-muted/40">
                             <div className="grid grid-cols-4 md:grid-cols-8 gap-4">
                                 {stoolColors.map(c => (
@@ -330,6 +297,7 @@ export function LifestyleAssessment({ data, onDataChange }: LifestyleAssessmentP
                                             )}
                                             style={{backgroundColor: c.color}}
                                             onClick={() => setSelectedStoolColor(c.name)}
+                                            title={c.name}
                                         />
                                         <span className="text-xs text-center">{c.name}</span>
                                     </div>
@@ -338,24 +306,18 @@ export function LifestyleAssessment({ data, onDataChange }: LifestyleAssessmentP
                         </div>
                     </div>
                      <div className="space-y-2">
-                        <Label>Stool Type (Bristol Stool Chart)</Label>
+                        <Label>{t.stool.type}</Label>
                         <Select>
-                            <SelectTrigger><SelectValue placeholder="Select stool type" /></SelectTrigger>
+                            <SelectTrigger><SelectValue placeholder={t.stool.selectType} /></SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="1">Type 1: Separate hard lumps (hard to pass)</SelectItem>
-                                <SelectItem value="2">Type 2: Sausage-shaped, but lumpy</SelectItem>
-                                <SelectItem value="3">Type 3: Like a sausage but with cracks on surface</SelectItem>
-                                <SelectItem value="4">Type 4: Like a sausage or snake, smooth and soft</SelectItem>
-                                <SelectItem value="5">Type 5: Soft blobs with clear-cut edges</SelectItem>
-                                <SelectItem value="6">Type 6: Fluffy pieces with ragged edges, mushy</SelectItem>
-                                <SelectItem value="7">Type 7: Watery, no solid pieces, liquid</SelectItem>
+                                {t.stool.typeOptions.map((opt: string, i: number) => <SelectItem key={i} value={`${i + 1}`}>{opt}</SelectItem>)}
                             </SelectContent>
                         </Select>
                     </div>
                     <div className="space-y-2">
-                        <Label>Stool Problems (select all that apply)</Label>
+                        <Label>{t.stool.problems}</Label>
                         <div className="grid grid-cols-2 gap-2">
-                            {['Constipation', 'Diarrhea', 'Painful Movements', 'Blood in Stool', 'Mucus in Stool', 'Undigested Food'].map(issue => (
+                            {t.stool.problemOptions.map((issue: string) => (
                                 <div key={issue} className="flex items-center gap-2">
                                     <Checkbox id={`stool-issue-${issue}`} />
                                     <Label htmlFor={`stool-issue-${issue}`} className="font-normal">{issue}</Label>
@@ -363,17 +325,17 @@ export function LifestyleAssessment({ data, onDataChange }: LifestyleAssessmentP
                             ))}
                         </div>
                     </div>
-                    <PhotoAndNotes section="Stool" />
+                    <PhotoAndNotes section={t.tabs.stool} t={t.photoAndNotes} />
                 </CardContent>
              </Card>
           </TabsContent>
 
            <TabsContent value="urine" className="mt-4">
              <Card>
-                <CardHeader><CardTitle>Urine Analysis</CardTitle></CardHeader>
+                <CardHeader><CardTitle>{t.urine.title}</CardTitle></CardHeader>
                 <CardContent className="space-y-4">
                      <div className="space-y-2">
-                        <Label>Urine Color</Label>
+                        <Label>{t.urine.color}</Label>
                         <div className="p-4 rounded-lg bg-muted/40 flex justify-center">
                             <div className="grid grid-cols-4 md:grid-cols-8 gap-x-6 gap-y-4">
                                 {urineColors.map(c => (
@@ -389,21 +351,18 @@ export function LifestyleAssessment({ data, onDataChange }: LifestyleAssessmentP
                         </div>
                     </div>
                     <div className="space-y-2">
-                        <Label>Frequency</Label>
+                        <Label>{t.urine.frequency}</Label>
                         <Select>
-                            <SelectTrigger><SelectValue placeholder="Select urination frequency" /></SelectTrigger>
+                            <SelectTrigger><SelectValue placeholder={t.urine.selectFrequency} /></SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="normal">Normal (4-7 times/day)</SelectItem>
-                                <SelectItem value="frequent">Frequent (>7 times/day)</SelectItem>
-                                <SelectItem value="infrequent">Infrequent (&lt;4 times/day)</SelectItem>
-                                <SelectItem value="nocturia">Waking up at night to urinate</SelectItem>
+                                {t.urine.frequencyOptions.map((opt: string, i: number) => <SelectItem key={i} value={Object.keys(t.urine.frequencyValues)[i]}>{opt}</SelectItem>)}
                             </SelectContent>
                         </Select>
                     </div>
                     <div className="space-y-2">
-                        <Label>Urine Problems (select all that apply)</Label>
+                        <Label>{t.urine.problems}</Label>
                         <div className="grid grid-cols-2 gap-2">
-                            {['Pain or Burning', 'Difficulty Starting', 'Weak Stream', 'Urgency', 'Incontinence / Leakage', 'Cloudy Urine', 'Strong Odor'].map(issue => (
+                            {t.urine.problemOptions.map((issue: string) => (
                                 <div key={issue} className="flex items-center gap-2">
                                     <Checkbox id={`urine-issue-${issue}`} />
                                     <Label htmlFor={`urine-issue-${issue}`} className="font-normal">{issue}</Label>
@@ -411,7 +370,7 @@ export function LifestyleAssessment({ data, onDataChange }: LifestyleAssessmentP
                             ))}
                         </div>
                     </div>
-                    <PhotoAndNotes section="Urine" />
+                    <PhotoAndNotes section={t.tabs.urine} t={t.photoAndNotes} />
                 </CardContent>
              </Card>
           </TabsContent>

@@ -23,12 +23,16 @@ type Message = {
   sender: 'user' | 'bot';
 };
 
-export function ChatBot() {
+type ChatBotProps = {
+  t: any;
+};
+
+export function ChatBot({ t }: ChatBotProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
-      text: "Hello! I'm your AI health assistant. How can I help you today?",
+      text: t.initialMessage,
       sender: 'bot',
     },
   ]);
@@ -58,7 +62,7 @@ export function ChatBot() {
     } catch (error) {
         const errorMessage: Message = {
             id: (Date.now() + 1).toString(),
-            text: "Sorry, I'm having trouble connecting. Please try again later.",
+            text: t.errorMessage,
             sender: 'bot'
         };
         setMessages((prev) => [...prev, errorMessage]);
@@ -80,7 +84,7 @@ export function ChatBot() {
           <SheetContent className="flex flex-col">
             <SheetHeader>
               <SheetTitle className="flex items-center gap-2">
-                <Bot /> AI Health Assistant
+                <Bot /> {t.title}
               </SheetTitle>
             </SheetHeader>
             <ScrollArea className="flex-1 p-4 -mx-6">
@@ -129,7 +133,7 @@ export function ChatBot() {
             <SheetFooter>
               <div className="flex w-full items-center gap-2">
                 <Input
-                  placeholder="Type a message..."
+                  placeholder={t.inputPlaceholder}
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   onKeyPress={(e) => e.key === 'Enter' && handleSend()}

@@ -22,6 +22,7 @@ type HeaderProps = {
   sidebar: ReactNode;
   onLanguageChange: (language: string) => void;
   isTranslating: boolean;
+  t: any;
 };
 
 const indianLanguages = [
@@ -40,7 +41,7 @@ const indianLanguages = [
     { code: 'as', name: 'Assamese' },
 ];
 
-export function Header({ title, sidebar, onLanguageChange, isTranslating }: HeaderProps) {
+export function Header({ title, sidebar, onLanguageChange, isTranslating, t }: HeaderProps) {
   return (
     <header className="flex h-16 items-center justify-between border-b bg-background px-4 md:px-6">
       <div className="flex items-center gap-4">
@@ -48,7 +49,7 @@ export function Header({ title, sidebar, onLanguageChange, isTranslating }: Head
           <SheetTrigger asChild>
             <Button variant="outline" size="icon" className="md:hidden">
               <Menu className="h-6 w-6" />
-              <span className="sr-only">Toggle navigation menu</span>
+              <span className="sr-only">{t.toggleNav}</span>
             </Button>
           </SheetTrigger>
           <SheetContent side="left" className="p-0">
@@ -65,7 +66,7 @@ export function Header({ title, sidebar, onLanguageChange, isTranslating }: Head
                 </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-                <DropdownMenuLabel>Select Language</DropdownMenuLabel>
+                <DropdownMenuLabel>{t.selectLanguage}</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 {indianLanguages.map(lang => (
                     <DropdownMenuItem key={lang.code} onClick={() => onLanguageChange(lang.name)}>
@@ -84,16 +85,16 @@ export function Header({ title, sidebar, onLanguageChange, isTranslating }: Head
                   <User />
                 </AvatarFallback>
               </Avatar>
-              <span className="sr-only">Toggle user menu</span>
+              <span className="sr-only">{t.toggleUserMenu}</span>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuLabel>My Account</DropdownMenuLabel>
+            <DropdownMenuLabel>{t.myAccount}</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>Settings</DropdownMenuItem>
-            <DropdownMenuItem>Support</DropdownMenuItem>
+            <DropdownMenuItem>{t.settings}</DropdownMenuItem>
+            <DropdownMenuItem>{t.support}</DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>Logout</DropdownMenuItem>
+            <DropdownMenuItem>{t.logout}</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>

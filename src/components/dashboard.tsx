@@ -27,6 +27,7 @@ import {
   CartesianGrid,
 } from 'recharts';
 import { Badge } from './ui/badge';
+import type { HealthData } from '@/lib/types';
 
 const lifestyleData = [
   { name: 'Sleep', score: 7, fill: 'hsl(var(--chart-1))' },
@@ -44,19 +45,22 @@ const symptomData = [
   { month: 'Jun', severity: 7 },
 ];
 
-export function Dashboard() {
+type DashboardProps = {
+  data: HealthData;
+  t: any;
+};
+
+export function Dashboard({ data, t }: DashboardProps) {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight">Data Summary</h2>
-          <p className="text-muted-foreground">
-            A comprehensive health data visualization and export system.
-          </p>
+          <h2 className="text-2xl font-bold tracking-tight">{t.title}</h2>
+          <p className="text-muted-foreground">{t.description}</p>
         </div>
         <Button>
           <FileDown className="mr-2 h-4 w-4" />
-          Export PDF
+          {t.exportButton}
         </Button>
       </div>
 
@@ -64,13 +68,13 @@ export function Dashboard() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <User /> Patient Overview
+              <User /> {t.patientOverview.title}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
-            <p className="font-semibold">John Doe, 35</p>
-            <p className="text-sm text-muted-foreground">ID: HC-1678886400-A9B8C7</p>
-            <p className="text-sm">BMI: 23.1 (Normal)</p>
+            <p className="font-semibold">{data.patientInfo.name}, {data.patientInfo.age}</p>
+            <p className="text-sm text-muted-foreground">ID: {data.patientInfo.uniqueId}</p>
+            <p className="text-sm">{t.patientOverview.bmi} 23.1 (Normal)</p>
             <div className="flex justify-center pt-2">
                 <QrCode className="h-20 w-20"/>
             </div>
@@ -79,25 +83,28 @@ export function Dashboard() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <HeartPulse /> Medical History
+              <HeartPulse /> {t.medicalHistory.title}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
-            <p className="font-semibold">Key Conditions:</p>
+            <p className="font-semibold">{t.medicalHistory.keyConditions}:</p>
             <div className="flex flex-wrap gap-1">
-              <Badge variant="secondary">Hypertension</Badge>
-              <Badge variant="secondary">Appendectomy</Badge>
+              {data.medicalHistory.pastHistory.slice(0, 2).map(item => (
+                <Badge key={item.id} variant="secondary">{item.condition}</Badge>
+              ))}
             </div>
-            <p className="font-semibold pt-2">Medications:</p>
+            <p className="font-semibold pt-2">{t.medicalHistory.medications}:</p>
              <div className="flex flex-wrap gap-1">
-              <Badge>Lisinopril</Badge>
+              {data.medicalHistory.medications.slice(0, 1).map(med => (
+                <Badge key={med.id}>{med.name}</Badge>
+              ))}
             </div>
           </CardContent>
         </Card>
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Activity /> Lifestyle Score
+              <Activity /> {t.lifestyle.title}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -114,22 +121,22 @@ export function Dashboard() {
          <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Smile /> Sense Organs
+              <Smile /> {t.senseOrgans.title}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
-            <p className="font-semibold">Dental:</p>
-            <p className="text-sm">2 teeth with sensitivity issues.</p>
-             <p className="font-semibold pt-2">Eyes:</p>
-            <p className="text-sm">Reports Myopia (nearsightedness).</p>
+            <p className="font-semibold">{t.senseOrgans.dental}:</p>
+            <p className="text-sm">{t.senseOrgans.dentalDesc}</p>
+             <p className="font-semibold pt-2">{t.senseOrgans.eyes}:</p>
+            <p className="text-sm">{t.senseOrgans.eyesDesc}</p>
           </CardContent>
         </Card>
       </div>
       
       <Card>
         <CardHeader>
-            <CardTitle>Symptom Severity Trend</CardTitle>
-            <CardDescription>Severity rated on a 1-10 scale over 6 months.</CardDescription>
+            <CardTitle>{t.symptomTrend.title}</CardTitle>
+            <CardDescription>{t.symptomTrend.description}</CardDescription>
         </CardHeader>
         <CardContent>
              <ResponsiveContainer width="100%" height={250}>
