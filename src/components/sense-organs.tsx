@@ -159,7 +159,7 @@ export function SenseOrgans({ t }: SenseOrgansProps) {
         <Tabs defaultValue="dental">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="dental">{t.tabs.dental}</TabsTrigger>
-            <TabsTrigger value="other-systems">{t.tabs.otherSystems}</TabsTrigger>
+            <TabsTrigger value="other-systems">{t.tabs['other-systems']}</TabsTrigger>
           </TabsList>
 
           <TabsContent value="dental" className="mt-4">

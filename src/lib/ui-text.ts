@@ -290,7 +290,7 @@ export const initialUiText = {
         description: 'Comprehensive sensory system evaluation with interactive tools.',
         tabs: {
             dental: 'Dental',
-            'other-systems': 'Other Systems',
+            'other-systems': 'Other Sense Organs',
         },
         photoAndNotes: {
             title: 'Additional Details for {section}',
