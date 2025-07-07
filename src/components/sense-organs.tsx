@@ -1,4 +1,3 @@
-
 'use client';
 
 import {
@@ -33,11 +32,9 @@ import {
   Bone,
   Shield,
   Fingerprint,
-  Upload,
 } from 'lucide-react';
 import { Textarea } from './ui/textarea';
 import { Input } from './ui/input';
-import { Button } from './ui/button';
 
 const dentalConditions = [
   'Tooth Decay',

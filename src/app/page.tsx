@@ -9,14 +9,17 @@ import { SenseOrgans } from '@/components/sense-organs';
 import { Dashboard } from '@/components/dashboard';
 import { AiInsights } from '@/components/ai-insights';
 import { ChatBot } from '@/components/chat-bot';
+import { HealthReport } from '@/components/health-report';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import type { HealthData } from '@/lib/types';
 
-const sectionComponents: { [key: string]: React.ComponentType } = {
+const sectionComponents: { [key: string]: React.ComponentType<any> } = {
   dashboard: Dashboard,
   patientInfo: PatientInformation,
   medicalHistory: MedicalHistory,
   lifestyle: LifestyleAssessment,
   senses: SenseOrgans,
+  healthReport: HealthReport,
   aiInsights: AiInsights,
 };
 
@@ -26,15 +29,76 @@ const sectionTitles: { [key: string]: string } = {
     medicalHistory: 'Medical History',
     lifestyle: 'Lifestyle Assessment',
     senses: 'Sense Organ Assessment',
+    healthReport: 'Health Report',
     aiInsights: 'AI Health Insights',
 }
 
+const initialHealthData: HealthData = {
+  patientInfo: {
+    name: 'John Doe',
+    age: '35',
+    gender: 'male',
+    email: 'john.doe@example.com',
+    phone: '+1 (555) 123-4567',
+    address: {
+      line1: '123 Health St',
+      line2: 'Apt 4B',
+      city: 'Medville',
+      district: 'Wellness County',
+      state: 'State of Health',
+      postalCode: '12345',
+    },
+    height: '180',
+    weight: '75',
+    uniqueId: `HC-${Date.now()}-A9B8C7`,
+    avatar: "https://placehold.co/200x200.png",
+  },
+  medicalHistory: {
+    familyHistory: ['Hypertension'],
+    pastHistory: [
+      { id: 1, condition: 'Appendectomy', date: '2015-06-20', cured: true },
+      { id: 2, condition: 'Broken Arm', date: '2010-02-14', cured: true },
+    ],
+    currentSituation: {
+      symptoms: '',
+      severity: 5,
+      impact: '',
+    },
+    medications: [
+      { id: 1, name: 'Lisinopril', dosage: '10mg, once daily', description: 'For high blood pressure' },
+    ],
+    documents: {
+      reports: null,
+      prescriptions: null,
+      photos: null,
+    },
+  },
+};
+
+
 export default function Home() {
   const [activeSection, setActiveSection] = useState('dashboard');
+  const [healthData, setHealthData] = useState<HealthData>(initialHealthData);
+
   const ActiveComponent = sectionComponents[activeSection];
   const activeTitle = sectionTitles[activeSection];
 
   const sidebar = <SidebarNav activeSection={activeSection} setActiveSection={setActiveSection} />;
+
+  const handleDataChange = (section: keyof HealthData, data: any) => {
+    setHealthData(prev => ({
+      ...prev,
+      [section]: {
+        ...prev[section],
+        ...data,
+      }
+    }));
+  };
+
+  const componentProps = {
+    data: healthData,
+    setData: setHealthData,
+  };
 
   return (
     <div className="grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">
@@ -46,7 +110,7 @@ export default function Home() {
         <main className="flex-1 overflow-auto bg-muted/40">
             <ScrollArea className="h-[calc(100vh-65px)]">
                  <div className="p-4 sm:p-6">
-                    {ActiveComponent && <ActiveComponent />}
+                    {ActiveComponent && <ActiveComponent {...componentProps} />}
                  </div>
             </ScrollArea>
         </main>

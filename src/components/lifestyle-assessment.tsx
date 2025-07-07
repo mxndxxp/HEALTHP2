@@ -1,6 +1,5 @@
-
 'use client';
-
+import { useState } from 'react';
 import {
   Card,
   CardContent,
@@ -28,6 +27,8 @@ import { Input } from './ui/input';
 import { Textarea } from './ui/textarea';
 import { Button } from './ui/button';
 import { Upload } from 'lucide-react';
+import { cn } from '@/lib/utils';
+
 
 const stoolColors = [
   { name: 'Brown', color: '#8B4513' },
@@ -67,8 +68,20 @@ const PhotoAndNotes = ({ section }: { section: string }) => (
     </div>
 );
 
+const TestTubeIcon = ({ color, name, selected, onClick }: { color: string, name: string, selected: boolean, onClick: () => void }) => (
+    <button onClick={onClick} className={cn("flex flex-col items-center gap-2 text-center transition-transform hover:scale-105", selected && "scale-105")}>
+        <div className={cn("w-10 h-20 rounded-b-full rounded-t-md border-2 bg-white/50 relative flex items-end justify-center", selected ? "border-primary" : "border-gray-400")}>
+            <div className="w-full h-1/2 rounded-b-full" style={{ backgroundColor: color, opacity: 0.8 }}></div>
+        </div>
+        <span className="text-xs font-medium">{name}</span>
+    </button>
+)
 
 export function LifestyleAssessment() {
+  const [selectedStoolColor, setSelectedStoolColor] = useState<string | null>(null);
+  const [selectedUrineColor, setSelectedUrineColor] = useState<string | null>(null);
+  const [waterIntake, setWaterIntake] = useState(2.5);
+
   return (
     <Card>
       <CardHeader>
@@ -165,8 +178,8 @@ export function LifestyleAssessment() {
                     </div>
                     <div className="space-y-2">
                         <Label>Daily Water Intake (Liters)</Label>
-                        <Slider defaultValue={[2.5]} max={5} step={0.5} />
-                        <div className="text-center text-sm text-muted-foreground">2.5 L</div>
+                        <Slider value={[waterIntake]} onValueChange={(value) => setWaterIntake(value[0])} max={5} step={0.5} />
+                        <div className="text-center text-sm text-muted-foreground">{waterIntake.toFixed(1)} L</div>
                     </div>
                      <div className="space-y-2">
                         <Label>Food Allergies/Intolerances</Label>
@@ -272,13 +285,22 @@ export function LifestyleAssessment() {
                 <CardContent className="space-y-4">
                     <div className="space-y-2">
                         <Label>Stool Color</Label>
-                        <div className="grid grid-cols-4 gap-2">
-                            {stoolColors.map(c => (
-                                <div key={c.name} className="flex flex-col items-center gap-2">
-                                    <button className="w-12 h-12 rounded-full border-2 border-transparent focus:border-primary" style={{backgroundColor: c.color}}></button>
-                                    <span className="text-xs">{c.name}</span>
-                                </div>
-                            ))}
+                        <div className="p-4 rounded-lg bg-muted/40">
+                            <div className="grid grid-cols-4 md:grid-cols-8 gap-4">
+                                {stoolColors.map(c => (
+                                    <div key={c.name} className="flex flex-col items-center gap-2">
+                                        <button 
+                                            className={cn(
+                                                "w-12 h-12 rounded-full border-2 transition-all",
+                                                selectedStoolColor === c.name ? "border-primary scale-110" : "border-transparent"
+                                            )}
+                                            style={{backgroundColor: c.color}}
+                                            onClick={() => setSelectedStoolColor(c.name)}
+                                        />
+                                        <span className="text-xs text-center">{c.name}</span>
+                                    </div>
+                                ))}
+                            </div>
                         </div>
                     </div>
                      <div className="space-y-2">
@@ -318,13 +340,18 @@ export function LifestyleAssessment() {
                 <CardContent className="space-y-4">
                      <div className="space-y-2">
                         <Label>Urine Color</Label>
-                        <div className="grid grid-cols-4 gap-2">
-                            {urineColors.map(c => (
-                                <div key={c.name} className="flex flex-col items-center gap-2">
-                                    <button className="w-12 h-12 rounded-full border-2 border-transparent focus:border-primary" style={{backgroundColor: c.color}}></button>
-                                    <span className="text-xs">{c.name}</span>
-                                </div>
-                            ))}
+                        <div className="p-4 rounded-lg bg-muted/40 flex justify-center">
+                            <div className="grid grid-cols-4 md:grid-cols-8 gap-x-6 gap-y-4">
+                                {urineColors.map(c => (
+                                    <TestTubeIcon 
+                                        key={c.name} 
+                                        name={c.name}
+                                        color={c.color}
+                                        selected={selectedUrineColor === c.name}
+                                        onClick={() => setSelectedUrineColor(c.name)}
+                                    />
+                                ))}
+                            </div>
                         </div>
                     </div>
                     <div className="space-y-2">

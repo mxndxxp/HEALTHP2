@@ -1,5 +1,4 @@
 'use client';
-
 import {
   Card,
   CardContent,
@@ -16,10 +15,12 @@ import {
 import { Input } from './ui/input';
 import { Checkbox } from './ui/checkbox';
 import { Button } from './ui/button';
-import { PlusCircle, Upload } from 'lucide-react';
+import { PlusCircle, Trash2, Upload } from 'lucide-react';
 import { Label } from './ui/label';
 import { Textarea } from './ui/textarea';
 import { Slider } from './ui/slider';
+import type { ChangeEvent } from 'react';
+import type { HealthData, MedicalHistoryInfo, PastCondition, CurrentMedication } from '@/lib/types';
 
 const familyHistoryConditions = [
   'Diabetes Type 1/2',
@@ -31,33 +32,63 @@ const familyHistoryConditions = [
   'Mental health conditions',
 ];
 
-const pastConditions = [
-  {
-    condition: 'Appendectomy',
-    date: '2015-06-20',
-    cured: true,
-  },
-  {
-    condition: 'Broken Arm',
-    date: '2010-02-14',
-    cured: true,
-  },
-];
+type MedicalHistoryProps = {
+  data: HealthData;
+  setData: (data: HealthData) => void;
+};
 
-const currentMedications = [
-  {
-    name: 'Lisinopril',
-    dosage: '10mg, once daily',
-    description: 'For high blood pressure',
-  },
-  {
-    name: 'Metformin',
-    dosage: '500mg, twice daily',
-    description: 'For type 2 diabetes',
-  },
-];
+export function MedicalHistory({ data, setData }: MedicalHistoryProps) {
+  const medicalData = data.medicalHistory;
 
-export function MedicalHistory() {
+  const handleStateChange = (field: keyof MedicalHistoryInfo, value: any) => {
+    const newData = { ...data };
+    (newData.medicalHistory as any)[field] = value;
+    setData(newData);
+  };
+  
+  const handleNestedStateChange = (section: keyof MedicalHistoryInfo, field: string, value: any) => {
+    const newData = { ...data };
+    (newData.medicalHistory as any)[section][field] = value;
+    setData(newData);
+  };
+  
+  const handleItemChange = (list: keyof MedicalHistoryInfo, index: number, field: string, value: any) => {
+    const newData = { ...data };
+    (newData.medicalHistory[list] as any[])[index][field] = value;
+    setData(newData);
+  };
+
+  const handleAddItem = (list: keyof MedicalHistoryInfo, newItem: PastCondition | CurrentMedication) => {
+    const newData = { ...data };
+    (newData.medicalHistory[list] as any[]).push(newItem);
+    setData(newData);
+  };
+
+  const handleRemoveItem = (list: keyof MedicalHistoryInfo, index: number) => {
+    const newData = { ...data };
+    (newData.medicalHistory[list] as any[]).splice(index, 1);
+    setData(newData);
+  };
+  
+  const handleAddCondition = () => {
+      const newCondition: PastCondition = { id: Date.now(), condition: '', date: '', cured: false };
+      handleAddItem('pastHistory', newCondition);
+  };
+
+  const handleAddMedication = () => {
+      const newMedication: CurrentMedication = { id: Date.now(), name: '', dosage: '', description: '' };
+      handleAddItem('medications', newMedication);
+  }
+
+  const handleFileUpload = (field: keyof MedicalHistoryInfo['documents'], event: ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files && event.target.files[0]) {
+        const file = event.target.files[0];
+        const newData = { ...data };
+        newData.medicalHistory.documents[field] = file;
+        setData(newData);
+    }
+  }
+
   return (
     <Card>
       <CardHeader>
@@ -106,27 +137,25 @@ export function MedicalHistory() {
                     A list of past conditions, surgeries, and treatments.
                   </CardDescription>
                 </div>
-                <Button>
+                <Button onClick={handleAddCondition}>
                   <PlusCircle className="mr-2 h-4 w-4" /> Add Condition
                 </Button>
               </CardHeader>
               <CardContent className="space-y-4">
-                {pastConditions.map((item, index) => (
-                  <Card key={index}>
-                    <CardContent className="p-4 flex justify-between items-center">
-                      <div>
-                        <p className="font-semibold">{item.condition}</p>
-                        <p className="text-sm text-muted-foreground">
-                          Diagnosed: {item.date}
-                        </p>
-                      </div>
-                      <p
-                        className={`text-sm font-medium ${
-                          item.cured ? 'text-green-600' : 'text-orange-600'
-                        }`}
-                      >
-                        {item.cured ? 'Resolved' : 'Ongoing'}
-                      </p>
+                {medicalData.pastHistory.map((item, index) => (
+                  <Card key={item.id}>
+                    <CardContent className="p-4 grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
+                        <Input placeholder="Condition Name" value={item.condition} onChange={(e) => handleItemChange('pastHistory', index, 'condition', e.target.value)} />
+                        <Input type="date" value={item.date} onChange={(e) => handleItemChange('pastHistory', index, 'date', e.target.value)} />
+                        <div className="flex items-center justify-between">
+                             <div className="flex items-center gap-2">
+                                <Checkbox id={`cured-${item.id}`} checked={item.cured} onCheckedChange={(checked) => handleItemChange('pastHistory', index, 'cured', checked)} />
+                                <Label htmlFor={`cured-${item.id}`}>Resolved</Label>
+                             </div>
+                            <Button variant="ghost" size="icon" onClick={() => handleRemoveItem('pastHistory', index)}>
+                                <Trash2 className="h-4 w-4 text-destructive"/>
+                            </Button>
+                        </div>
                     </CardContent>
                   </Card>
                 ))}
@@ -147,17 +176,26 @@ export function MedicalHistory() {
                   <Textarea
                     id="symptoms"
                     placeholder="Describe current symptoms..."
+                    value={medicalData.currentSituation.symptoms}
+                    onChange={(e) => handleNestedStateChange('currentSituation', 'symptoms', e.target.value)}
                   />
                 </div>
                 <div className="space-y-2">
                   <Label>Severity (1-10)</Label>
-                  <Slider defaultValue={[5]} max={10} step={1} />
+                  <Slider 
+                    value={[medicalData.currentSituation.severity]} 
+                    onValueChange={(value) => handleNestedStateChange('currentSituation', 'severity', value[0])}
+                    max={10} step={1} 
+                  />
+                   <div className="text-center text-sm text-muted-foreground">{medicalData.currentSituation.severity}</div>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="impact">Impact on Daily Life</Label>
                   <Textarea
                     id="impact"
                     placeholder="How do these symptoms affect daily activities?"
+                    value={medicalData.currentSituation.impact}
+                    onChange={(e) => handleNestedStateChange('currentSituation', 'impact', e.target.value)}
                   />
                 </div>
               </CardContent>
@@ -172,19 +210,22 @@ export function MedicalHistory() {
                     Comprehensive medication management and tracking.
                   </CardDescription>
                 </div>
-                <Button>
+                <Button onClick={handleAddMedication}>
                   <PlusCircle className="mr-2 h-4 w-4" /> Add Medication
                 </Button>
               </CardHeader>
               <CardContent className="space-y-4">
-                {currentMedications.map((med, index) => (
-                  <Card key={index}>
-                    <CardContent className="p-4">
-                      <p className="font-semibold">{med.name}</p>
-                      <p className="text-sm text-muted-foreground">
-                        {med.dosage}
-                      </p>
-                      <p className="text-sm mt-1">{med.description}</p>
+                {medicalData.medications.map((med, index) => (
+                  <Card key={med.id}>
+                    <CardContent className="p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <Input placeholder="Medication Name" value={med.name} onChange={(e) => handleItemChange('medications', index, 'name', e.target.value)}/>
+                      <Input placeholder="Dosage (e.g., 10mg, once daily)" value={med.dosage} onChange={(e) => handleItemChange('medications', index, 'dosage', e.target.value)}/>
+                      <Textarea placeholder="Description / Reason" className="md:col-span-2" value={med.description} onChange={(e) => handleItemChange('medications', index, 'description', e.target.value)}/>
+                      <div className="md:col-span-2 flex justify-end">
+                        <Button variant="ghost" size="icon" onClick={() => handleRemoveItem('medications', index)}>
+                            <Trash2 className="h-4 w-4 text-destructive"/>
+                        </Button>
+                      </div>
                     </CardContent>
                   </Card>
                 ))}
@@ -204,31 +245,34 @@ export function MedicalHistory() {
                   <Upload className="h-10 w-10 text-muted-foreground" />
                   <p className="mt-2 text-sm font-semibold">Medical Reports</p>
                   <p className="text-xs text-muted-foreground">
-                    PDF up to 10MB
+                    {medicalData.documents.reports ? medicalData.documents.reports.name : 'PDF up to 10MB'}
                   </p>
-                  <Button variant="outline" size="sm" className="mt-4">
-                    Upload
+                  <Button variant="outline" size="sm" className="mt-4" asChild>
+                    <Label htmlFor="reports-upload">Upload</Label>
                   </Button>
+                  <Input id="reports-upload" type="file" className="hidden" onChange={(e) => handleFileUpload('reports', e)} accept="application/pdf" />
                 </div>
                 <div className="border-2 border-dashed rounded-lg p-6 flex flex-col items-center justify-center text-center">
                   <Upload className="h-10 w-10 text-muted-foreground" />
                   <p className="mt-2 text-sm font-semibold">Prescriptions</p>
-                  <p className="text-xs text-muted-foreground">
-                    PDF/Image
+                   <p className="text-xs text-muted-foreground">
+                    {medicalData.documents.prescriptions ? medicalData.documents.prescriptions.name : 'PDF/Image'}
                   </p>
-                  <Button variant="outline" size="sm" className="mt-4">
-                    Upload
+                  <Button variant="outline" size="sm" className="mt-4" asChild>
+                    <Label htmlFor="prescriptions-upload">Upload</Label>
                   </Button>
+                   <Input id="prescriptions-upload" type="file" className="hidden" onChange={(e) => handleFileUpload('prescriptions', e)} accept="application/pdf,image/*" />
                 </div>
                 <div className="border-2 border-dashed rounded-lg p-6 flex flex-col items-center justify-center text-center">
                   <Upload className="h-10 w-10 text-muted-foreground" />
                   <p className="mt-2 text-sm font-semibold">Problem Photos</p>
                   <p className="text-xs text-muted-foreground">
-                    JPEG/PNG
+                    {medicalData.documents.photos ? medicalData.documents.photos.name : 'JPEG/PNG'}
                   </p>
-                  <Button variant="outline" size="sm" className="mt-4">
-                    Upload
+                  <Button variant="outline" size="sm" className="mt-4" asChild>
+                    <Label htmlFor="photos-upload">Upload</Label>
                   </Button>
+                   <Input id="photos-upload" type="file" className="hidden" onChange={(e) => handleFileUpload('photos', e)} accept="image/*"/>
                 </div>
               </CardContent>
             </Card>

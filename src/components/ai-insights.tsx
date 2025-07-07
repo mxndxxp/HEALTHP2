@@ -8,45 +8,45 @@ import {
   CardTitle,
   CardFooter,
 } from '@/components/ui/card';
-import { Textarea } from './ui/textarea';
 import { Button } from './ui/button';
-import { Label } from './ui/label';
 import { healthInsights } from '@/ai/flows/health-insights';
 import type { HealthInsightsOutput } from '@/ai/flows/health-insights';
 import { Loader2, Lightbulb, Sparkles, AlertTriangle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import type { HealthData } from '@/lib/types';
 
-export function AiInsights() {
-  const [patientData, setPatientData] = useState('');
-  const [medicalHistory, setMedicalHistory] = useState('');
-  const [lifestyleFactors, setLifestyleFactors] = useState('');
-  const [senseOrganData, setSenseOrganData] = useState('');
+type AiInsightsProps = {
+  data: HealthData;
+};
 
+export function AiInsights({ data }: AiInsightsProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<HealthInsightsOutput | null>(null);
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
 
   const handleSubmit = async () => {
-    if (!patientData || !medicalHistory || !lifestyleFactors || !senseOrganData) {
-        toast({
-            title: "Missing Information",
-            description: "Please fill out all fields to generate insights.",
-            variant: "destructive"
-        })
-        return;
-    }
-    
     setIsLoading(true);
     setError(null);
     setResult(null);
 
+    // Sanitize data by removing file objects before stringifying
+    const sanitizedData = JSON.parse(JSON.stringify(data, (key, value) => {
+        if (value instanceof File) {
+            return {
+                name: value.name,
+                size: value.size,
+                type: value.type,
+            };
+        }
+        return value;
+    }));
+
+    const fullReportData = JSON.stringify(sanitizedData, null, 2);
+
     try {
       const insights = await healthInsights({
-        patientData,
-        medicalHistory,
-        lifestyleFactors,
-        senseOrganData,
+        fullReportData,
       });
       setResult(insights);
     } catch (e) {
@@ -69,63 +69,20 @@ export function AiInsights() {
         <CardHeader>
           <CardTitle>AI Health Analysis Engine</CardTitle>
           <CardDescription>
-            Input patient data to generate AI-powered health insights, risk
-            assessments, and recommendations.
+            Click the button below to generate AI-powered health insights based on the complete patient report. Ensure all sections have been filled out for the most accurate analysis.
           </CardDescription>
         </CardHeader>
-        <CardContent className="grid gap-4 md:grid-cols-2">
-          <div className="space-y-2">
-            <Label htmlFor="patientData">Patient Data</Label>
-            <Textarea
-              id="patientData"
-              placeholder="e.g., John Doe, 35, Male, BMI 23.1..."
-              value={patientData}
-              onChange={(e) => setPatientData(e.target.value)}
-              rows={4}
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="medicalHistory">Medical History</Label>
-            <Textarea
-              id="medicalHistory"
-              placeholder="e.g., Family history of hypertension. Past appendectomy..."
-              value={medicalHistory}
-              onChange={(e) => setMedicalHistory(e.target.value)}
-              rows={4}
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="lifestyleFactors">Lifestyle Factors</Label>
-            <Textarea
-              id="lifestyleFactors"
-              placeholder="e.g., Moderately active, sleeps 7 hours/night, occasional alcohol..."
-              value={lifestyleFactors}
-              onChange={(e) => setLifestyleFactors(e.target.value)}
-              rows={4}
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="senseOrganData">Sense Organ Data</Label>
-            <Textarea
-              id="senseOrganData"
-              placeholder="e.g., Reports myopia. Dental sensitivity in teeth 14, 24..."
-              value={senseOrganData}
-              onChange={(e) => setSenseOrganData(e.target.value)}
-              rows={4}
-            />
-          </div>
-        </CardContent>
         <CardFooter>
-          <Button onClick={handleSubmit} disabled={isLoading}>
+          <Button onClick={handleSubmit} disabled={isLoading} size="lg">
             {isLoading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Generating...
+                Analyzing Full Report...
               </>
             ) : (
               <>
                 <Sparkles className="mr-2 h-4 w-4" />
-                Generate Insights
+                Generate Insights from Full Report
               </>
             )}
           </Button>
@@ -151,15 +108,15 @@ export function AiInsights() {
             <CardContent className="space-y-6">
                 <div>
                     <h3 className="font-semibold text-lg">Diagnostic Summary</h3>
-                    <p className="text-muted-foreground mt-1">{result.diagnosticSummary}</p>
+                    <p className="text-muted-foreground mt-1 whitespace-pre-wrap">{result.diagnosticSummary}</p>
                 </div>
                  <div>
                     <h3 className="font-semibold text-lg">Potential Conditions</h3>
-                    <p className="text-muted-foreground mt-1">{result.potentialConditions}</p>
+                    <p className="text-muted-foreground mt-1 whitespace-pre-wrap">{result.potentialConditions}</p>
                 </div>
                  <div>
                     <h3 className="font-semibold text-lg">Lifestyle Recommendations</h3>
-                    <p className="text-muted-foreground mt-1">{result.lifestyleRecommendations}</p>
+                    <p className="text-muted-foreground mt-1 whitespace-pre-wrap">{result.lifestyleRecommendations}</p>
                 </div>
             </CardContent>
         </Card>

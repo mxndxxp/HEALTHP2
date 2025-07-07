@@ -1,6 +1,6 @@
-
 'use client';
-import { useRef, useState } from 'react';
+import { useRef } from 'react';
+import type { ChangeEvent } from 'react';
 import {
   Card,
   CardContent,
@@ -28,6 +28,7 @@ import {
 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { Button } from './ui/button';
+import type { HealthData, PatientInfo } from '@/lib/types';
 
 const IconLabel = ({
   icon: Icon,
@@ -42,15 +43,34 @@ const IconLabel = ({
   </div>
 );
 
-export function PatientInformation() {
-  const uniqueId = `HC-${Date.now()}-A9B8C7`;
-  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+type PatientInformationProps = {
+  data: HealthData;
+  setData: (data: HealthData) => void;
+};
 
-  const handleAvatarChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+export function PatientInformation({ data, setData }: PatientInformationProps) {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const patientData = data.patientInfo;
+
+  const handleFieldChange = (field: keyof PatientInfo | `address.${keyof PatientInfo['address']}`, value: any) => {
+    const newData = { ...data };
+    if (field.startsWith('address.')) {
+        const addressField = field.split('.')[1] as keyof PatientInfo['address'];
+        newData.patientInfo.address[addressField] = value;
+    } else {
+        (newData.patientInfo as any)[field] = value;
+    }
+    setData(newData);
+  };
+
+  const handleAvatarChange = (event: ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
       const file = event.target.files[0];
-      setAvatarPreview(URL.createObjectURL(file));
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        handleFieldChange('avatar', reader.result as string);
+      };
+      reader.readAsDataURL(file);
     }
   };
 
@@ -67,7 +87,7 @@ export function PatientInformation() {
         <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
           <div className="md:col-span-1 flex flex-col items-center gap-4 pt-4">
             <Avatar className="h-32 w-32">
-              <AvatarImage src={avatarPreview || "https://placehold.co/200x200.png"} alt="User" data-ai-hint="user avatar" />
+              <AvatarImage src={patientData.avatar} alt="User" data-ai-hint="user avatar" />
               <AvatarFallback>
                 <User className="h-16 w-16" />
               </AvatarFallback>
@@ -89,19 +109,19 @@ export function PatientInformation() {
               <Label htmlFor="name">
                 <IconLabel icon={User}>Full Name</IconLabel>
               </Label>
-              <Input id="name" placeholder="John Doe" />
+              <Input id="name" placeholder="John Doe" value={patientData.name} onChange={(e) => handleFieldChange('name', e.target.value)} />
             </div>
             <div className="space-y-2">
               <Label htmlFor="age">
                 <IconLabel icon={Calendar}>Age</IconLabel>
               </Label>
-              <Input id="age" type="number" placeholder="35" />
+              <Input id="age" type="number" placeholder="35" value={patientData.age} onChange={(e) => handleFieldChange('age', e.target.value)} />
             </div>
             <div className="space-y-2">
               <Label>
                 <IconLabel icon={Heart}>Gender</IconLabel>
               </Label>
-              <RadioGroup defaultValue="male" className="flex items-center gap-4 pt-2">
+              <RadioGroup value={patientData.gender} onValueChange={(value) => handleFieldChange('gender', value)} className="flex items-center gap-4 pt-2">
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="male" id="male" />
                   <Label htmlFor="male">Male</Label>
@@ -120,13 +140,13 @@ export function PatientInformation() {
               <Label htmlFor="email">
                 <IconLabel icon={Mail}>Email</IconLabel>
               </Label>
-              <Input id="email" type="email" placeholder="john.doe@example.com" />
+              <Input id="email" type="email" placeholder="john.doe@example.com" value={patientData.email} onChange={(e) => handleFieldChange('email', e.target.value)} />
             </div>
             <div className="space-y-2 md:col-span-2">
               <Label htmlFor="phone">
                 <IconLabel icon={Phone}>Phone Number</IconLabel>
               </Label>
-              <Input id="phone" type="tel" placeholder="+1 (555) 123-4567" />
+              <Input id="phone" type="tel" placeholder="+1 (555) 123-4567" value={patientData.phone} onChange={(e) => handleFieldChange('phone', e.target.value)} />
             </div>
           </div>
 
@@ -135,12 +155,12 @@ export function PatientInformation() {
               <IconLabel icon={MapPin}>Address</IconLabel>
             </Label>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                 <Input id="address1" placeholder="Address Line 1" />
-                 <Input id="address2" placeholder="Address Line 2 (Optional)" />
-                 <Input id="city" placeholder="City" />
-                 <Input id="district" placeholder="District / County" />
-                 <Input id="state" placeholder="State / Province" />
-                 <Input id="postal-code" placeholder="Postal / Zip Code" />
+                 <Input id="address1" placeholder="Address Line 1" value={patientData.address.line1} onChange={(e) => handleFieldChange('address.line1', e.target.value)} />
+                 <Input id="address2" placeholder="Address Line 2 (Optional)" value={patientData.address.line2} onChange={(e) => handleFieldChange('address.line2', e.target.value)} />
+                 <Input id="city" placeholder="City" value={patientData.address.city} onChange={(e) => handleFieldChange('address.city', e.target.value)} />
+                 <Input id="district" placeholder="District / County" value={patientData.address.district} onChange={(e) => handleFieldChange('address.district', e.target.value)} />
+                 <Input id="state" placeholder="State / Province" value={patientData.address.state} onChange={(e) => handleFieldChange('address.state', e.target.value)} />
+                 <Input id="postal-code" placeholder="Postal / Zip Code" value={patientData.address.postalCode} onChange={(e) => handleFieldChange('address.postalCode', e.target.value)} />
             </div>
           </div>
           
@@ -149,19 +169,19 @@ export function PatientInformation() {
               <Label htmlFor="height">
                 <IconLabel icon={Ruler}>Height (cm)</IconLabel>
               </Label>
-              <Input id="height" type="number" placeholder="180" />
+              <Input id="height" type="number" placeholder="180" value={patientData.height} onChange={(e) => handleFieldChange('height', e.target.value)} />
             </div>
             <div className="space-y-2">
               <Label htmlFor="weight">
                 <IconLabel icon={Weight}>Weight (kg)</IconLabel>
               </Label>
-              <Input id="weight" type="number" placeholder="75" />
+              <Input id="weight" type="number" placeholder="75" value={patientData.weight} onChange={(e) => handleFieldChange('weight', e.target.value)} />
             </div>
             <div className="space-y-2">
                 <Label>
                 <IconLabel icon={BadgeInfo}>Unique ID</IconLabel>
                 </Label>
-                <Input id="uniqueId" value={uniqueId} readOnly className="font-mono bg-muted" />
+                <Input id="uniqueId" value={patientData.uniqueId} readOnly className="font-mono bg-muted" />
             </div>
           </div>
         </div>

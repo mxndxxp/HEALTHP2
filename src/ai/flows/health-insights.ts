@@ -12,17 +12,14 @@ import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
 const HealthInsightsInputSchema = z.object({
-  patientData: z.string().describe('Comprehensive patient data including demographics and medical history.'),
-  medicalHistory: z.string().describe('Detailed medical history including family history, past conditions, and medications.'),
-  lifestyleFactors: z.string().describe('Lifestyle assessment including sleep, diet, exercise, and substance use.'),
-  senseOrganData: z.string().describe('Assessment data for sense organs and other systems.'),
+  fullReportData: z.string().describe('A JSON string representing the complete health report of a patient, including demographics, medical history, lifestyle, and sense organ assessments.'),
 });
 export type HealthInsightsInput = z.infer<typeof HealthInsightsInputSchema>;
 
 const HealthInsightsOutputSchema = z.object({
-  diagnosticSummary: z.string().describe('A summary of the patient diagnostic data.'),
-  potentialConditions: z.string().describe('Potential health conditions based on the provided data.'),
-  lifestyleRecommendations: z.string().describe('Lifestyle recommendations to improve health.'),
+  diagnosticSummary: z.string().describe('A concise summary of the most important findings from the patient\'s health report.'),
+  potentialConditions: z.string().describe('A list of potential health conditions or risks identified from the data, along with brief explanations.'),
+  lifestyleRecommendations: z.string().describe('A list of actionable lifestyle recommendations tailored to the patient to improve their health.'),
 });
 export type HealthInsightsOutput = z.infer<typeof HealthInsightsOutputSchema>;
 
@@ -34,16 +31,17 @@ const healthInsightsPrompt = ai.definePrompt({
   name: 'healthInsightsPrompt',
   input: {schema: HealthInsightsInputSchema},
   output: {schema: HealthInsightsOutputSchema},
-  prompt: `You are an AI health assistant that takes the patient data, medical history, lifestyle factors, and sense organ data to provide diagnostic summaries, predict potential conditions, and recommend lifestyle improvements.
+  prompt: `You are an expert AI health assistant. Your task is to analyze a patient's comprehensive health report, provided as a JSON string, and generate a detailed analysis.
 
-Patient Data: {{{patientData}}}
-Medical History: {{{medicalHistory}}}
-Lifestyle Factors: {{{lifestyleFactors}}}
-Sense Organ Data: {{{senseOrganData}}}
+The report includes patient demographics, medical history, lifestyle factors, and sense organ data.
 
-Generate a diagnostic summary:,
-Predict potential conditions:
-Recommend lifestyle improvements:
+Carefully review all the information in the following JSON data and provide:
+1.  **Diagnostic Summary**: A clear and concise summary of the key findings. Highlight any abnormal or noteworthy data points.
+2.  **Potential Conditions**: Based on the combination of all data, identify potential health risks or underlying conditions. For each potential condition, briefly explain your reasoning based on the provided data.
+3.  **Lifestyle Recommendations**: Offer specific, actionable advice for lifestyle changes (diet, exercise, sleep, etc.) that could help improve the patient's health based on their profile.
+
+Patient's Full Health Report (JSON format):
+{{{fullReportData}}}
 `,
 });
 

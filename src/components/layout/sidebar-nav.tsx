@@ -3,6 +3,7 @@ import {
   Activity,
   BotMessageSquare,
   ClipboardList,
+  FileText,
   HeartPulse,
   LayoutDashboard,
   Mic,
@@ -24,6 +25,7 @@ const navItems = [
   { id: 'medicalHistory', label: 'Medical History', icon: HeartPulse },
   { id: 'lifestyle', label: 'Lifestyle Assessment', icon: Activity },
   { id: 'senses', label: 'Sense Organs', icon: Smile },
+  { id: 'healthReport', label: 'Health Report', icon: FileText },
   { id: 'aiInsights', label: 'AI Health Insights', icon: BotMessageSquare },
 ];
 
