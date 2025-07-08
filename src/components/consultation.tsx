@@ -38,7 +38,8 @@ import { Label } from './ui/label';
 import { Textarea } from './ui/textarea';
 import { toast } from '@/hooks/use-toast';
 import type { HealthData, Doctor } from '@/lib/types';
-import { User, Video as VideoIcon, Upload, MessageSquare, Phone, PlusCircle, AlertTriangle } from 'lucide-react';
+import { User, Video as VideoIcon, Upload, MessageSquare, Phone, PlusCircle, AlertTriangle, CheckCircle } from 'lucide-react';
+import { PaymentForm } from './payment-form';
 
 type ConsultationProps = {
   data: HealthData;
@@ -52,6 +53,7 @@ export function Consultation({ data, onDataChange, t }: ConsultationProps) {
   const [activeTab, setActiveTab] = useState('booking');
   const videoRef = useRef<HTMLVideoElement>(null);
   const [hasCameraPermission, setHasCameraPermission] = useState(true);
+  const [bookingConfirmed, setBookingConfirmed] = useState(false);
 
   const { consultation } = data;
   const { booking, doctors } = consultation;
@@ -91,6 +93,17 @@ export function Consultation({ data, onDataChange, t }: ConsultationProps) {
       handleBookingChange('report', e.target.files[0]);
     }
   };
+  
+  const selectedDoctor = doctors.find(doc => doc.id === booking.doctorId);
+
+  const handleBookingConfirmation = () => {
+    setBookingConfirmed(true);
+    toast({
+        title: "Appointment Confirmed",
+        description: `Your appointment with ${selectedDoctor?.name} is booked.`
+    })
+  }
+
 
   useEffect(() => {
     if (activeTab === 'session') {
@@ -110,7 +123,6 @@ export function Consultation({ data, onDataChange, t }: ConsultationProps) {
     }
   }, [activeTab]);
 
-  const selectedDoctor = doctors.find(doc => doc.id === booking.doctorId);
 
   return (
     <Card>
@@ -122,88 +134,116 @@ export function Consultation({ data, onDataChange, t }: ConsultationProps) {
         <Tabs defaultValue="booking" className="w-full" onValueChange={setActiveTab}>
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="booking">{t.tabs.booking}</TabsTrigger>
-            <TabsTrigger value="session">{t.tabs.session}</TabsTrigger>
+            <TabsTrigger value="session" disabled={!bookingConfirmed}>{t.tabs.session}</TabsTrigger>
           </TabsList>
 
           <TabsContent value="booking" className="mt-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>{t.booking.title}</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="space-y-2">
-                    <Label>{t.booking.selectDoctor}</Label>
-                    <div className="flex gap-2">
-                        <Select onValueChange={(val) => handleBookingChange('doctorId', parseInt(val))}>
-                            <SelectTrigger>
-                                <SelectValue placeholder={t.booking.noDoctorSelected} />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {doctors.map(doctor => (
-                                    <SelectItem key={doctor.id} value={String(doctor.id)}>
-                                        <div className="flex items-center gap-2">
-                                            <Avatar className="h-6 w-6">
-                                                <AvatarImage src={doctor.avatar} data-ai-hint="doctor avatar" />
-                                                <AvatarFallback>{doctor.name.charAt(0)}</AvatarFallback>
-                                            </Avatar>
-                                            <div>
-                                                <p>{doctor.name}</p>
-                                                <p className="text-xs text-muted-foreground">{doctor.specialization}</p>
+             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <Card className="lg:col-span-1">
+                    <CardHeader>
+                        <CardTitle>{t.booking.title}</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                        <div className="space-y-2">
+                            <Label>{t.booking.selectDoctor}</Label>
+                            <div className="flex gap-2">
+                                <Select onValueChange={(val) => handleBookingChange('doctorId', parseInt(val))} disabled={bookingConfirmed}>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder={t.booking.noDoctorSelected} />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {doctors.map(doctor => (
+                                            <SelectItem key={doctor.id} value={String(doctor.id)}>
+                                                <div className="flex items-center gap-2">
+                                                    <Avatar className="h-6 w-6">
+                                                        <AvatarImage src={doctor.avatar} data-ai-hint="doctor avatar" />
+                                                        <AvatarFallback>{doctor.name.charAt(0)}</AvatarFallback>
+                                                    </Avatar>
+                                                    <div>
+                                                        <p>{doctor.name}</p>
+                                                        <p className="text-xs text-muted-foreground">{doctor.specialization}</p>
+                                                    </div>
+                                                </div>
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                                <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                                    <DialogTrigger asChild>
+                                        <Button variant="outline" disabled={bookingConfirmed}><PlusCircle className="mr-2" /> {t.booking.addCustomDoctor}</Button>
+                                    </DialogTrigger>
+                                    <DialogContent>
+                                        <DialogHeader>
+                                            <DialogTitle>{t.booking.addDoctorDialog.title}</DialogTitle>
+                                            <DialogDescription>{t.booking.addDoctorDialog.description}</DialogDescription>
+                                        </DialogHeader>
+                                        <div className="space-y-4 py-4">
+                                            <div className="space-y-2">
+                                                <Label htmlFor="doc-name">{t.booking.addDoctorDialog.nameLabel}</Label>
+                                                <Input id="doc-name" value={newDoctor.name} onChange={(e) => setNewDoctor({...newDoctor, name: e.target.value})} />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <Label htmlFor="doc-spec">{t.booking.addDoctorDialog.specializationLabel}</Label>
+                                                <Input id="doc-spec" value={newDoctor.specialization} onChange={(e) => setNewDoctor({...newDoctor, specialization: e.target.value})} />
                                             </div>
                                         </div>
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                            <DialogTrigger asChild>
-                                <Button variant="outline"><PlusCircle className="mr-2" /> {t.booking.addCustomDoctor}</Button>
-                            </DialogTrigger>
-                            <DialogContent>
-                                <DialogHeader>
-                                    <DialogTitle>{t.booking.addDoctorDialog.title}</DialogTitle>
-                                    <DialogDescription>{t.booking.addDoctorDialog.description}</DialogDescription>
-                                </DialogHeader>
-                                <div className="space-y-4 py-4">
-                                    <div className="space-y-2">
-                                        <Label htmlFor="doc-name">{t.booking.addDoctorDialog.nameLabel}</Label>
-                                        <Input id="doc-name" value={newDoctor.name} onChange={(e) => setNewDoctor({...newDoctor, name: e.target.value})} />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label htmlFor="doc-spec">{t.booking.addDoctorDialog.specializationLabel}</Label>
-                                        <Input id="doc-spec" value={newDoctor.specialization} onChange={(e) => setNewDoctor({...newDoctor, specialization: e.target.value})} />
-                                    </div>
-                                </div>
-                                <DialogFooter>
-                                    <Button variant="outline" onClick={() => setIsDialogOpen(false)}>{t.booking.addDoctorDialog.cancelButton}</Button>
-                                    <Button onClick={handleAddDoctor}>{t.booking.addDoctorDialog.addButton}</Button>
-                                </DialogFooter>
-                            </DialogContent>
-                        </Dialog>
-                    </div>
+                                        <DialogFooter>
+                                            <Button variant="outline" onClick={() => setIsDialogOpen(false)}>{t.booking.addDoctorDialog.cancelButton}</Button>
+                                            <Button onClick={handleAddDoctor}>{t.booking.addDoctorDialog.addButton}</Button>
+                                        </DialogFooter>
+                                    </DialogContent>
+                                </Dialog>
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="patient-name">{t.booking.patientNameLabel}</Label>
+                                <Input id="patient-name" value={booking.patientName} onChange={(e) => handleBookingChange('patientName', e.target.value)} disabled={bookingConfirmed} />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="unique-id">{t.booking.uniqueIdLabel}</Label>
+                                <Input id="unique-id" value={booking.uniqueId} readOnly />
+                            </div>
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="problem">{t.booking.problemLabel}</Label>
+                            <Textarea id="problem" value={booking.problem} onChange={(e) => handleBookingChange('problem', e.target.value)} placeholder={t.booking.problemPlaceholder} disabled={bookingConfirmed}/>
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="report-upload">{t.booking.reportLabel}</Label>
+                            <Input id="report-upload" type="file" onChange={handleFileChange} disabled={bookingConfirmed} />
+                        </div>
+                    </CardContent>
+                </Card>
+
+                 <div className="lg:col-span-1">
+                    {booking.doctorId && !bookingConfirmed ? (
+                        <PaymentForm 
+                            amount={5000} 
+                            t={t.paymentForm} 
+                            onPaymentSuccess={handleBookingConfirmation}
+                        />
+                    ) : bookingConfirmed ? (
+                        <Card className="flex flex-col items-center justify-center h-full text-center">
+                            <CardHeader>
+                                <CheckCircle className="h-16 w-16 text-green-500 mx-auto"/>
+                                <CardTitle className="mt-4">Appointment Confirmed!</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <p className="text-muted-foreground">Your booking with {selectedDoctor?.name} is complete. You can now proceed to the "Start Consultation" tab.</p>
+                            </CardContent>
+                        </Card>
+                    ) : (
+                         <Card className="flex items-center justify-center h-full">
+                            <CardContent>
+                                <p className="text-muted-foreground">{t.booking.selectDoctorFirst}</p>
+                            </CardContent>
+                        </Card>
+                    )}
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                        <Label htmlFor="patient-name">{t.booking.patientNameLabel}</Label>
-                        <Input id="patient-name" value={booking.patientName} onChange={(e) => handleBookingChange('patientName', e.target.value)} />
-                    </div>
-                    <div className="space-y-2">
-                        <Label htmlFor="unique-id">{t.booking.uniqueIdLabel}</Label>
-                        <Input id="unique-id" value={booking.uniqueId} readOnly />
-                    </div>
-                </div>
-                <div className="space-y-2">
-                    <Label htmlFor="problem">{t.booking.problemLabel}</Label>
-                    <Textarea id="problem" value={booking.problem} onChange={(e) => handleBookingChange('problem', e.target.value)} placeholder={t.booking.problemPlaceholder} />
-                </div>
-                <div className="space-y-2">
-                    <Label htmlFor="report-upload">{t.booking.reportLabel}</Label>
-                    <Input id="report-upload" type="file" onChange={handleFileChange} />
-                </div>
-                <Button size="lg">{t.booking.bookButton}</Button>
-              </CardContent>
-            </Card>
+            </div>
           </TabsContent>
 
           <TabsContent value="session" className="mt-4">
@@ -213,7 +253,7 @@ export function Consultation({ data, onDataChange, t }: ConsultationProps) {
                     <CardDescription>{selectedDoctor ? `Your appointment is with ${selectedDoctor.name}. ${t.session.description}` : 'Please book an appointment first.'}</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    {selectedDoctor ? (
+                    {selectedDoctor && bookingConfirmed ? (
                         <Tabs defaultValue="video" className="w-full">
                              <TabsList className="grid w-full grid-cols-2 lg:grid-cols-4">
                                 <TabsTrigger value="video"><VideoIcon className="mr-2"/>{t.session.videoTitle}</TabsTrigger>
@@ -266,7 +306,7 @@ export function Consultation({ data, onDataChange, t }: ConsultationProps) {
                         </Tabs>
                     ) : (
                         <div className="text-center p-10 border-2 border-dashed rounded-lg">
-                            <p className="text-muted-foreground">No appointment selected.</p>
+                            <p className="text-muted-foreground">Please book and confirm an appointment first.</p>
                         </div>
                     )}
                 </CardContent>

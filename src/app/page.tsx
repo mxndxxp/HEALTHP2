@@ -12,6 +12,7 @@ import { ChatBot } from '@/components/chat-bot';
 import { HealthReport } from '@/components/health-report';
 import { PatientImprovementReview } from '@/components/patient-improvement-review';
 import { Consultation } from '@/components/consultation';
+import { Payment } from '@/components/payment';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import type { HealthData } from '@/lib/types';
 import { translateText } from '@/ai/flows/translator';
@@ -21,6 +22,7 @@ import { SectionNavigator } from '@/components/layout/section-navigator';
 import {
   Activity,
   BotMessageSquare,
+  CreditCard,
   FileText,
   HeartPulse,
   LayoutDashboard,
@@ -36,10 +38,11 @@ const sectionComponents: { [key: string]: React.ComponentType<any> } = {
   medicalHistory: MedicalHistory,
   lifestyle: LifestyleAssessment,
   senses: SenseOrgans,
-  patientImprovementReview: PatientImprovementReview,
-  consultation: Consultation,
+  payment: Payment,
   healthReport: HealthReport,
   aiInsights: AiInsights,
+  patientImprovementReview: PatientImprovementReview,
+  consultation: Consultation,
 };
 
 const navItems = [
@@ -48,10 +51,11 @@ const navItems = [
   { id: 'medicalHistory', icon: HeartPulse },
   { id: 'lifestyle', icon: Activity },
   { id: 'senses', icon: Smile },
-  { id: 'patientImprovementReview', icon: MessageSquarePlus },
-  { id: 'consultation', icon: Video },
+  { id: 'payment', icon: CreditCard },
   { id: 'healthReport', icon: FileText },
   { id: 'aiInsights', icon: BotMessageSquare },
+  { id: 'patientImprovementReview', icon: MessageSquarePlus },
+  { id: 'consultation', icon: Video },
 ];
 
 const sectionOrder = navItems.map(item => item.id);

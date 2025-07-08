@@ -5,10 +5,11 @@ export const initialUiText = {
     medicalHistory: 'Medical History',
     lifestyle: 'Lifestyle Assessment',
     senses: 'Sense Organ Assessment',
-    patientImprovementReview: 'Patient Improvement Review',
-    consultation: 'Consultation',
+    payment: 'Payment',
     healthReport: 'Health Report',
     aiInsights: 'AI Health Insights',
+    patientImprovementReview: 'Patient Improvement Review',
+    consultation: 'Consultation',
   },
   components: {
     header: {
@@ -404,6 +405,39 @@ export const initialUiText = {
             description: 'Note any issues with the following systems.',
         },
     },
+    payment: {
+      title: 'Platform Usage Fee',
+      description: 'To continue and generate your AI health report, please complete the one-time platform fee payment.',
+      paymentForm: {
+          title: 'Complete Payment',
+          description: 'You are paying an amount of ₹{amount}.',
+          card: {
+              tabTitle: 'Credit/Debit Card',
+              nameLabel: 'Name on Card',
+              namePlaceholder: 'John Doe',
+              numberLabel: 'Card Number',
+              numberPlaceholder: '•••• •••• •••• ••••',
+              expiryMonthLabel: 'Month',
+              expiryYearLabel: 'Year',
+              cvcLabel: 'CVC',
+          },
+          upi: {
+              tabTitle: 'UPI',
+              idLabel: 'UPI ID',
+              idPlaceholder: 'yourname@upi',
+              or: 'OR',
+              gpay: 'GPay',
+              phonepe: 'PhonePe',
+              paytm: 'Paytm',
+          },
+          payButton: 'Pay ₹{amount} Securely',
+      },
+      success: {
+          title: 'Payment Successful',
+          alertTitle: 'Thank you!',
+          alertDescription: 'Your payment has been received. You may now proceed to the next sections.'
+      }
+    },
     healthReport: {
         title: 'Comprehensive Health Report',
         generatedOn: 'Generated on:',
@@ -525,6 +559,7 @@ export const initialUiText = {
             reportLabel: 'Upload Previous Report (Optional)',
             uniqueIdLabel: 'Patient Unique ID',
             bookButton: 'Book Appointment',
+            selectDoctorFirst: 'Please select a doctor to proceed with payment and booking.',
             addDoctorDialog: {
                 title: 'Add a Custom Doctor',
                 description: 'Enter the details of the doctor you want to add.',
@@ -554,6 +589,30 @@ export const initialUiText = {
                 cameraErrorDesc: 'Please allow camera access in your browser to use this feature.',
             },
         },
+        paymentForm: {
+          title: 'Complete Booking Payment',
+          description: 'You are paying a consultation fee of ₹{amount}.',
+          card: {
+              tabTitle: 'Credit/Debit Card',
+              nameLabel: 'Name on Card',
+              namePlaceholder: 'John Doe',
+              numberLabel: 'Card Number',
+              numberPlaceholder: '•••• •••• •••• ••••',
+              expiryMonthLabel: 'Month',
+              expiryYearLabel: 'Year',
+              cvcLabel: 'CVC',
+          },
+          upi: {
+              tabTitle: 'UPI',
+              idLabel: 'UPI ID',
+              idPlaceholder: 'yourname@upi',
+              or: 'OR',
+              gpay: 'GPay',
+              phonepe: 'PhonePe',
+              paytm: 'Paytm',
+          },
+          payButton: 'Pay ₹{amount} & Confirm Appointment',
+      },
     }
   }
 };
