@@ -10,6 +10,8 @@ import { Dashboard } from '@/components/dashboard';
 import { AiInsights } from '@/components/ai-insights';
 import { ChatBot } from '@/components/chat-bot';
 import { HealthReport } from '@/components/health-report';
+import { PatientImprovementReview } from '@/components/patient-improvement-review';
+import { Consultation } from '@/components/consultation';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import type { HealthData } from '@/lib/types';
 import { translateText } from '@/ai/flows/translator';
@@ -22,8 +24,10 @@ import {
   FileText,
   HeartPulse,
   LayoutDashboard,
+  MessageSquarePlus,
   Smile,
   User,
+  Video,
 } from 'lucide-react';
 
 const sectionComponents: { [key: string]: React.ComponentType<any> } = {
@@ -32,6 +36,8 @@ const sectionComponents: { [key: string]: React.ComponentType<any> } = {
   medicalHistory: MedicalHistory,
   lifestyle: LifestyleAssessment,
   senses: SenseOrgans,
+  patientImprovementReview: PatientImprovementReview,
+  consultation: Consultation,
   healthReport: HealthReport,
   aiInsights: AiInsights,
 };
@@ -42,6 +48,8 @@ const navItems = [
   { id: 'medicalHistory', icon: HeartPulse },
   { id: 'lifestyle', icon: Activity },
   { id: 'senses', icon: Smile },
+  { id: 'patientImprovementReview', icon: MessageSquarePlus },
+  { id: 'consultation', icon: Video },
   { id: 'healthReport', icon: FileText },
   { id: 'aiInsights', icon: BotMessageSquare },
 ];
@@ -198,6 +206,21 @@ const initialHealthData: HealthData = {
       photo: null,
     },
   },
+  patientImprovementReview: [],
+  consultation: {
+    doctors: [
+        { id: 1, name: 'Dr. Evelyn Reed', specialization: 'Cardiologist', avatar: 'https://placehold.co/100x100.png' },
+        { id: 2, name: 'Dr. Ben Carter', specialization: 'Neurologist', avatar: 'https://placehold.co/100x100.png' },
+        { id: 3, name: 'Dr. Olivia Chen', specialization: 'Dermatologist', avatar: 'https://placehold.co/100x100.png' },
+    ],
+    booking: {
+        patientName: '',
+        problem: '',
+        report: null,
+        uniqueId: '',
+        doctorId: null,
+    }
+  }
 };
 
 
@@ -210,11 +233,20 @@ export default function Home() {
 
   useEffect(() => {
     // Generate unique ID on the client side after mount to avoid hydration mismatch
+    const uniqueId = `HC-${Date.now()}-A9B8C7`;
     setHealthData(prev => ({
       ...prev,
       patientInfo: {
         ...prev.patientInfo,
-        uniqueId: `HC-${Date.now()}-A9B8C7`
+        uniqueId: uniqueId
+      },
+      consultation: {
+        ...prev.consultation,
+        booking: {
+            ...prev.consultation.booking,
+            uniqueId: uniqueId,
+            patientName: prev.patientInfo.name
+        }
       }
     }));
   }, []); // Empty dependency array ensures this runs only once on mount
@@ -243,6 +275,13 @@ export default function Home() {
     }
   };
 
+  const handleDataChange = (section: keyof HealthData, data: any) => {
+    setHealthData(prev => ({
+      ...prev,
+      [section]: data,
+    }));
+  };
+  
   const ActiveComponent = sectionComponents[activeSection];
   const activeTitle = uiText.sectionTitles[activeSection as keyof typeof uiText.sectionTitles];
   const componentStrings = uiText.components[activeSection as keyof typeof uiText.components];
@@ -253,13 +292,6 @@ export default function Home() {
     sectionTitles={uiText.sectionTitles}
     navItems={navItems}
   />;
-
-  const handleDataChange = (section: keyof HealthData, data: any) => {
-    setHealthData(prev => ({
-      ...prev,
-      [section]: data,
-    }));
-  };
 
   const componentProps = {
     data: healthData,

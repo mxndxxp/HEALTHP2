@@ -167,9 +167,38 @@ export type LifestyleAssessmentInfo = {
   };
 };
 
+export type PatientImprovementReviewItem = {
+  id: number;
+  symptom: string;
+  date: string;
+  doctorName: string;
+  review: number; // 0-5
+  status: 'relieved' | 'not-relieved' | '';
+  recoveryPercentage: number; // 0-100
+};
+
+export type Doctor = {
+  id: number;
+  name: string;
+  specialization: string;
+  avatar: string;
+};
+
+export type Booking = {
+  patientName: string;
+  problem: string;
+  report: File | null;
+  uniqueId: string;
+  doctorId: number | null;
+};
+
 export type HealthData = {
   patientInfo: PatientInfo;
   medicalHistory: MedicalHistoryInfo;
   lifestyleAssessment: LifestyleAssessmentInfo;
-  // Other sections would be added here
+  patientImprovementReview: PatientImprovementReviewItem[];
+  consultation: {
+    doctors: Doctor[];
+    booking: Booking;
+  };
 }
