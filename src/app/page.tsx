@@ -77,7 +77,7 @@ const initialHealthData: HealthData = {
     },
     height: '180',
     weight: '75',
-    uniqueId: 'Generating...',
+    uniqueId: '',
     avatar: "https://placehold.co/200x200.png",
     dob: '',
     birthTime: '',
@@ -218,7 +218,7 @@ const initialHealthData: HealthData = {
         { id: 3, name: 'Dr. Olivia Chen', specialization: 'Dermatologist', avatar: 'https://placehold.co/100x100.png' },
     ],
     booking: {
-        patientName: '',
+        patientName: 'John Doe',
         problem: '',
         report: null,
         uniqueId: '',
@@ -234,26 +234,6 @@ export default function Home() {
   const [uiText, setUiText] = useState(initialUiText);
   const [isTranslating, setIsTranslating] = useState(false);
   const { toast } = useToast();
-
-  useEffect(() => {
-    // Generate unique ID on the client side after mount to avoid hydration mismatch
-    const uniqueId = `HC-${Date.now()}-A9B8C7`;
-    setHealthData(prev => ({
-      ...prev,
-      patientInfo: {
-        ...prev.patientInfo,
-        uniqueId: uniqueId
-      },
-      consultation: {
-        ...prev.consultation,
-        booking: {
-            ...prev.consultation.booking,
-            uniqueId: uniqueId,
-            patientName: prev.patientInfo.name
-        }
-      }
-    }));
-  }, []); // Empty dependency array ensures this runs only once on mount
 
   const handleLanguageChange = async (language: string) => {
     if (language === 'en') {

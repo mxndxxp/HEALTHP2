@@ -81,6 +81,11 @@ export const initialUiText = {
       height: 'Height (cm)',
       weight: 'Weight (kg)',
       uniqueId: 'Unique ID',
+      generateButton: 'Generate',
+      idGenerationError: {
+        title: 'Missing Information',
+        description: 'Please enter a name and phone number before generating an ID.'
+      },
       dob: 'Date of Birth',
       birthTime: 'Birth Time',
       birthPlace: 'Birth Place',

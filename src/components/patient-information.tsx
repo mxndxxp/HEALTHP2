@@ -40,10 +40,12 @@ import {
   Users,
   Handshake,
   CalendarDays,
+  Sparkles,
 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { Button } from './ui/button';
 import type { HealthData, PatientInfo } from '@/lib/types';
+import { useToast } from '@/hooks/use-toast';
 
 const IconLabel = ({
   icon: Icon,
@@ -67,6 +69,7 @@ type PatientInformationProps = {
 export function PatientInformation({ data, setData, t }: PatientInformationProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const patientData = data.patientInfo;
+  const { toast } = useToast();
 
   const handleFieldChange = (field: keyof PatientInfo | `address.${keyof PatientInfo['address']}`, value: any) => {
     const newData = { ...data };
@@ -76,6 +79,12 @@ export function PatientInformation({ data, setData, t }: PatientInformationProps
     } else {
         (newData.patientInfo as any)[field] = value;
     }
+
+    // Sync patient name to consultation booking
+    if (field === 'name') {
+      newData.consultation.booking.patientName = value;
+    }
+    
     setData(newData);
   };
 
@@ -88,6 +97,40 @@ export function PatientInformation({ data, setData, t }: PatientInformationProps
       };
       reader.readAsDataURL(file);
     }
+  };
+
+  const handleGenerateId = () => {
+    const { name, phone } = patientData;
+    if (!name || !phone) {
+      toast({
+        title: t.idGenerationError.title,
+        description: t.idGenerationError.description,
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const namePart = name.slice(0, 3).toUpperCase().replace(/\s/g, '');
+    const phonePart = phone.slice(-4);
+    const timestamp = Date.now().toString().slice(-6);
+    const newId = `HC-${namePart}${phonePart}-${timestamp}`;
+    
+    const newData = {
+      ...data,
+      patientInfo: {
+        ...data.patientInfo,
+        uniqueId: newId,
+      },
+      consultation: {
+        ...data.consultation,
+        booking: {
+          ...data.consultation.booking,
+          uniqueId: newId,
+        },
+      },
+    };
+
+    setData(newData);
   };
 
   return (
@@ -228,7 +271,13 @@ export function PatientInformation({ data, setData, t }: PatientInformationProps
                 <Label>
                 <IconLabel icon={BadgeInfo}>{t.uniqueId}</IconLabel>
                 </Label>
-                <Input id="uniqueId" value={patientData.uniqueId} readOnly className="font-mono bg-muted" />
+                <div className="flex items-center gap-2">
+                  <Input id="uniqueId" value={patientData.uniqueId} readOnly className="font-mono bg-muted flex-grow" />
+                  <Button type="button" variant="outline" onClick={handleGenerateId}>
+                    <Sparkles className="mr-2 h-4 w-4" />
+                    {t.generateButton}
+                  </Button>
+                </div>
             </div>
           </div>
 
