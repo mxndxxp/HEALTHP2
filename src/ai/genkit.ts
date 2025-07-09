@@ -13,6 +13,6 @@ export const ai = genkit({
       apiKey: process.env.GOOGLE_API_KEY,
     }),
   ],
-  // Use a powerful and efficient model for reliable performance.
-  model: 'googleai/gemini-1.5-flash-latest',
+  // Use a stable and reliable model as per Gemini API best practices.
+  model: 'googleai/gemini-1.0-pro',
 });
