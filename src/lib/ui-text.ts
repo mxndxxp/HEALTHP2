@@ -20,6 +20,11 @@ export const initialUiText = {
       settings: 'Settings',
       support: 'Support',
       logout: 'Logout',
+      saveButton: 'Save Progress',
+      saveProgress: {
+          title: 'Progress Saved!',
+          description: 'Your changes have been saved in the application state.'
+      }
     },
     chatbot: {
         title: 'AI Health Assistant',
@@ -444,79 +449,19 @@ export const initialUiText = {
       }
     },
     healthReport: {
-        title: 'Comprehensive Health Report',
-        generatedOn: 'Generated on:',
-        patientInfo: {
-            title: 'Patient Information',
-            name: 'Full Name',
-            uniqueId: 'Unique ID',
-            age: 'Age',
-            gender: 'Gender',
-            email: 'Email',
-            phone: 'Phone',
-            height: 'Height',
-            weight: 'Weight',
-            address: 'Address',
-            occupation: 'Occupation',
-            maritalStatus: { label: 'Marital Status' },
-            dateOfVisit: 'Date of Visit',
-            referredBy: 'Referred By',
-            dob: 'Date of Birth',
+        title: 'Health Report',
+        description: 'A comprehensive summary of the patient\'s health data.',
+        downloadButton: 'Download PDF',
+        summary: {
+            title: 'Your Health Summary',
+            thankYou: 'Thank you for trusting us with your health report.',
+            stayHealthy: 'Stay on top of your health parameters and take the right steps to stay healthy.',
         },
-        medicalHistory: {
-            title: 'Medical History',
-            chiefComplaints: {
-              title: 'Chief Complaints',
-              noComplaints: 'No chief complaints reported.',
-              duration: 'duration',
-              order: 'order'
-            },
-            presentIllness: {
-              title: 'History of Present Illness',
-              symptomsLabel: 'Symptoms',
-              onset: { label: 'Onset' },
-              duration: { label: 'Duration' },
-              progression: { label: 'Progression' },
-              frequencyTiming: 'Frequency/Timing',
-              location: 'Location',
-              radiation: 'Radiation',
-              character: 'Character',
-              severityLabel: 'Severity',
-              associatedSymptoms: 'Associated Symptoms',
-              aggravatingFactors: 'Aggravating Factors',
-              relievingFactors: 'Relieving Factors',
-              previousEpisodes: 'Previous Episodes',
-            },
-            pastHistory: {
-                title: 'Past History',
-                hospitalizations: { title: 'Hospitalizations/Surgeries' },
-                trauma: 'Trauma History',
-                bloodTransfusions: 'Blood Transfusion History',
-                allergies: 'Allergies',
-                immunizations: 'Immunization Status',
-            },
-            medications: {
-                title: 'Medications',
-                prescribed: { title: 'Prescribed Medications' },
-                supplements: 'Supplements',
-                compliance: { label: 'Compliance' },
-                recentChanges: 'Recent Changes',
-            },
-            familyHistory: {
-                title: 'Family History',
-                conditions: { title: 'Family Conditions' },
-                healthStatus: 'Family Health Status',
-                consanguinity: { label: 'Consanguinity' },
-            },
-            documents: {
-              title: 'Uploaded Documents',
-              report: 'Report',
-              prescription: 'Prescription',
-              photo: 'Photo',
-              noDocuments: 'No documents uploaded.',
-            },
+        atAGlance: {
+            title: 'At a glance',
+            description: 'Biological-Graphical representation of a blood vessel within a human body, for representation purpose only.',
         },
-        placeholder: 'Lifestyle Assessment, Sense Organs, and other data will be displayed here.',
+        
     },
     aiInsights: {
         title: 'AI Health Analysis Engine',

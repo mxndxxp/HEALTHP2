@@ -6,16 +6,13 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-  DropdownMenuSub,
-  DropdownMenuSubTrigger,
-  DropdownMenuSubContent,
-  DropdownMenuPortal,
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { Menu, User, Globe, Loader2 } from 'lucide-react';
+import { Menu, User, Globe, Loader2, Save } from 'lucide-react';
 import type { ReactNode } from 'react';
+import { useToast } from '@/hooks/use-toast';
 
 type HeaderProps = {
   title: string;
@@ -23,6 +20,7 @@ type HeaderProps = {
   onLanguageChange: (language: string) => void;
   isTranslating: boolean;
   t: any;
+  showSaveButton?: boolean;
 };
 
 const indianLanguages = [
@@ -41,7 +39,16 @@ const indianLanguages = [
     { code: 'as', name: 'Assamese' },
 ];
 
-export function Header({ title, sidebar, onLanguageChange, isTranslating, t }: HeaderProps) {
+export function Header({ title, sidebar, onLanguageChange, isTranslating, t, showSaveButton = false }: HeaderProps) {
+  const { toast } = useToast();
+
+  const handleSave = () => {
+    toast({
+      title: t.saveProgress.title,
+      description: t.saveProgress.description,
+    });
+  };
+
   return (
     <header className="flex h-16 items-center justify-between border-b bg-background px-4 md:px-6">
       <div className="flex items-center gap-4">
@@ -59,6 +66,12 @@ export function Header({ title, sidebar, onLanguageChange, isTranslating, t }: H
         <h1 className="text-xl font-semibold tracking-tight">{title}</h1>
       </div>
       <div className="flex items-center gap-4">
+        {showSaveButton && (
+           <Button variant="outline" onClick={handleSave}>
+              <Save className="mr-2 h-4 w-4" />
+              {t.saveButton}
+           </Button>
+        )}
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
                 <Button variant="outline" size="icon">

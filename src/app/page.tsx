@@ -58,6 +58,14 @@ const navItems = [
   { id: 'consultation', icon: Video },
 ];
 
+const dataEntrySections = [
+    'patientInfo', 
+    'medicalHistory', 
+    'lifestyle', 
+    'senses', 
+    'patientImprovementReview'
+];
+
 const sectionOrder = navItems.map(item => item.id);
 
 const initialHealthData: HealthData = {
@@ -269,6 +277,8 @@ export default function Home() {
   const ActiveComponent = sectionComponents[activeSection];
   const activeTitle = uiText.sectionTitles[activeSection as keyof typeof uiText.sectionTitles];
   const componentStrings = uiText.components[activeSection as keyof typeof uiText.components];
+  
+  const showSaveButton = dataEntrySections.includes(activeSection);
 
   const sidebar = <SidebarNav
     activeSection={activeSection}
@@ -296,6 +306,7 @@ export default function Home() {
           onLanguageChange={handleLanguageChange} 
           isTranslating={isTranslating} 
           t={uiText.components.header} 
+          showSaveButton={showSaveButton}
         />
         <main className="flex-1 overflow-auto bg-muted/40">
             <ScrollArea className="h-[calc(100vh-65px)]">
