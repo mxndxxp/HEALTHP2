@@ -7,7 +7,7 @@ import { MedicalHistory } from '@/components/medical-history';
 import { LifestyleAssessment } from '@/components/lifestyle-assessment';
 import { SenseOrgans } from '@/components/sense-organs';
 import { Dashboard } from '@/components/dashboard';
-import { AiInsights } from '@/components/ai-insights';
+import { AiAnalysis } from '@/components/ai-analysis';
 import { ChatBot } from '@/components/chat-bot';
 import { HealthReport } from '@/components/health-report';
 import { PatientImprovementReview } from '@/components/patient-improvement-review';
@@ -40,7 +40,7 @@ const sectionComponents: { [key: string]: React.ComponentType<any> } = {
   senses: SenseOrgans,
   payment: Payment,
   healthReport: HealthReport,
-  aiInsights: AiInsights,
+  aiAnalysis: AiAnalysis,
   patientImprovementReview: PatientImprovementReview,
   consultation: Consultation,
 };
@@ -53,7 +53,7 @@ const navItems = [
   { id: 'senses', icon: Smile },
   { id: 'payment', icon: CreditCard },
   { id: 'healthReport', icon: FileText },
-  { id: 'aiInsights', icon: BotMessageSquare },
+  { id: 'aiAnalysis', icon: BotMessageSquare },
   { id: 'patientImprovementReview', icon: MessageSquarePlus },
   { id: 'consultation', icon: Video },
 ];

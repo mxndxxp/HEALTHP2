@@ -9,20 +9,20 @@ import {
   CardFooter,
 } from '@/components/ui/card';
 import { Button } from './ui/button';
-import { healthInsights } from '@/ai/flows/health-insights';
-import type { HealthInsightsOutput } from '@/ai/flows/health-insights';
-import { Loader2, Lightbulb, Sparkles, AlertTriangle, TestTube, HeartPulse } from 'lucide-react';
+import { aiAnalysis } from '@/ai/flows/ai-analysis';
+import type { AiAnalysisOutput } from '@/ai/flows/ai-analysis';
+import { Loader2, Lightbulb, Sparkles, AlertTriangle, TestTube, HeartPulse, Stethoscope } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { HealthData } from '@/lib/types';
 
-type AiInsightsProps = {
+type AiAnalysisProps = {
   data: HealthData;
   t: any;
 };
 
-export function AiInsights({ data, t }: AiInsightsProps) {
+export function AiAnalysis({ data, t }: AiAnalysisProps) {
   const [isLoading, setIsLoading] = useState(false);
-  const [result, setResult] = useState<HealthInsightsOutput | null>(null);
+  const [result, setResult] = useState<AiAnalysisOutput | null>(null);
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
 
@@ -36,7 +36,7 @@ export function AiInsights({ data, t }: AiInsightsProps) {
       const patientDataForJson = JSON.parse(JSON.stringify(data));
       delete patientDataForJson.medicalHistory.documents;
       
-      const insights = await healthInsights({
+      const insights = await aiAnalysis({
         patientData: JSON.stringify(patientDataForJson, null, 2),
         reportDocument: data.medicalHistory.documents.reports || undefined,
         prescriptionDocument: data.medicalHistory.documents.prescriptions || undefined,
@@ -100,20 +100,20 @@ export function AiInsights({ data, t }: AiInsightsProps) {
             </CardHeader>
             <CardContent className="space-y-8">
                 <div>
-                    <h3 className="font-semibold text-lg flex items-center gap-2"><Sparkles /> {t.summary}</h3>
+                    <h3 className="font-semibold text-lg flex items-center gap-2"><Stethoscope /> {t.summary}</h3>
                     <p className="text-muted-foreground mt-2 whitespace-pre-wrap">{result.diagnosticSummary}</p>
                 </div>
                  <div>
-                    <h3 className="font-semibold text-lg flex items-center gap-2"><AlertTriangle /> {t.conditions}</h3>
-                    <p className="text-muted-foreground mt-2 whitespace-pre-wrap">{result.potentialConditions}</p>
+                    <h3 className="font-semibold text-lg flex items-center gap-2"><AlertTriangle /> {t.problems}</h3>
+                    <p className="text-muted-foreground mt-2 whitespace-pre-wrap">{result.highlightedProblems}</p>
                 </div>
                  <div>
+                    <h3 className="font-semibold text-lg flex items-center gap-2"><TestTube /> {t.treatments}</h3>
+                    <p className="text-muted-foreground mt-2 whitespace-pre-wrap">{result.suggestedTreatments}</p>
+                </div>
+                <div>
                     <h3 className="font-semibold text-lg flex items-center gap-2"><HeartPulse /> {t.recommendations}</h3>
                     <p className="text-muted-foreground mt-2 whitespace-pre-wrap">{result.lifestyleRecommendations}</p>
-                </div>
-                 <div>
-                    <h3 className="font-semibold text-lg flex items-center gap-2"><TestTube /> {t.nextSteps}</h3>
-                    <p className="text-muted-foreground mt-2 whitespace-pre-wrap">{result.suggestedNextSteps}</p>
                 </div>
             </CardContent>
         </Card>
