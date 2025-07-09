@@ -100,7 +100,11 @@ export function MedicalHistory({ data, setData, t }: MedicalHistoryProps) {
   const handleFileUpload = (field: keyof MedicalHistoryInfo['documents'], event: ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
         const file = event.target.files[0];
-        handleUpdate(['documents', field], file);
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            handleUpdate(['documents', field], reader.result as string);
+        };
+        reader.readAsDataURL(file);
     }
   }
 
@@ -296,29 +300,29 @@ export function MedicalHistory({ data, setData, t }: MedicalHistoryProps) {
                   <Upload className="h-10 w-10 text-muted-foreground" />
                   <p className="mt-2 text-sm font-semibold">{t.documents.reports}</p>
                   <p className="text-xs text-muted-foreground">
-                    {medicalData.documents.reports ? medicalData.documents.reports.name : t.documents.reportsDesc}
+                    {medicalData.documents.reports ? "File selected" : t.documents.reportsDesc}
                   </p>
                   <Button variant="outline" size="sm" className="mt-4" asChild>
                     <Label htmlFor="reports-upload">{t.documents.uploadButton}</Label>
                   </Button>
-                  <Input id="reports-upload" type="file" className="hidden" onChange={(e) => handleFileUpload('reports', e)} accept="application/pdf" />
+                  <Input id="reports-upload" type="file" className="hidden" onChange={(e) => handleFileUpload('reports', e)} accept="image/*,application/pdf" />
                 </div>
                 <div className="border-2 border-dashed rounded-lg p-6 flex flex-col items-center justify-center text-center">
                   <Upload className="h-10 w-10 text-muted-foreground" />
                   <p className="mt-2 text-sm font-semibold">{t.documents.prescriptions}</p>
                    <p className="text-xs text-muted-foreground">
-                    {medicalData.documents.prescriptions ? medicalData.documents.prescriptions.name : t.documents.prescriptionsDesc}
+                    {medicalData.documents.prescriptions ? "File selected" : t.documents.prescriptionsDesc}
                   </p>
                   <Button variant="outline" size="sm" className="mt-4" asChild>
                     <Label htmlFor="prescriptions-upload">{t.documents.uploadButton}</Label>
                   </Button>
-                   <Input id="prescriptions-upload" type="file" className="hidden" onChange={(e) => handleFileUpload('prescriptions', e)} accept="application/pdf,image/*" />
+                   <Input id="prescriptions-upload" type="file" className="hidden" onChange={(e) => handleFileUpload('prescriptions', e)} accept="image/*,application/pdf" />
                 </div>
                 <div className="border-2 border-dashed rounded-lg p-6 flex flex-col items-center justify-center text-center">
                   <Upload className="h-10 w-10 text-muted-foreground" />
                   <p className="mt-2 text-sm font-semibold">{t.documents.photos}</p>
                   <p className="text-xs text-muted-foreground">
-                    {medicalData.documents.photos ? medicalData.documents.photos.name : t.documents.photosDesc}
+                    {medicalData.documents.photos ? "File selected" : t.documents.photosDesc}
                   </p>
                   <Button variant="outline" size="sm" className="mt-4" asChild>
                     <Label htmlFor="photos-upload">{t.documents.uploadButton}</Label>

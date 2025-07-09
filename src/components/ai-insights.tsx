@@ -31,23 +31,16 @@ export function AiInsights({ data, t }: AiInsightsProps) {
     setError(null);
     setResult(null);
 
-    // Sanitize data by removing file objects before stringifying
-    const sanitizedData = JSON.parse(JSON.stringify(data, (key, value) => {
-        if (value instanceof File) {
-            return {
-                name: value.name,
-                size: value.size,
-                type: value.type,
-            };
-        }
-        return value;
-    }));
-
-    const fullReportData = JSON.stringify(sanitizedData, null, 2);
-
     try {
+      // Clone the data and remove file contents for the JSON part
+      const patientDataForJson = JSON.parse(JSON.stringify(data));
+      delete patientDataForJson.medicalHistory.documents;
+      
       const insights = await healthInsights({
-        fullReportData,
+        patientData: JSON.stringify(patientDataForJson, null, 2),
+        reportDocument: data.medicalHistory.documents.reports || undefined,
+        prescriptionDocument: data.medicalHistory.documents.prescriptions || undefined,
+        problemPhoto: data.medicalHistory.documents.photos || undefined,
       });
       setResult(insights);
     } catch (e) {

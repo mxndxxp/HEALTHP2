@@ -85,9 +85,9 @@ export type MedicalHistoryInfo = {
     consanguinity: 'yes' | 'no' | 'unknown' | '';
   };
   documents: {
-    reports: File | null;
-    prescriptions: File | null;
-    photos: File | null;
+    reports: string | null;
+    prescriptions: string | null;
+    photos: string | null;
   };
 };
 

@@ -9,7 +9,9 @@ import {
 import { Separator } from '@/components/ui/separator';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import type { HealthData } from '@/lib/types';
-import { User, File as FileIcon, Stethoscope, Briefcase, Users, CalendarDays, Handshake } from 'lucide-react';
+import { User, File as FileIcon, Stethoscope, Briefcase, Users, CalendarDays, Handshake, Image as ImageIcon } from 'lucide-react';
+import Image from 'next/image';
+
 
 type HealthReportProps = {
   data: HealthData;
@@ -37,6 +39,24 @@ const Section = ({ title, children, icon: Icon }: { title: string, children: Rea
 export function HealthReport({ data, t }: HealthReportProps) {
   const { patientInfo, medicalHistory, lifestyleAssessment } = data;
   const { patientInfo: tPatient, medicalHistory: tMedical, lifestyle: tLifestyle } = t;
+
+  const renderDocument = (doc: string | null, label: string) => {
+    if (!doc) return null;
+
+    if (doc.startsWith('data:image')) {
+      return (
+        <div className="flex flex-col items-start gap-2">
+          <p className="flex items-center gap-2 font-medium"><ImageIcon className="h-4 w-4" /> {label}:</p>
+          <Image src={doc} alt={label} width={200} height={200} className="rounded-md border object-contain" data-ai-hint="medical document" />
+        </div>
+      );
+    }
+    
+    // Placeholder for other file types like PDF
+    return (
+       <div className="flex items-center gap-2"><FileIcon className="h-4 w-4" /> {label}: Document uploaded</div>
+    )
+  }
 
   return (
     <Card className="w-full max-w-4xl mx-auto">
@@ -142,10 +162,11 @@ export function HealthReport({ data, t }: HealthReportProps) {
 
                 <div>
                     <h4 className="font-medium text-lg">{tMedical.documents.title}</h4>
-                    <div className="flex flex-wrap gap-4 text-sm mt-2">
-                        {medicalHistory.documents.reports && <div className="flex items-center gap-2"><FileIcon className="h-4 w-4" /> {tMedical.documents.reports}: {medicalHistory.documents.reports.name}</div>}
-                        {medicalHistory.documents.prescriptions && <div className="flex items-center gap-2"><FileIcon className="h-4 w-4" /> {tMedical.documents.prescriptions}: {medicalHistory.documents.prescriptions.name}</div>}
-                        {medicalHistory.documents.photos && <div className="flex items-center gap-2"><FileIcon className="h-4 w-4" /> {tMedical.documents.photos}: {medicalHistory.documents.photos.name}</div>}
+                    <div className="flex flex-wrap gap-8 text-sm mt-2">
+                        {renderDocument(medicalHistory.documents.reports, tMedical.documents.reports)}
+                        {renderDocument(medicalHistory.documents.prescriptions, tMedical.documents.prescriptions)}
+                        {renderDocument(medicalHistory.documents.photos, tMedical.documents.photos)}
+                        
                         {!medicalHistory.documents.reports && !medicalHistory.documents.prescriptions && !medicalHistory.documents.photos && (
                             <p className="text-sm text-muted-foreground">{tMedical.documents.noDocuments}</p>
                         )}
