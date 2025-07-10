@@ -255,27 +255,34 @@ export default function Home() {
   const [healthData, setHealthData] = useState<HealthData>(initialHealthData);
   const [uiText, setUiText] = useState(initialUiText);
   const [isTranslating, setIsTranslating] = useState(false);
+  const [currentLanguage, setCurrentLanguage] = useState('en');
   const { toast } = useToast();
 
-  const handleLanguageChange = async (language: string) => {
-    if (language === 'en') {
+  const handleLanguageChange = async () => {
+    const targetLanguage = currentLanguage === 'en' ? 'hi' : 'en';
+
+    if (targetLanguage === 'en') {
       setUiText(initialUiText);
+      setCurrentLanguage('en');
       return;
     }
+
     setIsTranslating(true);
     try {
       const jsonToTranslate = JSON.stringify(initialUiText);
-      const result = await translateText({ text: jsonToTranslate, targetLanguage: language });
+      const result = await translateText({ text: jsonToTranslate, targetLanguage: 'Hindi' });
       const translatedUi = JSON.parse(result.translatedText);
       setUiText(translatedUi);
+      setCurrentLanguage('hi');
     } catch (error) {
       console.error("Translation failed", error);
       toast({
         title: "Translation Failed",
-        description: "Could not translate the UI. Please try again or select another language.",
+        description: "Could not translate the UI. Please try again.",
         variant: "destructive",
       });
       setUiText(initialUiText); // Revert to English on failure
+      setCurrentLanguage('en');
     } finally {
       setIsTranslating(false);
     }
@@ -321,6 +328,7 @@ export default function Home() {
           isTranslating={isTranslating} 
           t={uiText.components.header} 
           showSaveButton={showSaveButton}
+          currentLanguage={currentLanguage}
         />
         <main className="flex-1 overflow-auto bg-muted/40">
             <ScrollArea className="h-[calc(100vh-65px)]">

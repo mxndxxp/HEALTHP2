@@ -17,29 +17,14 @@ import { useToast } from '@/hooks/use-toast';
 type HeaderProps = {
   title: string;
   sidebar: ReactNode;
-  onLanguageChange: (language: string) => void;
+  onLanguageChange: () => void;
   isTranslating: boolean;
   t: any;
   showSaveButton?: boolean;
+  currentLanguage: 'en' | 'hi';
 };
 
-const indianLanguages = [
-    { code: 'en', name: 'English' },
-    { code: 'hi', name: 'Hindi' },
-    { code: 'bn', name: 'Bengali' },
-    { code: 'te', name: 'Telugu' },
-    { code: 'mr', name: 'Marathi' },
-    { code: 'ta', name: 'Tamil' },
-    { code: 'ur', name: 'Urdu' },
-    { code: 'gu', name: 'Gujarati' },
-    { code: 'kn', name: 'Kannada' },
-    { code: 'or', name: 'Odia' },
-    { code: 'ml', name: 'Malayalam' },
-    { code: 'pa', name: 'Punjabi' },
-    { code: 'as', name: 'Assamese' },
-];
-
-export function Header({ title, sidebar, onLanguageChange, isTranslating, t, showSaveButton = false }: HeaderProps) {
+export function Header({ title, sidebar, onLanguageChange, isTranslating, t, showSaveButton = false, currentLanguage }: HeaderProps) {
   const { toast } = useToast();
 
   const handleSave = () => {
@@ -72,22 +57,10 @@ export function Header({ title, sidebar, onLanguageChange, isTranslating, t, sho
               {t.saveButton}
            </Button>
         )}
-        <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="icon">
-                    {isTranslating ? <Loader2 className="animate-spin" /> : <Globe />}
-                </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-                <DropdownMenuLabel>{t.selectLanguage}</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                {indianLanguages.map(lang => (
-                    <DropdownMenuItem key={lang.code} onClick={() => onLanguageChange(lang.code)}>
-                        {lang.name}
-                    </DropdownMenuItem>
-                ))}
-            </DropdownMenuContent>
-        </DropdownMenu>
+        <Button variant="outline" onClick={onLanguageChange} disabled={isTranslating}>
+            {isTranslating ? <Loader2 className="animate-spin" /> : <Globe />}
+            <span className="ml-2">{currentLanguage === 'en' ? 'हिन्दी' : 'English'}</span>
+        </Button>
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
