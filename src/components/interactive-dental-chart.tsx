@@ -2,7 +2,6 @@
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
 
-// A more detailed, 3D-style tooth icon
 const ToothIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg 
         viewBox="0 0 24 24" 
@@ -17,55 +16,44 @@ const ToothIcon = (props: React.SVGProps<SVGSVGElement>) => (
     </svg>
 );
 
-
 type ToothProps = {
   id: string;
   label: string;
   isSelected: boolean;
   onClick: (id: string) => void;
-  className?: string;
-  rotation: number;
+  isLower?: boolean;
 };
 
-const ToothComponent = ({ id, label, isSelected, onClick, className, rotation }: ToothProps) => {
+const ToothComponent = ({ id, label, isSelected, onClick, isLower = false }: ToothProps) => {
   return (
     <div
-      className={cn("absolute w-12 h-16 flex items-center justify-center", className)}
-      style={{ transform: `rotate(${rotation}deg) translate(10rem) rotate(${-rotation}deg)` }}
+      className={cn(
+        "flex flex-col items-center justify-center transition-all duration-200 transform hover:scale-125 hover:z-10",
+        isLower && "flex-col-reverse"
+      )}
     >
-        <button
-          onClick={() => onClick(id)}
+      <button
+        onClick={() => onClick(id)}
+        className="flex flex-col items-center justify-center p-1"
+        title={`Tooth ${label}`}
+      >
+        <ToothIcon
           className={cn(
-            "flex flex-col items-center justify-center transition-all duration-200 transform hover:scale-125"
+            "h-8 w-8 text-gray-300 stroke-gray-500 transition-colors",
+            isSelected && "text-primary/70 fill-primary/30 stroke-primary",
+            isLower && "transform -scale-y-100"
           )}
-          title={`Tooth ${label}`}
-        >
-          <ToothIcon
-            className={cn(
-              "h-8 w-8 text-gray-300 stroke-gray-500 transition-colors",
-              isSelected && "text-primary/70 fill-primary/30 stroke-primary"
-            )}
-          />
-          <span className={cn("text-xs mt-1 font-medium", isSelected ? 'text-primary' : 'text-muted-foreground')}>{label}</span>
-        </button>
+        />
+        <span className={cn("text-xs mt-1 font-medium", isSelected ? 'text-primary' : 'text-muted-foreground')}>{label}</span>
+      </button>
     </div>
   );
 };
 
-const upperRight = [1, 2, 3, 4, 5, 6, 7, 8];
-const upperLeft = [9, 10, 11, 12, 13, 14, 15, 16];
-const lowerLeft = [17, 18, 19, 20, 21, 22, 23, 24];
-const lowerRight = [25, 26, 27, 28, 29, 30, 31, 32];
-
-const archAngle = 160; // Total angle for the arch
-const lowerArchAngle = 140;
-
-const getRotation = (index: number, total: number, arch: 'upper' | 'lower' = 'upper') => {
-    const angle = arch === 'upper' ? archAngle : lowerArchAngle;
-    const startAngle = -angle / 2;
-    const step = angle / (total -1);
-    return startAngle + index * step;
-};
+const upperRight = Array.from({ length: 8 }, (_, i) => 8 - i); // 8 -> 1
+const upperLeft = Array.from({ length: 8 }, (_, i) => i + 9);    // 9 -> 16
+const lowerLeft = Array.from({ length: 8 }, (_, i) => i + 17);   // 17 -> 24
+const lowerRight = Array.from({ length: 8 }, (_, i) => 32 - i); // 32 -> 25
 
 export function InteractiveDentalChart() {
   const [selectedTeeth, setSelectedTeeth] = useState<string[]>([]);
@@ -76,40 +64,87 @@ export function InteractiveDentalChart() {
     );
   };
 
-  const allUpperTeeth = [...upperRight.reverse(), ...upperLeft];
-  const allLowerTeeth = [...lowerLeft.reverse(), ...lowerRight];
-
   return (
-    <div className="w-full max-w-xl mx-auto p-4 space-y-8 flex flex-col items-center">
-        <div className="relative w-96 h-48 flex items-center justify-center">
-             <div className="text-center font-semibold text-muted-foreground absolute -top-4">Upper Arch</div>
-            {allUpperTeeth.map((toothNum, index) => (
-                <ToothComponent
-                    key={`T${toothNum}`}
-                    id={`T${toothNum}`}
-                    label={`${toothNum}`}
-                    isSelected={selectedTeeth.includes(`T${toothNum}`)}
-                    onClick={handleToothClick}
-                    rotation={getRotation(index, allUpperTeeth.length, 'upper')}
-                />
-            ))}
+    <div className="w-full max-w-4xl mx-auto p-4 space-y-2 font-sans">
+      {/* Upper Arch */}
+      <div className="flex justify-center items-end">
+        {/* Upper Right */}
+        <div className="flex flex-col items-center">
+            <div className="flex">
+                {upperRight.map((toothNum) => (
+                    <ToothComponent
+                        key={`T${toothNum}`}
+                        id={`T${toothNum}`}
+                        label={`${toothNum}`}
+                        isSelected={selectedTeeth.includes(`T${toothNum}`)}
+                        onClick={handleToothClick}
+                    />
+                ))}
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">Upper Right</p>
         </div>
 
-       <div className="relative w-96 h-48 flex items-center justify-center">
-          <div className="text-center font-semibold text-muted-foreground absolute -bottom-4">Lower Arch</div>
-            {allLowerTeeth.map((toothNum, index) => (
-                <ToothComponent
-                    key={`T${toothNum}`}
-                    id={`T${toothNum}`}
-                    label={`${toothNum}`}
-                    isSelected={selectedTeeth.includes(`T${toothNum}`)}
-                    onClick={handleToothClick}
-                    rotation={getRotation(index, allLowerTeeth.length, 'lower') + 180 + (archAngle - lowerArchAngle)/2}
-                />
-            ))}
-       </div>
+        <div className="border-l border-muted-foreground h-16 mx-2"></div>
+        
+        {/* Upper Left */}
+        <div className="flex flex-col items-center">
+             <div className="flex">
+                {upperLeft.map((toothNum) => (
+                    <ToothComponent
+                        key={`T${toothNum}`}
+                        id={`T${toothNum}`}
+                        label={`${toothNum}`}
+                        isSelected={selectedTeeth.includes(`T${toothNum}`)}
+                        onClick={handleToothClick}
+                    />
+                ))}
+            </div>
+             <p className="text-xs text-muted-foreground mt-1">Upper Left</p>
+        </div>
+      </div>
 
-      <div className="text-xs text-center text-muted-foreground pt-4">
+      <div className="border-b w-full my-4 border-muted-foreground"></div>
+
+      {/* Lower Arch */}
+      <div className="flex justify-center items-start">
+         {/* Lower Right */}
+        <div className="flex flex-col items-center">
+            <p className="text-xs text-muted-foreground mb-1">Lower Right</p>
+            <div className="flex">
+                {lowerRight.map((toothNum) => (
+                    <ToothComponent
+                        key={`T${toothNum}`}
+                        id={`T${toothNum}`}
+                        label={`${toothNum}`}
+                        isSelected={selectedTeeth.includes(`T${toothNum}`)}
+                        onClick={handleToothClick}
+                        isLower
+                    />
+                ))}
+            </div>
+        </div>
+        
+        <div className="border-l border-muted-foreground h-16 mx-2"></div>
+        
+         {/* Lower Left */}
+        <div className="flex flex-col items-center">
+            <p className="text-xs text-muted-foreground mb-1">Lower Left</p>
+            <div className="flex">
+                {lowerLeft.map((toothNum) => (
+                    <ToothComponent
+                        key={`T${toothNum}`}
+                        id={`T${toothNum}`}
+                        label={`${toothNum}`}
+                        isSelected={selectedTeeth.includes(`T${toothNum}`)}
+                        onClick={handleToothClick}
+                        isLower
+                    />
+                ))}
+            </div>
+        </div>
+      </div>
+
+      <div className="text-center text-xs text-muted-foreground pt-6">
         Selected Teeth: {selectedTeeth.join(', ') || 'None'}
       </div>
     </div>
