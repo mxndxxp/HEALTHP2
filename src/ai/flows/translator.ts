@@ -30,18 +30,16 @@ export async function translateText(input: TranslateTextInput): Promise<Translat
 const translateTextPrompt = ai.definePrompt({
   name: 'translateTextPrompt',
   input: {schema: TranslateTextInputSchema},
-  output: {schema: TranslateTextOutputSchema},
+  output: {schema: TranslateTextOutputSchema, format: 'json'},
   prompt: `You are an expert translator. Your task is to translate the provided text to {{targetLanguage}}.
 
 - If the input text is a JSON string, translate only the string values of the JSON object.
 - Keep the JSON keys and the overall structure exactly the same.
 - Do not add, remove, or change any keys in the JSON.
 - Preserve any HTML-like tags (e.g., <br />) or placeholders (e.g., {name}) in the translated strings.
-- Return a single, valid, translated JSON string as your output.
-
 - If the input text is a simple string (not JSON), just translate the string.
 
-Return only the translated text (or JSON string), with no preamble or explanation.
+IMPORTANT: Your response MUST be only the raw translated text (or JSON string). Do not wrap it in markdown backticks. Do not add any preamble, conversational text, or explanation.
 
 Text to translate:
 "{{text}}"
