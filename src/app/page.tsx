@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { SidebarNav } from '@/components/layout/sidebar-nav';
 import { Header } from '@/components/layout/header';
 import { PatientInformation } from '@/components/patient-information';
@@ -249,6 +249,35 @@ const initialHealthData: HealthData = {
   }
 };
 
+// Helper function to recursively translate an object's string values
+async function translateNestedObject(obj: any, targetLanguage: string): Promise<any> {
+  if (typeof obj === 'string') {
+    // Don't translate placeholders like {amount}
+    if (obj.startsWith('{') && obj.endsWith('}')) {
+        return obj;
+    }
+    const result = await translateText({ text: obj, targetLanguage });
+    // The flow now returns an object with a translatedText property
+    return result.translatedText;
+  }
+
+  if (Array.isArray(obj)) {
+    return Promise.all(obj.map(item => translateNestedObject(item, targetLanguage)));
+  }
+
+  if (typeof obj === 'object' && obj !== null) {
+    const newObj: { [key: string]: any } = {};
+    for (const key in obj) {
+      if (Object.prototype.hasOwnProperty.call(obj, key)) {
+        newObj[key] = await translateNestedObject(obj[key], targetLanguage);
+      }
+    }
+    return newObj;
+  }
+
+  return obj; // Return non-string, non-array, non-object values as-is
+}
+
 
 export default function Home() {
   const [activeSection, setActiveSection] = useState('dashboard');
@@ -260,6 +289,8 @@ export default function Home() {
 
   const handleLanguageChange = async () => {
     const targetLanguage = currentLanguage === 'en' ? 'hi' : 'en';
+    const targetLanguageName = currentLanguage === 'en' ? 'Hindi' : 'English';
+
 
     if (targetLanguage === 'en') {
       setUiText(initialUiText);
@@ -269,9 +300,7 @@ export default function Home() {
 
     setIsTranslating(true);
     try {
-      const jsonToTranslate = JSON.stringify(initialUiText);
-      const result = await translateText({ text: jsonToTranslate, targetLanguage: 'Hindi' });
-      const translatedUi = JSON.parse(result.translatedText);
+      const translatedUi = await translateNestedObject(initialUiText, targetLanguageName);
       setUiText(translatedUi);
       setCurrentLanguage('hi');
     } catch (error) {

@@ -30,7 +30,7 @@ export async function translateText(input: TranslateTextInput): Promise<Translat
 const translateTextPrompt = ai.definePrompt({
   name: 'translateTextPrompt',
   input: {schema: TranslateTextInputSchema},
-  output: {schema: TranslateTextOutputSchema, format: 'json'},
+  output: {schema: TranslateTextOutputSchema},
   prompt: `You are an expert translator. Your task is to translate the provided text to {{targetLanguage}}.
 
 - If the input text is a JSON string, translate only the string values of the JSON object.
@@ -53,6 +53,7 @@ const translateTextFlow = ai.defineFlow(
     outputSchema: TranslateTextOutputSchema,
   },
   async input => {
+    // For simple string translation, the prompt is sufficient.
     const {output} = await translateTextPrompt(input);
     return output!;
   }
