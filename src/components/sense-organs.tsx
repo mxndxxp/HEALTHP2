@@ -1,5 +1,5 @@
 'use client';
-
+import React, { useState } from 'react';
 import {
   Card,
   CardContent,
@@ -35,6 +35,9 @@ import {
 } from 'lucide-react';
 import { Textarea } from './ui/textarea';
 import { Input } from './ui/input';
+import { RadioGroup, RadioGroupItem } from './ui/radio-group';
+import { cn } from '@/lib/utils';
+
 
 const dentalConditions = [
   'Tooth Decay',
@@ -55,6 +58,7 @@ const organSystems = [
   {
     name: 'Eyes',
     icon: Eye,
+    sideSpecific: true,
     conditions: [
       'Myopia (Nearsighted)',
       'Hyperopia (Farsighted)',
@@ -73,6 +77,7 @@ const organSystems = [
    {
     name: 'Ears',
     icon: Ear,
+    sideSpecific: true,
     conditions: [
         'Hearing Loss',
         'Tinnitus (Ringing)',
@@ -85,6 +90,7 @@ const organSystems = [
   {
     name: 'Nose/Sinuses',
     icon: Wind,
+    sideSpecific: true,
     conditions: [
       'Sinusitis',
       'Allergic Rhinitis',
@@ -143,6 +149,50 @@ const PhotoAndNotes = ({ section, t }: { section: string, t: any }) => (
         </div>
     </div>
 );
+
+const SideSelector = ({side, setSide}: {side: string, setSide: (s:string) => void}) => {
+    return (
+        <RadioGroup value={side} onValueChange={setSide} className="flex items-center gap-2 rounded-lg bg-muted p-1">
+            <RadioGroupItem value="left" id={`side-left-${side}`} className="sr-only" />
+            <Label htmlFor={`side-left-${side}`} className={cn("px-3 py-1 text-sm rounded-md cursor-pointer", side === 'left' && 'bg-background shadow-sm')}>Left</Label>
+            
+            <RadioGroupItem value="right" id={`side-right-${side}`} className="sr-only" />
+            <Label htmlFor={`side-right-${side}`} className={cn("px-3 py-1 text-sm rounded-md cursor-pointer", side === 'right' && 'bg-background shadow-sm')}>Right</Label>
+
+            <RadioGroupItem value="both" id={`side-both-${side}`} className="sr-only" />
+            <Label htmlFor={`side-both-${side}`} className={cn("px-3 py-1 text-sm rounded-md cursor-pointer", side === 'both' && 'bg-background shadow-sm')}>Both</Label>
+        </RadioGroup>
+    )
+}
+
+const SystemAccordionContent = ({ system }: { system: (typeof organSystems)[0] }) => {
+    const [side, setSide] = useState('both');
+    
+    return (
+        <div className="p-4 space-y-6">
+            {system.sideSpecific && (
+                 <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                    <Label className="font-semibold">Which side is affected?</Label>
+                    <SideSelector side={side} setSide={setSide}/>
+                </div>
+            )}
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+            {system.conditions.map((condition) => (
+                <div
+                key={condition}
+                className="flex items-center gap-2"
+                >
+                <Checkbox id={`${system.name}-${condition}`} />
+                <Label htmlFor={`${system.name}-${condition}`} className="font-normal">
+                    {condition}
+                </Label>
+                </div>
+            ))}
+            </div>
+            <PhotoAndNotes section={system.name} t={{title: 'Details for {section}', problemDetails: 'Problem Details', problemPlaceholder: 'Describe the problem...', photoLabel: 'Upload Photo'}}/>
+        </div>
+    )
+}
 
 type SenseOrgansProps = {
   t: any;
@@ -205,22 +255,7 @@ export function SenseOrgans({ t }: SenseOrgansProps) {
                         </div>
                       </AccordionTrigger>
                       <AccordionContent>
-                        <div className="p-4 space-y-6">
-                            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                            {system.conditions.map((condition) => (
-                                <div
-                                key={condition}
-                                className="flex items-center gap-2"
-                                >
-                                <Checkbox id={`${system.name}-${condition}`} />
-                                <Label htmlFor={`${system.name}-${condition}`} className="font-normal">
-                                    {condition}
-                                </Label>
-                                </div>
-                            ))}
-                            </div>
-                            <PhotoAndNotes section={system.name} t={t.photoAndNotes}/>
-                        </div>
+                        <SystemAccordionContent system={system} />
                       </AccordionContent>
                     </AccordionItem>
                   ))}

@@ -82,7 +82,7 @@ export function Header({ title, sidebar, onLanguageChange, isTranslating, t, sho
                 <DropdownMenuLabel>{t.selectLanguage}</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 {indianLanguages.map(lang => (
-                    <DropdownMenuItem key={lang.code} onClick={() => onLanguageChange(lang.name)}>
+                    <DropdownMenuItem key={lang.code} onClick={() => onLanguageChange(lang.code)}>
                         {lang.name}
                     </DropdownMenuItem>
                 ))}
