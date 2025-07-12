@@ -8,7 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { ClipboardList, Stethoscope } from 'lucide-react';
+import { ClipboardList, Stethoscope, User } from 'lucide-react';
 import Link from 'next/link';
 
 export default function LandingPage() {
@@ -23,43 +23,27 @@ export default function LandingPage() {
         </div>
         <p className="text-muted-foreground text-lg">Your Comprehensive Healthcare Platform</p>
       </div>
-      <div className="grid w-full max-w-4xl grid-cols-1 gap-8 md:grid-cols-2">
-        <Card className="flex flex-col">
-          <CardHeader className="text-center">
-            <Stethoscope className="mx-auto h-12 w-12 text-primary" />
-            <CardTitle className="mt-4">For Doctors</CardTitle>
-            <CardDescription>
-              Access your dashboard, manage patients, and provide consultations.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="flex flex-grow flex-col justify-end gap-4">
-            <Button asChild size="lg">
-              <Link href="/doctor/login">Doctor Login</Link>
-            </Button>
-            <Button asChild variant="outline" size="lg">
-              <Link href="/doctor/signup">Doctor Signup</Link>
-            </Button>
-          </CardContent>
-        </Card>
 
-        <Card className="flex flex-col">
-          <CardHeader className="text-center">
-            <ClipboardList className="mx-auto h-12 w-12 text-primary" />
-            <CardTitle className="mt-4">For Patients</CardTitle>
-            <CardDescription>
-              Manage your health records, book appointments, and get AI insights.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="flex flex-grow flex-col justify-end gap-4">
-            <Button asChild size="lg">
-              <Link href="/patient/login">Patient Login</Link>
+      <Card className="w-full max-w-md">
+        <CardHeader>
+          <CardTitle className="text-center text-2xl">Who are you?</CardTitle>
+          <CardDescription className="text-center">Please select your role to continue.</CardDescription>
+        </CardHeader>
+        <CardContent className="grid grid-cols-1 gap-4">
+            <Button asChild size="lg" className="h-16 text-lg">
+              <Link href="/patient/login" className="flex items-center gap-3">
+                <User className="h-6 w-6" />
+                I am a Patient
+              </Link>
             </Button>
-            <Button asChild variant="outline" size="lg">
-              <Link href="/patient/signup">Patient Signup</Link>
+            <Button asChild variant="outline" size="lg" className="h-16 text-lg">
+              <Link href="/doctor/login" className="flex items-center gap-3">
+                <Stethoscope className="h-6 w-6" />
+                I am a Doctor
+              </Link>
             </Button>
-          </CardContent>
-        </Card>
-      </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }
