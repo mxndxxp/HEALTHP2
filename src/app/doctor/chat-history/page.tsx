@@ -11,7 +11,7 @@ import { useRouter } from 'next/navigation';
 import { ChevronLeft, MessageSquare, User } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import Link from 'next/link';
-import { cn } from '@/lib/utils';
+import { List, ListItem } from '@/components/ui/list';
 
 // Mock patient data
 const patients = [
@@ -46,10 +46,10 @@ export default function DoctorChatHistoryPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="flex flex-col">
+            <List>
               {patients.map(patient => (
-                <Link key={patient.id} href={`/doctor/chat/${patient.id}`} passHref>
-                    <div className={cn("group flex w-full cursor-pointer items-center justify-between gap-2 rounded-md p-2 transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50")}>
+                <ListItem key={patient.id}>
+                    <Link href={`/doctor/chat/${patient.id}`} passHref className="flex w-full cursor-pointer items-center justify-between gap-2 rounded-md p-2 transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
                       <div className="flex items-center gap-4">
                           <Avatar>
                           <AvatarImage src={patient.avatar} data-ai-hint="person avatar"/>
@@ -63,10 +63,10 @@ export default function DoctorChatHistoryPage() {
                       <div className="text-right">
                           <p className="text-xs text-muted-foreground">{patient.timestamp}</p>
                       </div>
-                    </div>
-                </Link>
+                    </Link>
+                </ListItem>
               ))}
-            </div>
+            </List>
           </CardContent>
         </Card>
       </main>
