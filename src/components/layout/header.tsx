@@ -10,9 +10,10 @@ import {
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { Menu, User, Globe, Loader2, Save } from 'lucide-react';
+import { Menu, User, Globe, Loader2, Save, LogOut } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { useToast } from '@/hooks/use-toast';
+import { useRouter } from 'next/navigation';
 
 type HeaderProps = {
   title: string;
@@ -26,12 +27,17 @@ type HeaderProps = {
 
 export function Header({ title, sidebar, onLanguageChange, isTranslating, t, showSaveButton = false, currentLanguage }: HeaderProps) {
   const { toast } = useToast();
+  const router = useRouter();
 
   const handleSave = () => {
     toast({
       title: t.saveProgress.title,
       description: t.saveProgress.description,
     });
+  };
+
+  const handleLogout = () => {
+    router.push('/');
   };
 
   return (
@@ -80,7 +86,10 @@ export function Header({ title, sidebar, onLanguageChange, isTranslating, t, sho
             <DropdownMenuItem>{t.settings}</DropdownMenuItem>
             <DropdownMenuItem>{t.support}</DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>{t.logout}</DropdownMenuItem>
+            <DropdownMenuItem onSelect={handleLogout} className="text-destructive focus:text-destructive focus:bg-destructive/10">
+              <LogOut className="mr-2 h-4 w-4" />
+              <span>{t.logout}</span>
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
