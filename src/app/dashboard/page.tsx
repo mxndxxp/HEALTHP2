@@ -20,6 +20,7 @@ import { initialUiText } from '@/lib/ui-text';
 import { useToast } from '@/hooks/use-toast';
 import { SectionNavigator } from '@/components/layout/section-navigator';
 import PatientChatPage from '@/app/patient/chat/[doctorId]/page';
+import { cn } from '@/lib/utils';
 import {
   Activity,
   BotMessageSquare,
@@ -352,7 +353,13 @@ export default function DashboardPage() {
   return (
     <div className="grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">
       <div className="hidden border-r bg-muted/40 md:block">
-        {sidebar}
+        <SidebarNav
+          activeSection={activeSection}
+          setActiveSection={setActiveSection}
+          sectionTitles={uiText.sectionTitles}
+          navItems={navItems}
+          className="h-full"
+        />
       </div>
       <div className="flex flex-col">
         <Header 
