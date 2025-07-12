@@ -19,6 +19,7 @@ import { translateText } from '@/ai/flows/translator';
 import { initialUiText } from '@/lib/ui-text';
 import { useToast } from '@/hooks/use-toast';
 import { SectionNavigator } from '@/components/layout/section-navigator';
+import PatientChatPage from '@/app/patient/chat/[doctorId]/page';
 import {
   Activity,
   BotMessageSquare,
@@ -30,6 +31,7 @@ import {
   Smile,
   User,
   Video,
+  MessageSquare,
 } from 'lucide-react';
 
 const sectionComponents: { [key: string]: React.ComponentType<any> } = {
@@ -43,6 +45,7 @@ const sectionComponents: { [key: string]: React.ComponentType<any> } = {
   aiAnalysis: AiAnalysis,
   patientImprovementReview: PatientImprovementReview,
   consultation: Consultation,
+  doctorChat: () => <PatientChatPage params={{ doctorId: '1' }} />,
 };
 
 const navItems = [
@@ -56,6 +59,7 @@ const navItems = [
   { id: 'aiAnalysis', icon: BotMessageSquare },
   { id: 'patientImprovementReview', icon: MessageSquarePlus },
   { id: 'consultation', icon: Video },
+  { id: 'doctorChat', icon: MessageSquare },
 ];
 
 const dataEntrySections = [
@@ -329,6 +333,7 @@ export default function DashboardPage() {
   const componentStrings = uiText.components[activeSection as keyof typeof uiText.components];
   
   const showSaveButton = dataEntrySections.includes(activeSection);
+  const isChat = activeSection === 'doctorChat';
 
   const sidebar = <SidebarNav
     activeSection={activeSection}
@@ -361,14 +366,14 @@ export default function DashboardPage() {
         />
         <main className="flex-1 overflow-auto bg-muted/40">
             <ScrollArea className="h-[calc(100vh-65px)]">
-                 <div className="p-4 sm:p-6">
+                 <div className={cn("p-4 sm:p-6", isChat && "p-0 sm:p-0")}>
                     {ActiveComponent && <ActiveComponent {...componentProps} />}
-                    <SectionNavigator
+                    {!isChat && <SectionNavigator
                       activeSection={activeSection}
                       setActiveSection={setActiveSection}
                       sectionOrder={sectionOrder}
                       sectionTitles={uiText.sectionTitles}
-                    />
+                    />}
                  </div>
             </ScrollArea>
         </main>

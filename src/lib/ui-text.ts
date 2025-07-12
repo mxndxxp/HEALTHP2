@@ -10,6 +10,7 @@ export const initialUiText = {
     aiAnalysis: 'AI Analysis',
     patientImprovementReview: 'Patient Improvement Review',
     consultation: 'Consultation',
+    doctorChat: 'Doctor Chat',
   },
   components: {
     header: {
