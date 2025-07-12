@@ -14,7 +14,6 @@ export const initialUiText = {
   components: {
     header: {
       toggleNav: 'Toggle navigation menu',
-      selectLanguage: 'Select Language',
       toggleUserMenu: 'Toggle user menu',
       myAccount: 'My Account',
       settings: 'Settings',
@@ -601,14 +600,12 @@ export const initialUiText = {
             callTitle: 'Voice Call',
             callDesc: 'Start a voice call.',
             videoTitle: 'Video Conference',
-            videoDesc: 'Start a video call.',
             uploadTitle: 'Upload Video Message',
-            uploadDesc: 'Send a pre-recorded video.',
+            uploadDesc: 'Send a pre-recorded video describing your problem.',
             startButton: 'Start',
-            uploadButton: 'Upload',
+            uploadButton: 'Upload Video',
             videoConference: {
-                title: 'Video Conference',
-                connecting: 'Connecting to Dr. {name}...',
+                connecting: 'Connecting to {name}...',
                 cameraErrorTitle: 'Camera Access Required',
                 cameraErrorDesc: 'Please allow camera access in your browser to use this feature.',
             },
@@ -635,7 +632,7 @@ export const initialUiText = {
               phonepe: 'PhonePe',
               paytm: 'Paytm',
           },
-          payButton: 'Pay ₹{amount} & Confirm Appointment',
+          payButton: 'Pay ₹500 & Confirm Appointment',
       },
     }
   }

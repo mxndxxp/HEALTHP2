@@ -40,6 +40,7 @@ import { toast } from '@/hooks/use-toast';
 import type { HealthData, Doctor } from '@/lib/types';
 import { User, Video as VideoIcon, Upload, MessageSquare, Phone, PlusCircle, AlertTriangle, CheckCircle } from 'lucide-react';
 import { PaymentForm } from './payment-form';
+import { useToast as useAppToast } from '@/hooks/use-toast';
 
 type ConsultationProps = {
   data: HealthData;
@@ -54,6 +55,8 @@ export function Consultation({ data, onDataChange, t }: ConsultationProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [hasCameraPermission, setHasCameraPermission] = useState(true);
   const [bookingConfirmed, setBookingConfirmed] = useState(false);
+  const { toast: appToast } = useAppToast();
+
 
   const { consultation } = data;
   const { booking, doctors } = consultation;
@@ -117,11 +120,16 @@ export function Consultation({ data, onDataChange, t }: ConsultationProps) {
         } catch (error) {
           console.error('Error accessing camera:', error);
           setHasCameraPermission(false);
+          appToast({
+            variant: 'destructive',
+            title: 'Camera Access Denied',
+            description: 'Please enable camera permissions in your browser settings to use this feature.',
+          });
         }
       };
       getCameraPermission();
     }
-  }, [activeTab]);
+  }, [activeTab, appToast]);
 
 
   return (
@@ -219,11 +227,19 @@ export function Consultation({ data, onDataChange, t }: ConsultationProps) {
 
                  <div className="lg:col-span-1">
                     {booking.doctorId && !bookingConfirmed ? (
-                        <PaymentForm 
-                            amount={5000} 
-                            t={t.paymentForm} 
-                            onPaymentSuccess={handleBookingConfirmation}
-                        />
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>{t.paymentForm.title}</CardTitle>
+                                <CardDescription>{t.paymentForm.description.replace('{amount}', '500')}</CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                                <PaymentForm 
+                                    amount={500} 
+                                    t={t.paymentForm} 
+                                    onPaymentSuccess={handleBookingConfirmation}
+                                />
+                            </CardContent>
+                        </Card>
                     ) : bookingConfirmed ? (
                         <Card className="flex flex-col items-center justify-center h-full text-center">
                             <CardHeader>
@@ -262,8 +278,8 @@ export function Consultation({ data, onDataChange, t }: ConsultationProps) {
                                 <TabsTrigger value="upload"><Upload className="mr-2"/>{t.session.uploadTitle}</TabsTrigger>
                              </TabsList>
                              <TabsContent value="video" className="mt-4">
-                                <Card className="aspect-video w-full">
-                                    <CardContent className="p-0 flex flex-col items-center justify-center h-full bg-black rounded-lg">
+                                <Card className="w-full">
+                                    <CardContent className="p-0 flex flex-col items-center justify-center bg-black rounded-lg relative aspect-video">
                                         <p className="text-white absolute top-4">{t.session.videoConference.connecting.replace('{name}', selectedDoctor.name)}</p>
                                         <video ref={videoRef} className="w-full h-full object-cover rounded-md" autoPlay muted />
                                         { !hasCameraPermission && (
