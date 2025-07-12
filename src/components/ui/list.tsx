@@ -17,7 +17,7 @@ export const ListItem = ({
 }: ComponentPropsWithoutRef<'li'>) => (
   <li
     className={cn(
-      'group/list-item relative flex items-center gap-2 p-2',
+      'relative flex items-center gap-2 p-2',
       className
     )}
     {...props}
@@ -31,7 +31,7 @@ export const ListItemAction = ({
 }: ComponentPropsWithoutRef<'div'>) => (
   <div
     className={cn(
-      'hidden group-hover/list-item:flex group-focus-within/list-item:flex',
+      'hidden', // Removed complex hover selectors
       className
     )}
     {...props}

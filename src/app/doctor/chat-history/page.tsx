@@ -11,7 +11,6 @@ import { useRouter } from 'next/navigation';
 import { ChevronLeft, MessageSquare, User } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import Link from 'next/link';
-import { List, ListItem } from '@/components/ui/list';
 
 // Mock patient data
 const patients = [
@@ -46,27 +45,27 @@ export default function DoctorChatHistoryPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <List>
+            <div className="flex flex-col">
               {patients.map(patient => (
-                <ListItem key={patient.id}>
-                    <Link href={`/doctor/chat/${patient.id}`} passHref className="flex w-full cursor-pointer items-center justify-between gap-2 rounded-md p-2 transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
-                      <div className="flex items-center gap-4">
-                          <Avatar>
-                          <AvatarImage src={patient.avatar} data-ai-hint="person avatar"/>
-                          <AvatarFallback><User /></AvatarFallback>
-                          </Avatar>
-                          <div className="flex-1">
-                          <p className="font-semibold">{patient.name}</p>
-                          <p className="text-sm text-muted-foreground truncate max-w-xs">{patient.lastMessage}</p>
-                          </div>
-                      </div>
-                      <div className="text-right">
-                          <p className="text-xs text-muted-foreground">{patient.timestamp}</p>
-                      </div>
+                <div key={patient.id} className="border-b last:border-b-0">
+                    <Link href={`/doctor/chat/${patient.id}`} className="flex w-full cursor-pointer items-center justify-between gap-2 rounded-md p-3 transition-colors hover:bg-muted">
+                        <div className="flex items-center gap-4">
+                            <Avatar>
+                            <AvatarImage src={patient.avatar} data-ai-hint="person avatar"/>
+                            <AvatarFallback><User /></AvatarFallback>
+                            </Avatar>
+                            <div className="flex-1">
+                            <p className="font-semibold">{patient.name}</p>
+                            <p className="text-sm text-muted-foreground truncate max-w-xs">{patient.lastMessage}</p>
+                            </div>
+                        </div>
+                        <div className="text-right">
+                            <p className="text-xs text-muted-foreground">{patient.timestamp}</p>
+                        </div>
                     </Link>
-                </ListItem>
+                </div>
               ))}
-            </List>
+            </div>
           </CardContent>
         </Card>
       </main>
