@@ -30,8 +30,7 @@ const ListItem = React.forwardRef<
     <Comp
       ref={ref}
       className={cn(
-        "flex w-full cursor-pointer items-center gap-2 rounded-md p-2 transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&[data-active=true]]:bg-muted",
-        "[-[&\>_]:[data-list-item-action]]:hidden hover:[-[&\>_]:[data-list-item-action]]:block",
+        "group flex w-full cursor-pointer items-center gap-2 rounded-md p-2 transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50",
         className
       )}
       data-list="item"
@@ -49,7 +48,7 @@ const ListItemAction = React.forwardRef<
   return (
     <Comp
       ref={ref}
-      className={cn("ml-auto", className)}
+      className={cn("ml-auto opacity-0 group-hover:opacity-100 group-focus-within:opacity-100", className)}
       data-list-item-action
       {...props}
     />
