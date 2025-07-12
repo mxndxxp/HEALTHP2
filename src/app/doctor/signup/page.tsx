@@ -19,8 +19,8 @@ export default function DoctorSignupPage() {
 
   const handleSignup = (e: React.FormEvent) => {
     e.preventDefault();
-    // Redirect to a future doctor dashboard
-    router.push('/dashboard');
+    // Redirect to the new doctor dashboard
+    router.push('/doctor/dashboard');
   };
 
   return (
