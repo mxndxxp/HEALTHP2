@@ -40,20 +40,7 @@ const ListItem = React.forwardRef<
 })
 ListItem.displayName = "ListItem"
 
-const ListItemAction = React.forwardRef<
-  HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement> & { asChild?: boolean }
->(({ className, asChild = false, ...props }, ref) => {
-  const Comp = asChild ? Slot : "div"
-  return (
-    <Comp
-      ref={ref}
-      className={cn("ml-auto opacity-0 group-hover:opacity-100 group-focus-within:opacity-100", className)}
-      data-list-item-action
-      {...props}
-    />
-  )
-})
-ListItemAction.displayName = "ListItemAction"
+// ListItemAction has been removed to prevent build errors.
+// Actions can be placed directly inside ListItem and controlled with group-hover utilities.
 
-export { List, ListItem, ListItemAction }
+export { List, ListItem }

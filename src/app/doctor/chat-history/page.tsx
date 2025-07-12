@@ -53,19 +53,19 @@ export default function DoctorChatHistoryPage() {
               {patients.map(patient => (
                 <Link key={patient.id} href={`/doctor/chat/${patient.id}`} passHref>
                     <ListItem as="a" className="flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                        <Avatar>
-                        <AvatarImage src={patient.avatar} data-ai-hint="person avatar"/>
-                        <AvatarFallback><User /></AvatarFallback>
-                        </Avatar>
-                        <div className="flex-1">
-                        <p className="font-semibold">{patient.name}</p>
-                        <p className="text-sm text-muted-foreground truncate max-w-xs">{patient.lastMessage}</p>
-                        </div>
-                    </div>
-                    <div className="text-right">
-                        <p className="text-xs text-muted-foreground">{patient.timestamp}</p>
-                    </div>
+                      <div className="flex items-center gap-4">
+                          <Avatar>
+                          <AvatarImage src={patient.avatar} data-ai-hint="person avatar"/>
+                          <AvatarFallback><User /></AvatarFallback>
+                          </Avatar>
+                          <div className="flex-1">
+                          <p className="font-semibold">{patient.name}</p>
+                          <p className="text-sm text-muted-foreground truncate max-w-xs">{patient.lastMessage}</p>
+                          </div>
+                      </div>
+                      <div className="text-right">
+                          <p className="text-xs text-muted-foreground">{patient.timestamp}</p>
+                      </div>
                     </ListItem>
                 </Link>
               ))}
