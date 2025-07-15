@@ -1,5 +1,5 @@
 'use client';
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 import { ChatInterface } from '@/components/chat-interface';
 import { User, MessageSquare, ChevronLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -15,9 +15,11 @@ const patients: {[key: string]: { name: string, uniqueId: string, avatar: string
 };
 
 
-export default function DoctorChatPage({ params }: { params: { patientId: string } }) {
+export default function DoctorChatPage() {
   const router = useRouter();
-  const patient = patients[params.patientId] || { name: 'Unknown Patient', uniqueId: 'N/A', avatar: '' };
+  const params = useParams();
+  const patientId = Array.isArray(params.patientId) ? params.patientId[0] : params.patientId;
+  const patient = patients[patientId] || { name: 'Unknown Patient', uniqueId: 'N/A', avatar: '' };
 
   const initialMessages = [
     { id: '1', text: `Hello ${patient.name}, this is your doctor. How are you feeling today?`, sender: 'doctor' as const },
