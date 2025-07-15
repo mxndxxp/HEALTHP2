@@ -254,33 +254,16 @@ const initialHealthData: HealthData = {
   }
 };
 
-// Helper function to recursively translate an object's string values
-async function translateNestedObject(obj: any, targetLanguage: string): Promise<any> {
-  if (typeof obj === 'string') {
-    // Don't translate placeholders like {amount}
-    if (obj.startsWith('{') && obj.endsWith('}')) {
+async function batchTranslate(obj: any, targetLanguage: string): Promise<any> {
+    const textToTranslate = JSON.stringify(obj);
+    const result = await translateText({ text: textToTranslate, targetLanguage });
+    try {
+        return JSON.parse(result.translatedText);
+    } catch (e) {
+        console.error("Failed to parse translated JSON:", e);
+        // Fallback to the original object if parsing fails
         return obj;
     }
-    const result = await translateText({ text: obj, targetLanguage });
-    // The flow now returns an object with a translatedText property
-    return result.translatedText;
-  }
-
-  if (Array.isArray(obj)) {
-    return Promise.all(obj.map(item => translateNestedObject(item, targetLanguage)));
-  }
-
-  if (typeof obj === 'object' && obj !== null) {
-    const newObj: { [key: string]: any } = {};
-    for (const key in obj) {
-      if (Object.prototype.hasOwnProperty.call(obj, key)) {
-        newObj[key] = await translateNestedObject(obj[key], targetLanguage);
-      }
-    }
-    return newObj;
-  }
-
-  return obj; // Return non-string, non-array, non-object values as-is
 }
 
 
@@ -305,7 +288,8 @@ export default function DashboardPage() {
 
     setIsTranslating(true);
     try {
-      const translatedUi = await translateNestedObject(initialUiText, targetLanguageName);
+      // Pass the entire UI text object for batch translation.
+      const translatedUi = await batchTranslate(initialUiText, targetLanguageName);
       setUiText(translatedUi);
       setCurrentLanguage('hi');
     } catch (error) {
