@@ -1,7 +1,8 @@
+
 // This service now uses Firestore for persistent data storage.
 import type { HealthData } from './types';
 import { db, testDatabaseConnection } from './firebase';
-import { doc, getDoc, setDoc, getDocFromCache } from 'firebase/firestore';
+import { doc, getDoc, setDoc, getDocFromCache, collection, getDocs } from 'firebase/firestore';
 
 const initialHealthData: HealthData = {
   patientInfo: {
@@ -181,7 +182,7 @@ export const getPatientData = async (patientId: string, isOnline: boolean): Prom
             }
             const serverSnap = await getDoc(patientDocRef);
             if (serverSnap.exists()) {
-                return { data: serverSnap.data() as HealthData, source: 'server' };
+                return { data: { id: serverSnap.id, ...serverSnap.data() } as HealthData, source: 'server' };
             }
         } catch (serverError: any) {
             console.warn('Server fetch failed, falling back to cache', serverError.message);
@@ -193,7 +194,7 @@ export const getPatientData = async (patientId: string, isOnline: boolean): Prom
     try {
         const cacheSnap = await getDocFromCache(patientDocRef);
         if (cacheSnap.exists()) {
-            return { data: cacheSnap.data() as HealthData, source: 'cache' };
+            return { data: { id: cacheSnap.id, ...cacheSnap.data() } as HealthData, source: 'cache' };
         }
     } catch (cacheError) {
         // This will happen if offline and not in cache.
@@ -222,4 +223,11 @@ export const savePatientData = async (patientId: string, data: HealthData): Prom
 
     await setDoc(patientDocRef, cleanData, { merge: true });
     return data; // Return original data with File objects for the client
+};
+
+export const getAllPatients = async (): Promise<HealthData[]> => {
+    const patientsCol = collection(db, 'patients');
+    const patientSnapshot = await getDocs(patientsCol);
+    const patientList = patientSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as HealthData));
+    return patientList;
 };

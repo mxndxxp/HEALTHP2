@@ -1,3 +1,4 @@
+
 export type PatientInfo = {
   name: string;
   age: string;
@@ -193,6 +194,7 @@ export type Booking = {
 };
 
 export type HealthData = {
+  id?: string;
   patientInfo: PatientInfo;
   medicalHistory: MedicalHistoryInfo;
   lifestyleAssessment: LifestyleAssessmentInfo;

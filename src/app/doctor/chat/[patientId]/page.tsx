@@ -1,26 +1,40 @@
+
 'use client';
 import { useRouter, useParams } from 'next/navigation';
 import { ChatInterface } from '@/components/chat-interface';
-import { User, ChevronLeft } from 'lucide-react';
+import { User, ChevronLeft, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { getChatId } from '@/lib/chat-service';
-
-
-const patients: {[key: string]: { name: string, uniqueId: string, avatar: string }} = {
-  '1': { name: 'Jane Smith', uniqueId: 'HC-JAN6543-832941', avatar: 'https://placehold.co/100x100.png' },
-  '2': { name: 'Robert Brown', uniqueId: 'HC-ROB1234-918273', avatar: 'https://placehold.co/100x100.png' },
-  '3': { name: 'Emily Davis', uniqueId: 'HC-EMI5678-192837', avatar: 'https://placehold.co/100x100.png' },
-  '4': { name: 'Michael Wilson', uniqueId: 'HC-MIC9012-483726', avatar: 'https://placehold.co/100x100.png' },
-  '5': { name: 'Sarah Johnson', uniqueId: 'HC-SAR3456-564738', avatar: 'https://placehold.co/100x100.png' },
-};
+import { useEffect, useState } from 'react';
+import { getPatientData } from '@/lib/patient-data-service';
+import type { HealthData } from '@/lib/types';
 
 
 export default function DoctorChatPage() {
   const router = useRouter();
   const params = useParams();
   const patientId = Array.isArray(params.patientId) ? params.patientId[0] : params.patientId;
-  const patient = patients[patientId] || { name: 'Unknown Patient', uniqueId: 'N/A', avatar: '' };
+  const [patient, setPatient] = useState<HealthData | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    if (!patientId) return;
+    
+    const fetchPatientInfo = async () => {
+      try {
+        setIsLoading(true);
+        const { data } = await getPatientData(patientId, true);
+        setPatient(data);
+      } catch (error) {
+        console.error("Failed to fetch patient info for chat:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    fetchPatientInfo();
+  }, [patientId]);
 
   // For this prototype, we'll assume the doctor's ID is '1'.
   // In a real app, this would come from the authenticated session.
@@ -36,14 +50,22 @@ export default function DoctorChatPage() {
                     <span className="sr-only">Back</span>
                 </Button>
                 <div className="flex items-center gap-3">
-                    <Avatar>
-                        <AvatarImage src={patient.avatar} data-ai-hint="person avatar" />
-                        <AvatarFallback><User /></AvatarFallback>
-                    </Avatar>
-                    <div>
-                        <h1 className="text-lg font-semibold">{patient.name}</h1>
-                        <p className="text-sm text-muted-foreground font-mono">{patient.uniqueId}</p>
-                    </div>
+                    {isLoading ? (
+                        <Loader2 className="h-6 w-6 animate-spin"/>
+                    ) : patient ? (
+                        <>
+                           <Avatar>
+                                <AvatarImage src={patient.patientInfo.avatar} data-ai-hint="person avatar" />
+                                <AvatarFallback><User /></AvatarFallback>
+                            </Avatar>
+                            <div>
+                                <h1 className="text-lg font-semibold">{patient.patientInfo.name}</h1>
+                                <p className="text-sm text-muted-foreground font-mono">{patient.patientInfo.uniqueId}</p>
+                            </div>
+                        </>
+                    ) : (
+                        <p>Patient not found.</p>
+                    )}
                 </div>
             </div>
         </header>

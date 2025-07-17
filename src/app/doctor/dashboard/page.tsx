@@ -1,3 +1,4 @@
+
 'use client';
 import {
   Card,
@@ -30,50 +31,36 @@ import {
   ChevronLeft,
   MessageSquare,
   Bot,
+  Loader2,
 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { getAllPatients } from '@/lib/patient-data-service';
+import type { HealthData } from '@/lib/types';
 
-const patients = [
-  {
-    id: '1',
-    name: 'Jane Smith',
-    uniqueId: 'HC-JAN6543-832941',
-    lastVisit: '2024-07-29',
-    status: 'Active',
-  },
-  {
-    id: '2',
-    name: 'Robert Brown',
-    uniqueId: 'HC-ROB1234-918273',
-    lastVisit: '2024-07-28',
-    status: 'Stable',
-  },
-  {
-    id: '3',
-    name: 'Emily Davis',
-    uniqueId: 'HC-EMI5678-192837',
-    lastVisit: '2024-07-25',
-    status: 'Monitoring',
-  },
-  {
-    id: '4',
-    name: 'Michael Wilson',
-    uniqueId: 'HC-MIC9012-483726',
-    lastVisit: '2024-07-22',
-    status: 'Active',
-  },
-  {
-    id: '5',
-    name: 'Sarah Johnson',
-    uniqueId: 'HC-SAR3456-564738',
-    lastVisit: '2024-07-20',
-    status: 'Discharged',
-  },
-];
 
 export default function DoctorDashboardPage() {
   const router = useRouter();
+  const [patients, setPatients] = useState<HealthData[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchPatients = async () => {
+      try {
+        setIsLoading(true);
+        const patientList = await getAllPatients();
+        setPatients(patientList);
+      } catch (err) {
+        setError('Failed to load patient list.');
+        console.error(err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchPatients();
+  }, []);
 
   const handleLogout = () => {
     router.push('/');
@@ -83,9 +70,10 @@ export default function DoctorDashboardPage() {
     router.push('/');
   };
 
-  const handleViewPatient = () => {
+  const handleViewPatient = (patientId: string) => {
     // In a real app, this would use the patient's ID to fetch their data.
     // For this prototype, we'll just navigate to the existing patient dashboard.
+    // For now, it will always show patient '1' as per dashboard logic
     router.push('/dashboard');
   };
 
@@ -148,72 +136,75 @@ export default function DoctorDashboardPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Patient Name</TableHead>
-                  <TableHead>Unique ID</TableHead>
-                  <TableHead className="hidden md:table-cell">
-                    Last Visit
-                  </TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>
-                    <span className="sr-only">Actions</span>
-                  </TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {patients.map((patient) => (
-                  <TableRow key={patient.id}>
-                    <TableCell className="font-medium">
-                      {patient.name}
-                    </TableCell>
-                    <TableCell className="font-mono">
-                      {patient.uniqueId}
-                    </TableCell>
-                    <TableCell className="hidden md:table-cell">
-                      {patient.lastVisit}
-                    </TableCell>
-                    <TableCell>
-                      <Badge
-                        variant={
-                          patient.status === 'Active' ? 'default' : 'secondary'
-                        }
-                      >
-                        {patient.status}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button
-                            aria-haspopup="true"
-                            size="icon"
-                            variant="ghost"
-                          >
-                            <MoreHorizontal className="h-4 w-4" />
-                            <span className="sr-only">Toggle menu</span>
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem onSelect={handleViewPatient}>
-                            View Details
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            onSelect={() => handleMessagePatient(patient.id)}
-                          >
-                            Message Patient
-                          </DropdownMenuItem>
-                          <DropdownMenuItem>
-                            Schedule Follow-up
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+            {isLoading ? (
+                <div className="flex justify-center items-center py-10">
+                    <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                </div>
+            ) : error ? (
+                <p className="text-center text-destructive">{error}</p>
+            ) : (
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Patient Name</TableHead>
+                      <TableHead>Unique ID</TableHead>
+                      <TableHead className="hidden md:table-cell">
+                        Date of Visit
+                      </TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>
+                        <span className="sr-only">Actions</span>
+                      </TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {patients.map((patient) => (
+                      <TableRow key={patient.id}>
+                        <TableCell className="font-medium">
+                          {patient.patientInfo.name}
+                        </TableCell>
+                        <TableCell className="font-mono">
+                          {patient.patientInfo.uniqueId}
+                        </TableCell>
+                        <TableCell className="hidden md:table-cell">
+                          {patient.patientInfo.dateOfVisit}
+                        </TableCell>
+                        <TableCell>
+                          {/* Placeholder for status */}
+                          <Badge variant="secondary">Active</Badge>
+                        </TableCell>
+                        <TableCell>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button
+                                aria-haspopup="true"
+                                size="icon"
+                                variant="ghost"
+                              >
+                                <MoreHorizontal className="h-4 w-4" />
+                                <span className="sr-only">Toggle menu</span>
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem onSelect={() => handleViewPatient(patient.id!)}>
+                                View Details
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                onSelect={() => handleMessagePatient(patient.id!)}
+                              >
+                                Message Patient
+                              </DropdownMenuItem>
+                              <DropdownMenuItem>
+                                Schedule Follow-up
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+            )}
           </CardContent>
         </Card>
       </main>

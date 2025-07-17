@@ -1,3 +1,4 @@
+
 'use client';
 import { useState, useEffect, useRef } from 'react';
 import { Button } from './ui/button';
@@ -48,7 +49,7 @@ export function ChatInterface({ chatId, currentUser }: ChatInterfaceProps) {
 
 
   const handleSend = async () => {
-    if (!input.trim()) return;
+    if (!input.trim() || !chatId) return;
 
     const messageText = input;
     setInput('');

@@ -1,3 +1,4 @@
+
 'use client';
 import { useState, useRef, useEffect } from 'react';
 import type { ChangeEvent } from 'react';
@@ -109,27 +110,27 @@ export function Consultation({ data, onDataChange, t }: ConsultationProps) {
 
 
   useEffect(() => {
-    if (activeTab === 'session') {
-      const getCameraPermission = async () => {
-        try {
-          const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-          if (videoRef.current) {
-            videoRef.current.srcObject = stream;
-          }
-          setHasCameraPermission(true);
-        } catch (error) {
-          console.error('Error accessing camera:', error);
-          setHasCameraPermission(false);
-          appToast({
-            variant: 'destructive',
-            title: 'Camera Access Denied',
-            description: 'Please enable camera permissions in your browser settings to use this feature.',
-          });
+    const getCameraPermission = async () => {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
         }
-      };
+        setHasCameraPermission(true);
+      } catch (error) {
+        console.error('Error accessing camera:', error);
+        setHasCameraPermission(false);
+        appToast({
+          variant: 'destructive',
+          title: 'Camera Access Denied',
+          description: 'Please enable camera permissions in your browser settings to use this feature.',
+        });
+      }
+    };
+    if (activeTab === 'session' && bookingConfirmed) {
       getCameraPermission();
     }
-  }, [activeTab, appToast]);
+  }, [activeTab, appToast, bookingConfirmed]);
 
 
   return (
