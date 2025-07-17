@@ -138,7 +138,10 @@ export default function DashboardPage() {
       setHealthData(data.data);
       setDataSource(data.source);
       if (data.source === 'cache') {
-          setError('You are offline. Displaying cached data. Some features may be limited.');
+          toast({
+              title: "Offline Mode",
+              description: 'Displaying cached data. Some features may be limited.',
+          });
       }
     } catch (err: any) {
         console.error('Data fetch error:', err);
@@ -147,7 +150,7 @@ export default function DashboardPage() {
     } finally {
         setIsLoading(false);
     }
-  }, [patientId, isOnline, healthData]);
+  }, [patientId, isOnline, toast, healthData]);
 
   useEffect(() => {
     fetchPatientData();
@@ -161,16 +164,17 @@ export default function DashboardPage() {
     const isRetriableError = error.includes("Could not connect") || error.includes("unavailable");
     if (!isRetriableError) return;
 
-    setRetryCount(prev => prev + 1);
-    const retryDelay = Math.min(1000 * 2 ** retryCount, 30000); // Max 30s delay
+    const newRetryCount = retryCount + 1;
+    setRetryCount(newRetryCount);
+    const retryDelay = Math.min(1000 * 2 ** newRetryCount, 30000); // Max 30s delay
     
     const retryTimer = setTimeout(() => {
-      console.log(`Retrying connection... (Attempt ${retryCount + 1})`);
+      console.log(`Retrying connection... (Attempt ${newRetryCount})`);
       fetchPatientData();
     }, retryDelay);
     
     return () => clearTimeout(retryTimer);
-  }, [error, retryCount, fetchPatientData, isOnline]);
+  }, [error, fetchPatientData, isOnline, retryCount]);
 
 
   const handleDataChange = (section: keyof HealthData, data: any) => {
@@ -233,16 +237,16 @@ export default function DashboardPage() {
   if (error && !healthData) {
      return (
        <div className="flex min-h-screen items-center justify-center bg-gray-50 p-4">
-         <div className="max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-md">
-            <div className="text-center">
+         <Card className="max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-md">
+            <CardHeader className="text-center">
                 <div className="mx-auto bg-red-100 text-red-600 rounded-full w-16 h-16 flex items-center justify-center mb-4">
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                 </div>
                 
-                <h2 className="text-xl font-bold text-gray-800 mb-2">Failed to Load Data</h2>
-                <p className="text-gray-600 mb-4">{error}</p>
+                <CardTitle className="text-xl font-bold text-gray-800 mb-2">Failed to Load Data</CardTitle>
+                <CardDescription className="text-gray-600 mb-4">{error}</CardDescription>
                 
                 <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6 text-left">
                     <div className="flex">
@@ -300,8 +304,8 @@ export default function DashboardPage() {
                     </p>
                     </div>
                 )}
-            </div>
-         </div>
+            </CardHeader>
+         </Card>
        </div>
     );
   }
@@ -364,3 +368,5 @@ export default function DashboardPage() {
     </div>
   );
 }
+
+    
