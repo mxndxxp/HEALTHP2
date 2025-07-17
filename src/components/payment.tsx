@@ -15,16 +15,20 @@ export function Payment({ t }: PaymentProps) {
 
     if (isPaid) {
         return (
-            <div className="max-w-2xl mx-auto">
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="flex items-center gap-2"><CheckCircle className="text-green-500" /> {t.success.title}</CardTitle>
+            <div className="max-w-2xl mx-auto flex items-center justify-center min-h-[50vh]">
+                <Card className="w-full">
+                    <CardHeader className="items-center text-center">
+                        <CheckCircle className="h-16 w-16 text-green-500 mb-4"/>
+                        <CardTitle>{t.success.title}</CardTitle>
+                        <CardDescription>{t.success.alertDescription}</CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <Alert variant="default" className="border-green-500">
-                            <CheckCircle className="h-4 w-4 !text-green-500"/>
-                            <AlertTitle>{t.success.alertTitle}</AlertTitle>
-                            <AlertDescription>{t.success.alertDescription}</AlertDescription>
+                        <Alert variant="default" className="border-green-200 bg-green-50/50">
+                            <CheckCircle className="h-4 w-4 !text-green-600"/>
+                            <AlertTitle className="text-green-800">{t.success.alertTitle}</AlertTitle>
+                            <AlertDescription className="text-green-700">
+                                You can now access all features, including the AI Analysis and Health Report sections.
+                            </AlertDescription>
                         </Alert>
                     </CardContent>
                 </Card>
