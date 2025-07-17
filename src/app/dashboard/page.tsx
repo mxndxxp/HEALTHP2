@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { SidebarNav } from '@/components/layout/sidebar-nav';
 import { Header } from '@/components/layout/header';
 import { PatientInformation } from '@/components/patient-information';
@@ -32,6 +32,8 @@ import {
   Video,
   MessageSquare,
 } from 'lucide-react';
+import { translateText } from '@/ai/flows/translator';
+import { useToast } from '@/hooks/use-toast';
 
 const sectionComponents: { [key: string]: React.ComponentType<any> } = {
   dashboard: Dashboard,
@@ -44,6 +46,7 @@ const sectionComponents: { [key: string]: React.ComponentType<any> } = {
   aiAnalysis: AiAnalysis,
   patientImprovementReview: PatientImprovementReview,
   consultation: Consultation,
+  // We assume the main doctor for the patient has ID '1' for this prototype
   doctorChat: () => <PatientChatPage params={{ doctorId: '1' }} />,
 };
 
@@ -256,6 +259,8 @@ export default function DashboardPage() {
   const [activeSection, setActiveSection] = useState('dashboard');
   const [healthData, setHealthData] = useState<HealthData>(initialHealthData);
   const [uiText, setUiText] = useState(initialUiText);
+  const { toast } = useToast();
+
 
   const handleDataChange = (section: keyof HealthData, data: any) => {
     setHealthData(prev => ({
@@ -280,7 +285,7 @@ export default function DashboardPage() {
 
   const componentProps = {
     data: healthData,
-    setData: setHealthData,
+    setData: setHealthData, // Pass the whole setter down
     onDataChange: handleDataChange,
     t: componentStrings,
   };

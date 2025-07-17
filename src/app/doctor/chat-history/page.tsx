@@ -6,14 +6,6 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ChevronLeft } from 'lucide-react';
@@ -45,6 +37,22 @@ const chatHistory = [
     lastMessage: 'Okay, I will get the tests done.',
     lastMessageTimestamp: '2024-07-29T11:45:00Z',
     unreadCount: 0,
+    avatar: 'https://placehold.co/100x100.png',
+  },
+    {
+    patientId: '4',
+    patientName: 'Michael Wilson',
+    lastMessage: 'Feeling much better, thanks!',
+    lastMessageTimestamp: '2024-07-28T09:20:00Z',
+    unreadCount: 0,
+    avatar: 'https://placehold.co/100x100.png',
+  },
+  {
+    patientId: '5',
+    patientName: 'Sarah Johnson',
+    lastMessage: 'Can I get a refill for my prescription?',
+    lastMessageTimestamp: '2024-07-30T14:05:00Z',
+    unreadCount: 1,
     avatar: 'https://placehold.co/100x100.png',
   },
 ];

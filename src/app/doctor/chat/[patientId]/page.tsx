@@ -1,9 +1,10 @@
 'use client';
 import { useRouter, useParams } from 'next/navigation';
 import { ChatInterface } from '@/components/chat-interface';
-import { User, MessageSquare, ChevronLeft } from 'lucide-react';
+import { User, ChevronLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { getChatId } from '@/lib/chat-service';
 
 
 const patients: {[key: string]: { name: string, uniqueId: string, avatar: string }} = {
@@ -21,10 +22,10 @@ export default function DoctorChatPage() {
   const patientId = Array.isArray(params.patientId) ? params.patientId[0] : params.patientId;
   const patient = patients[patientId] || { name: 'Unknown Patient', uniqueId: 'N/A', avatar: '' };
 
-  const initialMessages = [
-    { id: '1', text: `Hello ${patient.name}, this is your doctor. How are you feeling today?`, sender: 'doctor' as const },
-    { id: '2', text: 'Hi Doctor, I\'m feeling a bit better, thank you for asking.', sender: 'patient' as const },
-  ];
+  // For this prototype, we'll assume the doctor's ID is '1'.
+  // In a real app, this would come from the authenticated session.
+  const doctorId = '1'; 
+  const chatId = getChatId(doctorId, patientId);
 
   return (
     <div className="flex h-screen w-full flex-col bg-muted/40">
@@ -47,9 +48,8 @@ export default function DoctorChatPage() {
             </div>
         </header>
         <ChatInterface
-            initialMessages={initialMessages}
+            chatId={chatId}
             currentUser="doctor"
-            recipientUser="patient"
         />
     </div>
   );
