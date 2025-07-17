@@ -10,7 +10,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { Menu, User, Globe, Loader2, Save, LogOut } from 'lucide-react';
+import { Menu, User, Save, LogOut } from 'lucide-react';
 import type { ReactNode } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
@@ -18,14 +18,11 @@ import { useRouter } from 'next/navigation';
 type HeaderProps = {
   title: string;
   sidebar: ReactNode;
-  onLanguageChange: () => void;
-  isTranslating: boolean;
   t: any;
   showSaveButton?: boolean;
-  currentLanguage: 'en' | 'hi';
 };
 
-export function Header({ title, sidebar, onLanguageChange, isTranslating, t, showSaveButton = false, currentLanguage }: HeaderProps) {
+export function Header({ title, sidebar, t, showSaveButton = false }: HeaderProps) {
   const { toast } = useToast();
   const router = useRouter();
 
@@ -63,11 +60,6 @@ export function Header({ title, sidebar, onLanguageChange, isTranslating, t, sho
               {t.saveButton}
            </Button>
         )}
-        <Button variant="outline" onClick={onLanguageChange} disabled={isTranslating}>
-            {isTranslating ? <Loader2 className="animate-spin" /> : <Globe />}
-            <span className="ml-2">{currentLanguage === 'en' ? 'हिन्दी' : 'English'}</span>
-        </Button>
-
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon" className="rounded-full">

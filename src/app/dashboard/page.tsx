@@ -15,9 +15,7 @@ import { Consultation } from '@/components/consultation';
 import { Payment } from '@/components/payment';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import type { HealthData } from '@/lib/types';
-import { translateText } from '@/ai/flows/translator';
 import { initialUiText } from '@/lib/ui-text';
-import { useToast } from '@/hooks/use-toast';
 import { SectionNavigator } from '@/components/layout/section-navigator';
 import PatientChatPage from '@/app/patient/chat/[doctorId]/page';
 import { cn } from '@/lib/utils';
@@ -254,57 +252,10 @@ const initialHealthData: HealthData = {
   }
 };
 
-async function batchTranslate(obj: any, targetLanguage: string): Promise<any> {
-    const textToTranslate = JSON.stringify(obj);
-    const result = await translateText({ text: textToTranslate, targetLanguage });
-    try {
-        return JSON.parse(result.translatedText);
-    } catch (e) {
-        console.error("Failed to parse translated JSON:", e);
-        // Fallback to the original object if parsing fails
-        return obj;
-    }
-}
-
-
 export default function DashboardPage() {
   const [activeSection, setActiveSection] = useState('dashboard');
   const [healthData, setHealthData] = useState<HealthData>(initialHealthData);
   const [uiText, setUiText] = useState(initialUiText);
-  const [isTranslating, setIsTranslating] = useState(false);
-  const [currentLanguage, setCurrentLanguage] = useState('en');
-  const { toast } = useToast();
-
-  const handleLanguageChange = async () => {
-    const targetLanguage = currentLanguage === 'en' ? 'hi' : 'en';
-    const targetLanguageName = currentLanguage === 'en' ? 'Hindi' : 'English';
-
-
-    if (targetLanguage === 'en') {
-      setUiText(initialUiText);
-      setCurrentLanguage('en');
-      return;
-    }
-
-    setIsTranslating(true);
-    try {
-      // Pass the entire UI text object for batch translation.
-      const translatedUi = await batchTranslate(initialUiText, targetLanguageName);
-      setUiText(translatedUi);
-      setCurrentLanguage('hi');
-    } catch (error) {
-      console.error("Translation failed", error);
-      toast({
-        title: "Translation Failed",
-        description: "Could not translate the UI. Please try again.",
-        variant: "destructive",
-      });
-      setUiText(initialUiText); // Revert to English on failure
-      setCurrentLanguage('en');
-    } finally {
-      setIsTranslating(false);
-    }
-  };
 
   const handleDataChange = (section: keyof HealthData, data: any) => {
     setHealthData(prev => ({
@@ -349,11 +300,8 @@ export default function DashboardPage() {
         <Header 
           title={activeTitle} 
           sidebar={sidebar} 
-          onLanguageChange={handleLanguageChange} 
-          isTranslating={isTranslating} 
           t={uiText.components.header} 
           showSaveButton={showSaveButton}
-          currentLanguage={currentLanguage}
         />
         <main className="flex-1 overflow-auto bg-muted/40">
             <ScrollArea className="h-[calc(100vh-65px)]">
