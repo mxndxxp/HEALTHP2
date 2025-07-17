@@ -1,3 +1,4 @@
+
 export const initialUiText = {
   sectionTitles: {
     dashboard: 'Dashboard',
@@ -433,7 +434,8 @@ export const initialUiText = {
           },
           upi: {
               tabTitle: 'UPI',
-              idLabel: 'UPI ID',
+              realTimeLabel: 'Pay directly with your UPI app:',
+              idLabel: 'Or enter your UPI ID',
               idPlaceholder: 'yourname@upi',
               or: 'OR',
               gpay: 'GPay',

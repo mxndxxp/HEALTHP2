@@ -1,3 +1,4 @@
+
 'use client';
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -18,11 +19,38 @@ export function PaymentForm({ amount, t, onPaymentSuccess }: PaymentFormProps) {
     const [isLoading, setIsLoading] = useState(false);
     const { toast } = useToast();
 
+    const handleUpiPayment = (e: React.MouseEvent<HTMLButtonElement>, app: string) => {
+        e.preventDefault();
+        const payeeVpa = 'healthsight@gpay'; // Example VPA
+        const payeeName = 'HealthSight Platform';
+        const transactionNote = 'Health Platform Fee';
+        
+        // Construct the UPI deep link
+        const upiUrl = `upi://pay?pa=${payeeVpa}&pn=${payeeName}&am=${amount}&cu=INR&tn=${transactionNote}`;
+        
+        // Attempt to open the UPI app
+        window.location.href = upiUrl;
+
+        // Since we can't get a callback, we'll show a toast to guide the user.
+        toast({
+            title: `Opening ${app}...`,
+            description: "Please complete the payment in your UPI app. The success will be reflected here shortly.",
+        });
+
+        // In a real app, we'd poll a backend to check for payment status.
+        // Here, we'll simulate a delay then success.
+        setIsLoading(true);
+        setTimeout(() => {
+            setIsLoading(false);
+            onPaymentSuccess();
+        }, 8000); // Wait 8 seconds to simulate user paying in app
+    };
+
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         setIsLoading(true);
 
-        // Simulate network request
+        // Simulate network request for card payment
         setTimeout(() => {
             setIsLoading(false);
             onPaymentSuccess();
@@ -35,10 +63,10 @@ export function PaymentForm({ amount, t, onPaymentSuccess }: PaymentFormProps) {
     
     return (
         <form onSubmit={handleSubmit}>
-            <Tabs defaultValue="card" className="w-full">
+            <Tabs defaultValue="upi" className="w-full">
                 <TabsList className="grid w-full grid-cols-2">
-                    <TabsTrigger value="card" disabled={isLoading}><CreditCard className="mr-2" />{t.card.tabTitle}</TabsTrigger>
                     <TabsTrigger value="upi" disabled={isLoading}><ScanLine className="mr-2" />{t.upi.tabTitle}</TabsTrigger>
+                    <TabsTrigger value="card" disabled={isLoading}><CreditCard className="mr-2" />{t.card.tabTitle}</TabsTrigger>
                 </TabsList>
                 <TabsContent value="card" className="mt-4">
                     <div className="space-y-4">
@@ -65,32 +93,43 @@ export function PaymentForm({ amount, t, onPaymentSuccess }: PaymentFormProps) {
                             </div>
                         </div>
                     </div>
+                     <Button type="submit" size="lg" className="w-full mt-6" disabled={isLoading}>
+                        {isLoading ? (
+                            <>
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                Processing...
+                            </>
+                        ) : (
+                            t.payButton.replace('{amount}', amount)
+                        )}
+                    </Button>
                 </TabsContent>
                 <TabsContent value="upi" className="mt-4">
                     <div className="space-y-4">
+                        <Label>{t.upi.realTimeLabel || 'Pay directly with your UPI app:'}</Label>
+                        <div className="flex justify-center gap-4">
+                            <Button onClick={(e) => handleUpiPayment(e, 'GPay')} variant="outline" type="button" className="flex-1" disabled={isLoading}>{t.upi.gpay}</Button>
+                            <Button onClick={(e) => handleUpiPayment(e, 'PhonePe')} variant="outline" type="button" className="flex-1" disabled={isLoading}>{t.upi.phonepe}</Button>
+                            <Button onClick={(e) => handleUpiPayment(e, 'Paytm')} variant="outline" type="button" className="flex-1" disabled={isLoading}>{t.upi.paytm}</Button>
+                        </div>
+                         <div className="text-center text-sm text-muted-foreground my-4">{t.upi.or}</div>
                         <div className="space-y-2">
                             <Label htmlFor="upi-id">{t.upi.idLabel}</Label>
                             <Input id="upi-id" placeholder={t.upi.idPlaceholder} disabled={isLoading} />
                         </div>
-                        <div className="text-center text-sm text-muted-foreground my-4">{t.upi.or}</div>
-                        <div className="flex justify-center gap-4">
-                            <Button variant="outline" type="button" className="flex-1" disabled={isLoading}>{t.upi.gpay}</Button>
-                            <Button variant="outline" type="button" className="flex-1" disabled={isLoading}>{t.upi.phonepe}</Button>
-                            <Button variant="outline" type="button" className="flex-1" disabled={isLoading}>{t.upi.paytm}</Button>
-                        </div>
+                         <Button type="submit" size="lg" className="w-full mt-6" disabled={isLoading}>
+                            {isLoading ? (
+                                <>
+                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                    Awaiting payment completion...
+                                </>
+                            ) : (
+                                'Verify Payment'
+                            )}
+                        </Button>
                     </div>
                 </TabsContent>
             </Tabs>
-            <Button type="submit" size="lg" className="w-full mt-6" disabled={isLoading}>
-                {isLoading ? (
-                    <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Processing...
-                    </>
-                ) : (
-                    t.payButton.replace('{amount}', amount)
-                )}
-            </Button>
         </form>
     );
 }
