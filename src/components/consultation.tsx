@@ -37,7 +37,6 @@ import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { Textarea } from './ui/textarea';
-import { toast } from '@/hooks/use-toast';
 import type { HealthData, Doctor } from '@/lib/types';
 import { User, Video as VideoIcon, Upload, MessageSquare, Phone, PlusCircle, AlertTriangle, CheckCircle } from 'lucide-react';
 import { PaymentForm } from './payment-form';
@@ -70,25 +69,12 @@ export function Consultation({ data, onDataChange, t }: ConsultationProps) {
   };
 
   const handleAddDoctor = () => {
-    if (!newDoctor.name || !newDoctor.specialization) {
-      toast({
-        title: 'Validation Error',
-        description: 'Please fill out both name and specialization.',
-        variant: 'destructive',
-      });
-      return;
-    }
-    const newDoctorData: Doctor = {
-      id: Date.now(),
-      name: newDoctor.name,
-      specialization: newDoctor.specialization,
-      avatar: `https://placehold.co/100x100.png`,
-    };
-    onDataChange('consultation', {
-      ...consultation,
-      doctors: [...doctors, newDoctorData],
+    // This functionality is now handled by the Admin dashboard
+    // This dialog can be removed or repurposed if needed.
+    appToast({
+        title: 'Admin Function',
+        description: 'Adding doctors is now handled by the Admin dashboard.',
     });
-    setNewDoctor({ name: '', specialization: '' });
     setIsDialogOpen(false);
   };
   
@@ -102,7 +88,7 @@ export function Consultation({ data, onDataChange, t }: ConsultationProps) {
 
   const handleBookingConfirmation = () => {
     setBookingConfirmed(true);
-    toast({
+    appToast({
         title: "Appointment Confirmed",
         description: `Your appointment with ${selectedDoctor?.name} is booked.`
     })
@@ -156,7 +142,7 @@ export function Consultation({ data, onDataChange, t }: ConsultationProps) {
                         <div className="space-y-2">
                             <Label>{t.booking.selectDoctor}</Label>
                             <div className="flex gap-2">
-                                <Select onValueChange={(val) => handleBookingChange('doctorId', parseInt(val))} disabled={bookingConfirmed}>
+                                <Select onValueChange={(val) => handleBookingChange('doctorId', val)} disabled={bookingConfirmed}>
                                     <SelectTrigger>
                                         <SelectValue placeholder={t.booking.noDoctorSelected} />
                                     </SelectTrigger>
@@ -177,31 +163,6 @@ export function Consultation({ data, onDataChange, t }: ConsultationProps) {
                                         ))}
                                     </SelectContent>
                                 </Select>
-                                <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                                    <DialogTrigger asChild>
-                                        <Button variant="outline" disabled={bookingConfirmed}><PlusCircle className="mr-2" /> {t.booking.addCustomDoctor}</Button>
-                                    </DialogTrigger>
-                                    <DialogContent>
-                                        <DialogHeader>
-                                            <DialogTitle>{t.booking.addDoctorDialog.title}</DialogTitle>
-                                            <DialogDescription>{t.booking.addDoctorDialog.description}</DialogDescription>
-                                        </DialogHeader>
-                                        <div className="space-y-4 py-4">
-                                            <div className="space-y-2">
-                                                <Label htmlFor="doc-name">{t.booking.addDoctorDialog.nameLabel}</Label>
-                                                <Input id="doc-name" value={newDoctor.name} onChange={(e) => setNewDoctor({...newDoctor, name: e.target.value})} />
-                                            </div>
-                                            <div className="space-y-2">
-                                                <Label htmlFor="doc-spec">{t.booking.addDoctorDialog.specializationLabel}</Label>
-                                                <Input id="doc-spec" value={newDoctor.specialization} onChange={(e) => setNewDoctor({...newDoctor, specialization: e.target.value})} />
-                                            </div>
-                                        </div>
-                                        <DialogFooter>
-                                            <Button variant="outline" onClick={() => setIsDialogOpen(false)}>{t.booking.addDoctorDialog.cancelButton}</Button>
-                                            <Button onClick={handleAddDoctor}>{t.booking.addDoctorDialog.addButton}</Button>
-                                        </DialogFooter>
-                                    </DialogContent>
-                                </Dialog>
                             </div>
                         </div>
 

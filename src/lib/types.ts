@@ -179,7 +179,7 @@ export type PatientImprovementReviewItem = {
 };
 
 export type Doctor = {
-  id: number;
+  id: string;
   name: string;
   specialization: string;
   avatar: string;
@@ -190,7 +190,7 @@ export type Booking = {
   problem: string;
   report: File | null;
   uniqueId: string;
-  doctorId: number | null;
+  doctorId: string | null;
 };
 
 export type HealthData = {

@@ -8,7 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { ClipboardList, Stethoscope, User } from 'lucide-react';
+import { ClipboardList, Stethoscope, User, ShieldAlert } from 'lucide-react';
 import Link from 'next/link';
 
 export default function LandingPage() {
@@ -43,6 +43,14 @@ export default function LandingPage() {
               </Link>
             </Button>
         </CardContent>
+         <div className="text-center p-4">
+          <Button asChild variant="link" size="sm">
+            <Link href="/admin/login" className="flex items-center gap-1 text-xs text-muted-foreground">
+              <ShieldAlert className="h-4 w-4" />
+              Admin
+            </Link>
+          </Button>
+        </div>
       </Card>
     </div>
   );
