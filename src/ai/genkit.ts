@@ -1,9 +1,8 @@
 import {genkit} from 'genkit';
 import {googleAI} from '@genkit-ai/googleai';
-import {config} from 'dotenv';
 
-// Load environment variables from .env to be used by the server
-config();
+// Environment variables are now loaded in the dev entrypoint (src/ai/dev.ts)
+// and via the hosting environment in production.
 
 export const ai = genkit({
   plugins: [
