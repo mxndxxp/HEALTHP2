@@ -39,6 +39,7 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { getPatientData } from '@/lib/patient-data-service';
 
 const sectionComponents: { [key: string]: React.ComponentType<any> } = {
   dashboard: Dashboard,
@@ -97,17 +98,13 @@ export default function DashboardPage() {
       setIsLoading(true);
       setError(null);
       try {
-          const response = await fetch(`/api/patient-data?patientId=${patientId}`);
-          if (!response.ok) {
-              const errorText = await response.text();
-              console.error("Failed to fetch patient data. Server response:", errorText);
-              throw new Error(`Failed to fetch patient data. Status: ${response.status}`);
-          }
-          const data = await response.json();
+          // Fetch data directly from Firestore via the service
+          const data = await getPatientData(patientId);
           setHealthData(data);
       } catch (err: any) {
-          console.error(err);
-          setError(err.message || 'Could not load patient data.');
+          console.error("Failed to fetch patient data:", err);
+          const errorMessage = err.message || 'Could not load patient data.';
+          setError(errorMessage);
           toast({
               title: 'Error',
               description: 'Could not load patient data. Please try again later.',

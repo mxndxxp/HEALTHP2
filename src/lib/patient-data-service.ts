@@ -168,10 +168,14 @@ const initialHealthData: HealthData = {
 
 
 export const getPatientData = async (patientId: string): Promise<HealthData> => {
+    if (!patientId) {
+        throw new Error("Patient ID is required");
+    }
     const patientDocRef = doc(db, 'patients', patientId);
     const docSnap = await getDoc(patientDocRef);
 
     if (docSnap.exists()) {
+        // Return existing data
         return docSnap.data() as HealthData;
     } else {
         // If patient doesn't exist, create and return a new record for them.
@@ -190,7 +194,7 @@ export const savePatientData = async (patientId: string, data: HealthData): Prom
     // Firestore cannot store File objects, so we need to remove them before saving.
     // In a real app, you would upload these to Firebase Storage and save the URL.
     const cleanData = JSON.parse(JSON.stringify(data, (key, value) => {
-        if (value instanceof File) {
+        if (typeof window !== 'undefined' && value instanceof File) {
             return null; // Or return a placeholder/metadata
         }
         return value;
