@@ -16,6 +16,7 @@ import { ScrollArea } from './ui/scroll-area';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { cn } from '@/lib/utils';
 import { intelligentChatbot } from '@/ai/flows/intelligent-chatbot';
+import { useToast } from '@/hooks/use-toast';
 
 type Message = {
   id: string;
@@ -25,9 +26,10 @@ type Message = {
 
 type ChatBotProps = {
   t: any;
+  patientId: string;
 };
 
-export function ChatBot({ t }: ChatBotProps) {
+export function ChatBot({ t, patientId }: ChatBotProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -38,6 +40,7 @@ export function ChatBot({ t }: ChatBotProps) {
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const { toast } = useToast();
 
   const handleSend = async () => {
     if (!input.trim()) return;
@@ -52,20 +55,38 @@ export function ChatBot({ t }: ChatBotProps) {
     setIsLoading(true);
 
     try {
-        const response = await intelligentChatbot({message: input});
+        // Fetch the latest patient data to provide context to the chatbot
+        const response = await fetch(`/api/patient-data?patientId=${patientId}`);
+        if (!response.ok) {
+            throw new Error('Could not fetch patient context.');
+        }
+        const patientData = await response.json();
+        
+        const botResponse = await intelligentChatbot({
+            message: input,
+            patientData: JSON.stringify(patientData, null, 2)
+        });
+
         const botMessage: Message = {
             id: (Date.now() + 1).toString(),
-            text: response.response,
+            text: botResponse.response,
             sender: 'bot'
         };
         setMessages((prev) => [...prev, botMessage]);
     } catch (error) {
+        console.error("Chatbot error:", error);
+        const errorMessageText = (error instanceof Error && error.message) || t.errorMessage;
         const errorMessage: Message = {
             id: (Date.now() + 1).toString(),
-            text: t.errorMessage,
+            text: errorMessageText,
             sender: 'bot'
         };
         setMessages((prev) => [...prev, errorMessage]);
+        toast({
+          title: "Chatbot Error",
+          description: errorMessageText,
+          variant: "destructive"
+        })
     } finally {
         setIsLoading(false);
     }
@@ -106,7 +127,7 @@ export function ChatBot({ t }: ChatBotProps) {
                     )}
                     <div
                       className={cn(
-                        'max-w-[75%] rounded-lg px-3 py-2 text-sm',
+                        'max-w-[75%] rounded-lg px-3 py-2 text-sm whitespace-pre-wrap',
                         message.sender === 'user'
                           ? 'bg-primary text-primary-foreground'
                           : 'bg-muted'

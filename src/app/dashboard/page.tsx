@@ -34,9 +34,10 @@ import {
   MessageSquare,
   Loader2,
   AlertTriangle,
+  RefreshCw,
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 
 const sectionComponents: { [key: string]: React.ComponentType<any> } = {
@@ -121,6 +122,7 @@ export default function DashboardPage() {
     if (patientId) {
         fetchData();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [patientId]);
 
 
@@ -183,17 +185,20 @@ export default function DashboardPage() {
   if (error) {
      return (
         <div className="flex h-screen w-full items-center justify-center bg-muted/40 p-4">
-            <Card className="text-center">
+            <Card className="text-center w-full max-w-md">
                 <CardHeader>
                     <div className="mx-auto bg-destructive/10 p-3 rounded-full">
                         <AlertTriangle className="h-8 w-8 text-destructive"/>
                     </div>
                     <CardTitle className="mt-4">Failed to Load Data</CardTitle>
+                    <CardDescription>There was a problem retrieving patient data. Please try again.</CardDescription>
                 </CardHeader>
-                <CardContent>
-                    <p className="text-muted-foreground mb-4">There was a problem retrieving patient data. Please try again.</p>
+                <CardContent className="space-y-4">
+                    <div className="text-sm bg-background p-3 border rounded-md text-destructive font-mono overflow-x-auto">
+                        <p>{error}</p>
+                    </div>
                     <Button onClick={fetchData}>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        <RefreshCw className="mr-2 h-4 w-4" />
                         Retry
                     </Button>
                 </CardContent>
@@ -250,7 +255,7 @@ export default function DashboardPage() {
             </ScrollArea>
         </main>
       </div>
-      <ChatBot t={uiText.components.chatbot} />
+      <ChatBot t={uiText.components.chatbot} patientId={patientId} />
     </div>
   );
 }
