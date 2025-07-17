@@ -12,6 +12,4 @@ export const ai = genkit({
       apiKey: process.env.GOOGLE_API_KEY,
     }),
   ],
-  // Use a capable and efficient model to avoid quota issues.
-  model: 'googleai/gemini-1.5-flash',
 });
