@@ -1,3 +1,4 @@
+
 'use client';
 import { useState, useEffect } from 'react';
 import { SidebarNav } from '@/components/layout/sidebar-nav';
@@ -32,9 +33,11 @@ import {
   Video,
   MessageSquare,
   Loader2,
+  AlertTriangle,
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { getPatientData, savePatientData } from '@/lib/patient-data-service';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 
 const sectionComponents: { [key: string]: React.ComponentType<any> } = {
   dashboard: Dashboard,
@@ -82,31 +85,43 @@ export default function DashboardPage() {
   const [healthData, setHealthData] = useState<HealthData | null>(null);
   const [uiText, setUiText] = useState(initialUiText);
   const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   
   // For this prototype, we'll assume the patient ID is '1'.
   // In a real app, this would come from an authentication context.
   const patientId = '1'; 
 
+  const fetchData = async () => {
+      setIsLoading(true);
+      setError(null);
+      try {
+          const response = await fetch(`/api/patient-data?patientId=${patientId}`);
+          if (!response.ok) {
+              const errorText = await response.text();
+              console.error("Failed to fetch patient data. Server response:", errorText);
+              throw new Error(`Failed to fetch patient data. Status: ${response.status}`);
+          }
+          const data = await response.json();
+          setHealthData(data);
+      } catch (err: any) {
+          console.error(err);
+          setError(err.message || 'Could not load patient data.');
+          toast({
+              title: 'Error',
+              description: 'Could not load patient data. Please try again later.',
+              variant: 'destructive',
+          });
+      } finally {
+        setIsLoading(false);
+      }
+  };
+
   useEffect(() => {
-    const fetchData = async () => {
-        try {
-            const response = await fetch(`/api/patient-data?patientId=${patientId}`);
-            if (!response.ok) {
-                throw new Error('Failed to fetch patient data');
-            }
-            const data = await response.json();
-            setHealthData(data);
-        } catch (error) {
-            console.error(error);
-            toast({
-                title: 'Error',
-                description: 'Could not load patient data.',
-                variant: 'destructive',
-            });
-        }
-    };
-    fetchData();
-  }, [patientId, toast]);
+    if (patientId) {
+        fetchData();
+    }
+  }, [patientId]);
 
 
   const handleDataChange = (section: keyof HealthData, data: any) => {
@@ -157,10 +172,40 @@ export default function DashboardPage() {
     navItems={navItems}
   />;
 
-  if (!healthData) {
+  if (isLoading) {
     return (
         <div className="flex h-screen w-full items-center justify-center">
             <Loader2 className="h-12 w-12 animate-spin text-primary" />
+        </div>
+    );
+  }
+
+  if (error) {
+     return (
+        <div className="flex h-screen w-full items-center justify-center bg-muted/40 p-4">
+            <Card className="text-center">
+                <CardHeader>
+                    <div className="mx-auto bg-destructive/10 p-3 rounded-full">
+                        <AlertTriangle className="h-8 w-8 text-destructive"/>
+                    </div>
+                    <CardTitle className="mt-4">Failed to Load Data</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <p className="text-muted-foreground mb-4">There was a problem retrieving patient data. Please try again.</p>
+                    <Button onClick={fetchData}>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Retry
+                    </Button>
+                </CardContent>
+            </Card>
+        </div>
+    );
+  }
+
+  if (!healthData) {
+    return (
+        <div className="flex h-screen w-full items-center justify-center">
+            <p>No health data found.</p>
         </div>
     );
   }
