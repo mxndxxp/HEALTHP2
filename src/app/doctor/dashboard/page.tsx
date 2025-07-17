@@ -33,6 +33,7 @@ import {
   Bot,
   Loader2,
   Users,
+  FilePenLine,
 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -130,6 +131,10 @@ export default function DoctorDashboardPage() {
             <Button onClick={() => router.push('/doctor/discussion-room')}>
                 <Users className="mr-2 h-4 w-4" />
                 Discussion Room
+            </Button>
+            <Button onClick={() => router.push('/doctor/create-prescription')}>
+                <FilePenLine className="mr-2 h-4 w-4" />
+                Create Prescription
             </Button>
           </CardContent>
         </Card>
