@@ -1,8 +1,8 @@
 
 // This service now uses Firestore for persistent data storage.
-import type { HealthData } from './types';
+import type { HealthData, CaseHistoryItem } from './types';
 import { db, testDatabaseConnection } from './firebase';
-import { doc, getDoc, setDoc, getDocFromCache, collection, getDocs } from 'firebase/firestore';
+import { doc, getDoc, setDoc, getDocFromCache, collection, getDocs, updateDoc, arrayUnion, serverTimestamp } from 'firebase/firestore';
 import { getAllDoctors } from './doctor-service';
 
 
@@ -165,7 +165,8 @@ const getInitialHealthData = async (): Promise<HealthData> => {
           uniqueId: '',
           doctorId: null,
       }
-    }
+    },
+    caseHistory: [],
   };
 };
 
@@ -236,4 +237,17 @@ export const getAllPatients = async (): Promise<HealthData[]> => {
     const patientSnapshot = await getDocs(patientsCol);
     const patientList = patientSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as HealthData));
     return patientList;
+};
+
+export const addCaseHistoryEvent = async (patientId: string, event: Omit<CaseHistoryItem, 'id' | 'timestamp'>) => {
+    if (!patientId) return;
+    const patientDocRef = doc(db, 'patients', patientId);
+    const newEvent = {
+        ...event,
+        id: Date.now(),
+        timestamp: serverTimestamp(),
+    };
+    await updateDoc(patientDocRef, {
+        caseHistory: arrayUnion(newEvent)
+    });
 };

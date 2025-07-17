@@ -7,6 +7,7 @@ export const initialUiText = {
     lifestyle: 'Lifestyle Assessment',
     senses: 'Sense Organ Assessment',
     payment: 'Payment',
+    caseHistory: 'Case History',
     healthReport: 'Health Report',
     aiAnalysis: 'AI Analysis',
     patientImprovementReview: 'Patient Improvement Review',
@@ -430,6 +431,18 @@ export const initialUiText = {
           title: 'Payment Successful',
           alertTitle: 'Thank you!',
           alertDescription: 'Your payment has been received. You can now access all features, including the AI Analysis and Health Report sections.'
+      }
+    },
+    caseHistory: {
+      title: 'Case History',
+      description: 'A chronological record of all patient interactions and events.',
+      noHistory: 'No case history events have been recorded yet.',
+      entry: {
+        'AI Analysis': 'AI analysis was performed on the patient data.',
+        'Consultation Booked': 'A consultation was booked.',
+        'Video Consultation': 'A video was uploaded for consultation.',
+        'Data Saved': 'Patient data was manually saved.',
+        'Report Generated': 'A health report was generated.',
       }
     },
     healthReport: {

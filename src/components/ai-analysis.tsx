@@ -1,3 +1,4 @@
+
 'use client';
 import { useState } from 'react';
 import {
@@ -43,6 +44,14 @@ export function AiAnalysis({ data, t }: AiAnalysisProps) {
         problemPhoto: data.medicalHistory.documents.photos || undefined,
       });
       setResult(insights);
+      toast({
+        title: "AI Analysis Complete",
+        description: "The AI has successfully analyzed the patient's data.",
+        caseHistory: {
+          type: 'AI Analysis',
+          description: 'AI analysis generated successfully.'
+        }
+      });
     } catch (e) {
       console.error(e);
       const errorMessage = e instanceof Error ? e.message : 'An unexpected error occurred.';

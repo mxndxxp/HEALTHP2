@@ -1,4 +1,5 @@
 
+
 export type PatientInfo = {
   name: string;
   age: string;
@@ -193,6 +194,14 @@ export type Booking = {
   doctorId: string | null;
 };
 
+export type CaseHistoryItem = {
+  id: number;
+  timestamp: any; // Firestore timestamp
+  type: 'AI Analysis' | 'Consultation Booked' | 'Video Consultation' | 'Data Saved' | 'Report Generated' | string;
+  description: string;
+  details?: { [key: string]: any };
+};
+
 export type HealthData = {
   id?: string;
   patientInfo: PatientInfo;
@@ -203,4 +212,5 @@ export type HealthData = {
     doctors: Doctor[];
     booking: Booking;
   };
+  caseHistory: CaseHistoryItem[];
 }

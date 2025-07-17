@@ -1,6 +1,7 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp, getApps, getApp } from "firebase/app";
 import { getFirestore, enableIndexedDbPersistence, doc, getDoc } from "firebase/firestore";
+import { getStorage } from "firebase/storage";
 
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
@@ -17,10 +18,12 @@ const firebaseConfig = {
 // Initialize Firebase with error handling
 let app;
 let db;
+let storage;
 
 try {
     app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
     db = getFirestore(app);
+    storage = getStorage(app);
 
     // Enable offline persistence with error handling, but only in the browser
     if (typeof window !== 'undefined') {
@@ -56,4 +59,4 @@ const testDatabaseConnection = async () => {
     }
 };
 
-export { db, app, testDatabaseConnection };
+export { db, app, storage, testDatabaseConnection };

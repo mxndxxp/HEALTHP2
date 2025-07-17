@@ -1,3 +1,4 @@
+
 "use client"
 
 // Inspired by react-hot-toast library
@@ -7,6 +8,8 @@ import type {
   ToastActionElement,
   ToastProps,
 } from "@/components/ui/toast"
+import { addCaseHistoryEvent } from "@/lib/patient-data-service"
+import type { CaseHistoryItem } from "@/lib/types"
 
 const TOAST_LIMIT = 1
 const TOAST_REMOVE_DELAY = 1000000
@@ -16,6 +19,7 @@ type ToasterToast = ToastProps & {
   title?: React.ReactNode
   description?: React.ReactNode
   action?: ToastActionElement
+  caseHistory?: Omit<CaseHistoryItem, 'id' | 'timestamp'>
 }
 
 const actionTypes = {
@@ -142,6 +146,10 @@ function dispatch(action: Action) {
 
 type Toast = Omit<ToasterToast, "id">
 
+// Patient ID is hardcoded for the prototype. In a real app,
+// this would come from an authentication context.
+const PATIENT_ID = '1';
+
 function toast({ ...props }: Toast) {
   const id = genId()
 
@@ -151,6 +159,11 @@ function toast({ ...props }: Toast) {
       toast: { ...props, id },
     })
   const dismiss = () => dispatch({ type: "DISMISS_TOAST", toastId: id })
+  
+  // If the toast includes a case history event, log it to the database
+  if (props.caseHistory) {
+      addCaseHistoryEvent(PATIENT_ID, props.caseHistory).catch(console.error);
+  }
 
   dispatch({
     type: "ADD_TOAST",

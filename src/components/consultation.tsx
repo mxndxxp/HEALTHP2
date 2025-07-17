@@ -16,15 +16,6 @@ import {
   TabsTrigger,
 } from '@/components/ui/tabs';
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-  DialogTrigger,
-} from '@/components/ui/dialog';
-import {
     Select,
     SelectContent,
     SelectItem,
@@ -38,23 +29,29 @@ import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { Textarea } from './ui/textarea';
 import type { HealthData, Doctor } from '@/lib/types';
-import { User, Video as VideoIcon, Upload, MessageSquare, Phone, PlusCircle, AlertTriangle, CheckCircle } from 'lucide-react';
+import { User, Video as VideoIcon, Upload, MessageSquare, Phone, AlertTriangle, CheckCircle, Loader2, Link as LinkIcon, Copy } from 'lucide-react';
 import { PaymentForm } from './payment-form';
 import { useToast as useAppToast } from '@/hooks/use-toast';
+import { storage } from '@/lib/firebase';
+import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
+import { Progress } from '@/components/ui/progress';
+
 
 type ConsultationProps = {
   data: HealthData;
   onDataChange: (section: keyof HealthData, data: any) => void;
   t: any;
+  patientId: string;
 };
 
-export function Consultation({ data, onDataChange, t }: ConsultationProps) {
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [newDoctor, setNewDoctor] = useState({ name: '', specialization: '' });
+export function Consultation({ data, onDataChange, t, patientId }: ConsultationProps) {
   const [activeTab, setActiveTab] = useState('booking');
   const videoRef = useRef<HTMLVideoElement>(null);
   const [hasCameraPermission, setHasCameraPermission] = useState(true);
   const [bookingConfirmed, setBookingConfirmed] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState<number | null>(null);
+  const [videoUrl, setVideoUrl] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
   const { toast: appToast } = useAppToast();
 
 
@@ -66,16 +63,6 @@ export function Consultation({ data, onDataChange, t }: ConsultationProps) {
       ...consultation,
       booking: { ...booking, [field]: value },
     });
-  };
-
-  const handleAddDoctor = () => {
-    // This functionality is now handled by the Admin dashboard
-    // This dialog can be removed or repurposed if needed.
-    appToast({
-        title: 'Admin Function',
-        description: 'Adding doctors is now handled by the Admin dashboard.',
-    });
-    setIsDialogOpen(false);
   };
   
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -90,9 +77,70 @@ export function Consultation({ data, onDataChange, t }: ConsultationProps) {
     setBookingConfirmed(true);
     appToast({
         title: "Appointment Confirmed",
-        description: `Your appointment with ${selectedDoctor?.name} is booked.`
+        description: `Your appointment with ${selectedDoctor?.name} is booked.`,
+        caseHistory: {
+          type: 'Consultation Booked',
+          description: `Appointment booked with ${selectedDoctor?.name}.`
+        }
     })
   }
+  
+  const handleVideoUpload = (e: ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || e.target.files.length === 0) {
+      return;
+    }
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setIsUploading(true);
+    setUploadProgress(0);
+    setVideoUrl(null);
+
+    const storageRef = ref(storage, `consultation_videos/${patientId}/${Date.now()}_${file.name}`);
+    const uploadTask = uploadBytesResumable(storageRef, file);
+
+    uploadTask.on('state_changed',
+      (snapshot) => {
+        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+        setUploadProgress(progress);
+      },
+      (error) => {
+        console.error("Upload failed:", error);
+        appToast({
+          title: "Upload Failed",
+          description: "There was an error uploading your video. Please try again.",
+          variant: 'destructive',
+        });
+        setIsUploading(false);
+        setUploadProgress(null);
+      },
+      () => {
+        getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+          setVideoUrl(downloadURL);
+          appToast({
+            title: "Video Uploaded Successfully",
+            description: "Your video has been sent to the doctor for review.",
+            caseHistory: {
+              type: 'Video Consultation',
+              description: 'Patient uploaded a video for review.',
+              details: { url: downloadURL }
+            }
+          });
+          setIsUploading(false);
+        });
+      }
+    );
+  };
+  
+  const copyToClipboard = () => {
+    if (videoUrl) {
+      navigator.clipboard.writeText(videoUrl);
+      appToast({
+        title: "Copied to Clipboard",
+        description: "The video link has been copied.",
+      });
+    }
+  };
 
 
   useEffect(() => {
@@ -272,15 +320,37 @@ export function Consultation({ data, onDataChange, t }: ConsultationProps) {
                                     <Button className="mt-4">{t.session.startButton}</Button>
                                 </div>
                              </TabsContent>
-                             <TabsContent value="upload" className="mt-4">
-                                 <div className="text-center p-10 border rounded-lg">
-                                    <Upload className="mx-auto h-12 w-12 text-muted-foreground" />
-                                    <h3 className="mt-4 text-lg font-semibold">{t.session.uploadTitle}</h3>
-                                    <p className="text-muted-foreground mt-2">{t.session.uploadDesc}</p>
-                                    <Button className="mt-4" asChild><Label htmlFor="video-upload">{t.session.uploadButton}</Label></Button>
-                                    <Input id="video-upload" type="file" accept="video/*" className="hidden"/>
+                              <TabsContent value="upload" className="mt-4">
+                                <div className="text-center p-10 border rounded-lg">
+                                  <Upload className="mx-auto h-12 w-12 text-muted-foreground" />
+                                  <h3 className="mt-4 text-lg font-semibold">{t.session.uploadTitle}</h3>
+                                  <p className="text-muted-foreground mt-2">{t.session.uploadDesc}</p>
+                                  
+                                  {isUploading && uploadProgress !== null ? (
+                                    <div className="mt-4 w-full max-w-sm mx-auto">
+                                      <Progress value={uploadProgress} />
+                                      <p className="text-sm mt-2">{Math.round(uploadProgress)}% uploaded</p>
+                                    </div>
+                                  ) : videoUrl ? (
+                                    <div className="mt-4 w-full max-w-sm mx-auto">
+                                      <p className="text-green-600 font-semibold mb-2">Upload Complete!</p>
+                                      <div className="flex items-center gap-2 p-2 border rounded-md bg-muted">
+                                        <LinkIcon className="h-4 w-4 text-muted-foreground" />
+                                        <Input value={videoUrl} readOnly className="flex-1"/>
+                                        <Button size="icon" variant="ghost" onClick={copyToClipboard}>
+                                          <Copy className="h-4 w-4" />
+                                        </Button>
+                                      </div>
+                                    </div>
+                                  ) : (
+                                    <Button className="mt-4" asChild>
+                                      <Label htmlFor="video-upload">{t.session.uploadButton}</Label>
+                                    </Button>
+                                  )}
+
+                                  <Input id="video-upload" type="file" accept="video/*" className="hidden" onChange={handleVideoUpload} disabled={isUploading}/>
                                 </div>
-                             </TabsContent>
+                              </TabsContent>
                         </Tabs>
                     ) : (
                         <div className="text-center p-10 border-2 border-dashed rounded-lg">

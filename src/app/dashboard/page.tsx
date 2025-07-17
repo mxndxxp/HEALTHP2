@@ -19,6 +19,7 @@ import type { HealthData } from '@/lib/types';
 import { initialUiText } from '@/lib/ui-text';
 import { SectionNavigator } from '@/components/layout/section-navigator';
 import PatientChatPage from '@/app/patient/chat/[doctorId]/page';
+import { CaseHistory } from '@/components/case-history';
 import { cn } from '@/lib/utils';
 import {
   Activity,
@@ -33,6 +34,7 @@ import {
   Video,
   MessageSquare,
   Loader2,
+  BookMarked,
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -57,6 +59,7 @@ const sectionComponents: { [key: string]: React.ComponentType<any> } = {
   lifestyle: LifestyleAssessment,
   senses: SenseOrgans,
   payment: Payment,
+  caseHistory: CaseHistory,
   healthReport: HealthReport,
   aiAnalysis: AiAnalysis,
   patientImprovementReview: PatientImprovementReview,
@@ -72,6 +75,7 @@ const navItems = [
   { id: 'lifestyle', icon: Activity },
   { id: 'senses', icon: Smile },
   { id: 'payment', icon: CreditCard },
+  { id: 'caseHistory', icon: BookMarked },
   { id: 'healthReport', icon: FileText },
   { id: 'aiAnalysis', icon: BotMessageSquare },
   { id: 'patientImprovementReview', icon: MessageSquarePlus },
@@ -194,6 +198,10 @@ export default function DashboardPage() {
         toast({
             title: 'Progress Saved!',
             description: 'Your changes have been saved to the database.',
+            caseHistory: {
+              type: 'Data Saved',
+              description: 'Patient data manually saved.'
+            }
         });
     } catch(error) {
          toast({
@@ -323,6 +331,7 @@ export default function DashboardPage() {
     setData: setHealthData, // Pass the whole setter down
     onDataChange: handleDataChange,
     t: componentStrings,
+    patientId
   };
 
   return (
