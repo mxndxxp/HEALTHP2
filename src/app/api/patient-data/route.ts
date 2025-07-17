@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { getPatientData, savePatientData } from '@/lib/patient-data-service';
 import type { HealthData } from '@/lib/types';
 
-// GET handler to fetch patient data
+// GET handler to fetch patient data from Firestore
 export async function GET(request: Request) {
     try {
         const { searchParams } = new URL(request.url);
@@ -12,7 +12,7 @@ export async function GET(request: Request) {
             return new NextResponse('Patient ID is required', { status: 400 });
         }
         
-        const data = getPatientData(patientId);
+        const data = await getPatientData(patientId);
         return NextResponse.json(data);
 
     } catch (error) {
@@ -22,7 +22,7 @@ export async function GET(request: Request) {
 }
 
 
-// POST handler to save patient data
+// POST handler to save patient data to Firestore
 export async function POST(request: Request) {
      try {
         const body = await request.json();
@@ -32,7 +32,7 @@ export async function POST(request: Request) {
             return new NextResponse('Missing patientId or data payload', { status: 400 });
         }
         
-        const updatedData = savePatientData(patientId, data);
+        const updatedData = await savePatientData(patientId, data);
         return NextResponse.json(updatedData);
     } catch (error) {
         console.error('Error saving patient data:', error);

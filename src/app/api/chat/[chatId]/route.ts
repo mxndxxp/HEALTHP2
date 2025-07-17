@@ -7,11 +7,11 @@ type ChatParams = {
     }
 }
 
-// GET handler to fetch chat history
+// GET handler to fetch chat history from Firestore
 export async function GET(request: Request, { params }: ChatParams) {
     try {
         const { chatId } = params;
-        const history = getChatHistory(chatId);
+        const history = await getChatHistory(chatId);
         return NextResponse.json(history);
     } catch (error) {
         console.error('Error fetching chat history:', error);
@@ -20,7 +20,7 @@ export async function GET(request: Request, { params }: ChatParams) {
 }
 
 
-// POST handler to add a new message
+// POST handler to add a new message to Firestore
 export async function POST(request: Request, { params }: ChatParams) {
      try {
         const { chatId } = params;
@@ -31,7 +31,7 @@ export async function POST(request: Request, { params }: ChatParams) {
             return new NextResponse('Missing message text or sender', { status: 400 });
         }
         
-        const newMessage = addMessageToHistory(chatId, { text, sender });
+        const newMessage = await addMessageToHistory(chatId, { text, sender });
         return NextResponse.json(newMessage);
     } catch (error) {
         console.error('Error posting message:', error);

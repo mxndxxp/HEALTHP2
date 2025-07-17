@@ -7,13 +7,8 @@ import { ScrollArea } from './ui/scroll-area';
 import { Avatar, AvatarFallback } from './ui/avatar';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
+import { type Message, subscribeToChat } from '@/lib/chat-service';
 
-
-type Message = {
-  id: string;
-  text: string;
-  sender: 'patient' | 'doctor';
-};
 
 type ChatInterfaceProps = {
   chatId: string;
@@ -29,30 +24,17 @@ export function ChatInterface({ chatId, currentUser }: ChatInterfaceProps) {
 
 
   useEffect(() => {
-    const fetchMessages = async () => {
-      setIsLoading(true);
-      try {
-        const response = await fetch(`/api/chat/${chatId}`);
-        if (!response.ok) {
-          throw new Error('Failed to fetch messages');
-        }
-        const data = await response.json();
-        setMessages(data);
-      } catch (error) {
-        toast({
-          title: "Error",
-          description: "Could not load chat history.",
-          variant: 'destructive',
-        });
-      } finally {
-        setIsLoading(false);
-      }
-    };
+    if (!chatId) return;
 
-    if (chatId) {
-      fetchMessages();
-    }
-  }, [chatId, toast]);
+    setIsLoading(true);
+    const unsubscribe = subscribeToChat(chatId, (newMessages) => {
+        setMessages(newMessages);
+        setIsLoading(false);
+    });
+
+    // Cleanup subscription on component unmount
+    return () => unsubscribe();
+  }, [chatId]);
 
   useEffect(() => {
     // Scroll to bottom when messages change
@@ -68,39 +50,28 @@ export function ChatInterface({ chatId, currentUser }: ChatInterfaceProps) {
   const handleSend = async () => {
     if (!input.trim()) return;
 
-    const optimisticMessage: Message = {
-        id: 'temp-' + Date.now(),
-        text: input,
-        sender: currentUser,
-    };
-
-    setMessages(prev => [...prev, optimisticMessage]);
+    const messageText = input;
     setInput('');
 
     try {
         const response = await fetch(`/api/chat/${chatId}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ text: input, sender: currentUser }),
+            body: JSON.stringify({ text: messageText, sender: currentUser }),
         });
 
         if (!response.ok) {
             throw new Error('Failed to send message');
         }
 
-        const actualMessage = await response.json();
-        
-        // Replace optimistic message with actual message from server
-        setMessages(prev => prev.map(msg => msg.id === optimisticMessage.id ? actualMessage : msg));
-
     } catch (error) {
         toast({
             title: "Error",
-            description: "Message could not be sent.",
+            description: "Message could not be sent. Please try again.",
             variant: 'destructive',
         });
-        // Remove optimistic message on failure
-        setMessages(prev => prev.filter(msg => msg.id !== optimisticMessage.id));
+        // Optionally, re-set the input so the user can retry
+        setInput(messageText);
     }
   };
 
