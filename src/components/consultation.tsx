@@ -30,7 +30,7 @@ import { Label } from './ui/label';
 import { Textarea } from './ui/textarea';
 import type { HealthData, Doctor } from '@/lib/types';
 import { User, Video as VideoIcon, Upload, MessageSquare, Phone, AlertTriangle, CheckCircle, Loader2, Link as LinkIcon, Copy } from 'lucide-react';
-import { PaymentForm } from './payment-form';
+import { Payment } from './payment';
 import { useToast as useAppToast } from '@/hooks/use-toast';
 import { storage } from '@/lib/firebase';
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
@@ -237,19 +237,7 @@ export function Consultation({ data, onDataChange, t, patientId }: ConsultationP
 
                  <div className="lg:col-span-1">
                     {booking.doctorId && !bookingConfirmed ? (
-                        <Card>
-                            <CardHeader>
-                                <CardTitle>{t.paymentForm.title}</CardTitle>
-                                <CardDescription>{t.paymentForm.description.replace('{amount}', '500')}</CardDescription>
-                            </CardHeader>
-                            <CardContent>
-                                <PaymentForm 
-                                    amount={500} 
-                                    t={t.paymentForm} 
-                                    onPaymentSuccess={handleBookingConfirmation}
-                                />
-                            </CardContent>
-                        </Card>
+                        <Payment t={t} onPaymentSuccess={handleBookingConfirmation} />
                     ) : bookingConfirmed ? (
                         <Card className="flex flex-col items-center justify-center h-full text-center">
                             <CardHeader>

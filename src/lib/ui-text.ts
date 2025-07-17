@@ -6,7 +6,7 @@ export const initialUiText = {
     medicalHistory: 'Medical History',
     lifestyle: 'Lifestyle Assessment',
     senses: 'Sense Organ Assessment',
-    payment: 'Payment',
+    payment: 'Consultation Confirmation',
     caseHistory: 'Case History',
     healthReport: 'Health Report',
     aiAnalysis: 'AI Analysis',
@@ -418,19 +418,12 @@ export const initialUiText = {
         },
     },
     payment: {
-      title: 'Platform Usage Fee',
-      description: 'To continue and generate your AI health report, please complete the one-time platform fee payment.',
-      paymentForm: {
-          title: 'Complete Payment',
-          description: 'You are paying an amount of ₹{amount}.',
-          payButton: 'Pay ₹{amount} with Razorpay',
-          processingButton: 'Processing...',
-          secureNote: 'Your payment is processed securely by Razorpay.',
-      },
+      title: 'Consultation Confirmation',
+      description: 'Please confirm to finalize your consultation booking.',
       success: {
-          title: 'Payment Successful',
+          title: 'Booking Confirmed',
           alertTitle: 'Thank you!',
-          alertDescription: 'Your payment has been received. You can now access all features, including the AI Analysis and Health Report sections.'
+          alertDescription: 'Your appointment has been successfully booked. You can now proceed to the consultation tab.'
       }
     },
     caseHistory: {
@@ -580,7 +573,7 @@ export const initialUiText = {
             reportLabel: 'Upload Previous Report (Optional)',
             uniqueIdLabel: 'Patient Unique ID',
             bookButton: 'Book Appointment',
-            selectDoctorFirst: 'Please select a doctor to proceed with payment and booking.',
+            selectDoctorFirst: 'Please select a doctor to proceed with booking.',
             addDoctorDialog: {
                 title: 'Add a Custom Doctor',
                 description: 'Enter the details of the doctor you want to add.',
