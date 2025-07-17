@@ -39,7 +39,7 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { getPatientData } from '@/lib/patient-data-service';
+import { getPatientData, savePatientData } from '@/lib/patient-data-service';
 
 const sectionComponents: { [key: string]: React.ComponentType<any> } = {
   dashboard: Dashboard,
@@ -89,25 +89,44 @@ export default function DashboardPage() {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isOnline, setIsOnline] = useState(true);
   
   // For this prototype, we'll assume the patient ID is '1'.
   // In a real app, this would come from an authentication context.
   const patientId = '1'; 
 
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setIsOnline(navigator.onLine);
+    }
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
+
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
+
   const fetchData = async () => {
       setIsLoading(true);
       setError(null);
       try {
-          // Fetch data directly from Firestore via the service
           const data = await getPatientData(patientId);
           setHealthData(data);
       } catch (err: any) {
           console.error("Failed to fetch patient data:", err);
-          const errorMessage = err.message || 'Could not load patient data.';
+          let errorMessage = 'Could not load patient data. Please try again later.';
+          if (err.code === 'unavailable') {
+            errorMessage = 'You are offline. Displaying cached data if available. Some features may be limited.';
+          }
           setError(errorMessage);
           toast({
               title: 'Error',
-              description: 'Could not load patient data. Please try again later.',
+              description: errorMessage,
               variant: 'destructive',
           });
       } finally {
@@ -136,22 +155,15 @@ export default function DashboardPage() {
   const handleSave = async () => {
     if (!healthData) return;
     try {
-        const response = await fetch(`/api/patient-data`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ patientId, data: healthData }),
-        });
-        if (!response.ok) {
-            throw new Error('Failed to save data');
-        }
+        await savePatientData(patientId, healthData);
         toast({
             title: 'Progress Saved!',
-            description: 'Your changes have been saved.',
+            description: 'Your changes have been saved to the database.',
         });
     } catch(error) {
          toast({
-            title: 'Error',
-            description: 'Could not save patient data.',
+            title: 'Error Saving Data',
+            description: 'Could not save patient data. Please check your connection and try again.',
             variant: 'destructive',
         });
     }
@@ -174,12 +186,16 @@ export default function DashboardPage() {
   if (isLoading) {
     return (
         <div className="flex h-screen w-full items-center justify-center">
-            <Loader2 className="h-12 w-12 animate-spin text-primary" />
+            <div className="text-center">
+                <Loader2 className="h-12 w-12 animate-spin text-primary mx-auto" />
+                <p className="mt-4 text-muted-foreground">Loading patient data...</p>
+                {!isOnline && <p className="text-amber-600 mt-2">Offline mode: attempting to load from cache.</p>}
+            </div>
         </div>
     );
   }
 
-  if (error) {
+  if (error && !healthData) {
      return (
         <div className="flex h-screen w-full items-center justify-center bg-muted/40 p-4">
             <Card className="text-center w-full max-w-md">
@@ -188,13 +204,13 @@ export default function DashboardPage() {
                         <AlertTriangle className="h-8 w-8 text-destructive"/>
                     </div>
                     <CardTitle className="mt-4">Failed to Load Data</CardTitle>
-                    <CardDescription>There was a problem retrieving patient data. Please try again.</CardDescription>
+                    <CardDescription>{!isOnline ? "You are currently offline." : "A server error occurred."}</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                     <div className="text-sm bg-background p-3 border rounded-md text-destructive font-mono overflow-x-auto">
                         <p>{error}</p>
                     </div>
-                    <Button onClick={fetchData}>
+                    <Button onClick={fetchData} disabled={!isOnline}>
                         <RefreshCw className="mr-2 h-4 w-4" />
                         Retry
                     </Button>
@@ -207,7 +223,7 @@ export default function DashboardPage() {
   if (!healthData) {
     return (
         <div className="flex h-screen w-full items-center justify-center">
-            <p>No health data found.</p>
+            <p>No health data found for this patient.</p>
         </div>
     );
   }
