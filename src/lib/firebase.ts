@@ -1,13 +1,9 @@
 // Import the functions you need from the SDKs you need
-import { initializeApp, getApps } from "firebase/app";
-import { getFirestore, enableIndexedDbPersistence } from "firebase/firestore";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
+import { initializeApp, getApps, getApp } from "firebase/app";
+import { getFirestore, enableIndexedDbPersistence, doc, getDoc } from "firebase/firestore";
 
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-// These variables are now being read from .env.local
-// NEXT_PUBLIC_ is for client-side access, the server-side can access them directly
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
   authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
@@ -18,34 +14,46 @@ const firebaseConfig = {
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID
 };
 
-// Initialize Firebase
+// Initialize Firebase with error handling
 let app;
-if (!getApps().length) {
-    app = initializeApp(firebaseConfig);
-} else {
-    app = getApps()[0];
-}
+let db;
 
-const db = getFirestore(app);
+try {
+    app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+    db = getFirestore(app);
 
-// Enable offline persistence
-// Note: This must be called before any other Firestore operations.
-// It might be better to move this into a separate initialization file
-// that runs early if issues persist.
-if (typeof window !== 'undefined') {
-    enableIndexedDbPersistence(db)
-        .catch((err) => {
-            if (err.code == 'failed-precondition') {
-                console.warn(
-                    "Firestore persistence failed: Multiple tabs open, persistence can only be enabled in one tab at a time."
-                );
-            } else if (err.code == 'unimplemented') {
-                console.warn(
-                    "Firestore persistence failed: The current browser does not support all of the features required to enable persistence."
-                );
+    // Enable offline persistence with error handling, but only in the browser
+    if (typeof window !== 'undefined') {
+        enableIndexedDbPersistence(db).catch((err) => {
+            console.error("Firestore offline persistence error:", err);
+            if (err.code === 'failed-precondition') {
+                console.warn("Offline persistence only available in one tab");
+            } else if (err.code === 'unimplemented') {
+                console.warn("Browser doesn't support offline persistence");
             }
         });
+    }
+} catch (initError) {
+    console.error("Firebase initialization failed:", initError);
+    // You might want to throw the error or handle it in a way that
+    // dependent parts of the app know initialization failed.
 }
 
+const testDatabaseConnection = async () => {
+    try {
+        if (!db) throw new Error("Database not initialized");
+        
+        // Test connection with a simple document read.
+        // This doc doesn't need to exist. The attempt itself is the test.
+        const testDocRef = doc(db, 'connection-test', 'test');
+        await getDoc(testDocRef);
+        return true;
+    } catch (err: any) {
+        // Firestore throws 'unavailable' code when it can't connect.
+        // Other errors might also indicate connection issues.
+        console.error("Database connection test failed:", err);
+        return false;
+    }
+};
 
-export { db, app };
+export { db, app, testDatabaseConnection };

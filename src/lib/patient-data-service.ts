@@ -1,7 +1,7 @@
 // This service now uses Firestore for persistent data storage.
 import type { HealthData } from './types';
-import { db } from './firebase';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { db, testDatabaseConnection } from './firebase';
+import { doc, getDoc, setDoc, getDocFromCache } from 'firebase/firestore';
 
 const initialHealthData: HealthData = {
   patientInfo: {
@@ -167,24 +167,44 @@ const initialHealthData: HealthData = {
 };
 
 
-export const getPatientData = async (patientId: string): Promise<HealthData> => {
+export const getPatientData = async (patientId: string, isOnline: boolean): Promise<{ data: HealthData, source: 'server' | 'cache' }> => {
     if (!patientId) {
         throw new Error("Patient ID is required");
     }
     const patientDocRef = doc(db, 'patients', patientId);
-    const docSnap = await getDoc(patientDocRef);
 
-    if (docSnap.exists()) {
-        // Return existing data
-        return docSnap.data() as HealthData;
-    } else {
-        // If patient doesn't exist, create and return a new record for them.
-        console.log(`Creating new Firestore document for patientId: ${patientId}`);
-        // Deep copy initial data to avoid mutation
-        const newPatientData = JSON.parse(JSON.stringify(initialHealthData));
-        await setDoc(patientDocRef, newPatientData);
-        return newPatientData;
+    if (isOnline) {
+        try {
+            const isDbConnected = await testDatabaseConnection();
+            if (!isDbConnected) {
+                throw new Error("Could not connect to the database. Please check your internet connection and try again.");
+            }
+            const serverSnap = await getDoc(patientDocRef);
+            if (serverSnap.exists()) {
+                return { data: serverSnap.data() as HealthData, source: 'server' };
+            }
+        } catch (serverError: any) {
+            console.warn('Server fetch failed, falling back to cache', serverError.message);
+            // Don't rethrow, proceed to cache lookup
+        }
     }
+
+    // Fallback to cache if offline or if server fetch fails
+    try {
+        const cacheSnap = await getDocFromCache(patientDocRef);
+        if (cacheSnap.exists()) {
+            return { data: cacheSnap.data() as HealthData, source: 'cache' };
+        }
+    } catch (cacheError) {
+        // This will happen if offline and not in cache.
+    }
+
+    // If we're here, document doesn't exist online or in cache.
+    // So, we create a new one.
+    console.log(`Creating new Firestore document for patientId: ${patientId}`);
+    const newPatientData = JSON.parse(JSON.stringify(initialHealthData));
+    await setDoc(patientDocRef, newPatientData);
+    return { data: newPatientData, source: 'server' };
 };
 
 export const savePatientData = async (patientId: string, data: HealthData): Promise<HealthData> => {
