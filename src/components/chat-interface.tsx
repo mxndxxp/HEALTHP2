@@ -61,13 +61,15 @@ export function ChatInterface({ chatId, currentUser }: ChatInterfaceProps) {
         });
 
         if (!response.ok) {
-            throw new Error('Failed to send message');
+            const errorData = await response.text();
+            throw new Error(`Failed to send message: ${errorData}`);
         }
 
     } catch (error) {
+        console.error("Error sending message:", error);
         toast({
             title: "Error",
-            description: "Message could not be sent. Please try again.",
+            description: (error as Error).message || "Message could not be sent. Please try again.",
             variant: 'destructive',
         });
         // Optionally, re-set the input so the user can retry

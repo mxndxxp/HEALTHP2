@@ -14,7 +14,10 @@ import { useRouter } from 'next/navigation';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { User } from 'lucide-react';
 
-const chatHistory = [
+// This data would ideally be fetched from a backend service that returns
+// a summary of all chat sessions for the logged-in doctor.
+// For the prototype, we'll use the same patient list as the dashboard.
+const patients = [
   {
     patientId: '1',
     patientName: 'Jane Smith',
@@ -85,7 +88,7 @@ export default function DoctorChatHistoryPage() {
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
-              {chatHistory.map((chat) => (
+              {patients.map((chat) => (
                 <Link
                   key={chat.patientId}
                   href={`/doctor/chat/${chat.patientId}`}

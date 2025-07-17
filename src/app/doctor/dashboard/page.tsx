@@ -29,6 +29,7 @@ import {
   LogOut,
   ChevronLeft,
   MessageSquare,
+  Bot,
 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -55,7 +56,7 @@ const patients = [
     lastVisit: '2024-07-25',
     status: 'Monitoring',
   },
-   {
+  {
     id: '4',
     name: 'Michael Wilson',
     uniqueId: 'HC-MIC9012-483726',
@@ -77,29 +78,29 @@ export default function DoctorDashboardPage() {
   const handleLogout = () => {
     router.push('/');
   };
-  
+
   const handleReturn = () => {
     router.push('/');
-  }
+  };
 
   const handleViewPatient = () => {
     // In a real app, this would use the patient's ID to fetch their data.
     // For this prototype, we'll just navigate to the existing patient dashboard.
     router.push('/dashboard');
-  }
-  
+  };
+
   const handleMessagePatient = (patientId: string) => {
     router.push(`/doctor/chat/${patientId}`);
-  }
+  };
 
   return (
     <div className="flex min-h-screen w-full flex-col bg-muted/40">
       <header className="sticky top-0 z-30 flex h-16 items-center justify-between gap-4 border-b bg-background px-4 sm:static sm:border-0 sm:bg-transparent sm:px-6">
         <div className="flex items-center gap-4">
-            <Button variant="outline" size="icon" onClick={handleReturn}>
-                <ChevronLeft className="h-4 w-4" />
-                <span className="sr-only">Return</span>
-            </Button>
+          <Button variant="outline" size="icon" onClick={handleReturn}>
+            <ChevronLeft className="h-4 w-4" />
+            <span className="sr-only">Return</span>
+          </Button>
           <div className="flex items-center gap-2">
             <ClipboardList className="h-6 w-6 text-primary" />
             <h1 className="text-xl font-semibold">Doctor Dashboard</h1>
@@ -113,7 +114,10 @@ export default function DoctorDashboardPage() {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem onSelect={handleLogout} className="text-destructive">
+            <DropdownMenuItem
+              onSelect={handleLogout}
+              className="text-destructive"
+            >
               <LogOut className="mr-2 h-4 w-4" />
               <span>Logout</span>
             </DropdownMenuItem>
@@ -121,16 +125,20 @@ export default function DoctorDashboardPage() {
         </DropdownMenu>
       </header>
       <main className="flex flex-1 flex-col gap-4 p-4 sm:px-6 sm:py-0">
-         <Card>
-            <CardHeader>
-                <CardTitle>Doctor Actions</CardTitle>
-            </CardHeader>
-            <CardContent>
-                 <Button onClick={() => router.push('/doctor/chat-history')}>
-                    <MessageSquare className="mr-2 h-4 w-4" />
-                    View Chat History
-                 </Button>
-            </CardContent>
+        <Card>
+          <CardHeader>
+            <CardTitle>Doctor Actions</CardTitle>
+          </CardHeader>
+          <CardContent className="flex flex-wrap gap-4">
+            <Button onClick={() => router.push('/doctor/chat-history')}>
+              <MessageSquare className="mr-2 h-4 w-4" />
+              View Chat History
+            </Button>
+             <Button onClick={() => router.push('/doctor/ai-assistant')}>
+              <Bot className="mr-2 h-4 w-4" />
+              AI Medical Assistant
+            </Button>
+          </CardContent>
         </Card>
         <Card>
           <CardHeader>
@@ -157,26 +165,48 @@ export default function DoctorDashboardPage() {
               <TableBody>
                 {patients.map((patient) => (
                   <TableRow key={patient.id}>
-                    <TableCell className="font-medium">{patient.name}</TableCell>
-                    <TableCell className="font-mono">{patient.uniqueId}</TableCell>
+                    <TableCell className="font-medium">
+                      {patient.name}
+                    </TableCell>
+                    <TableCell className="font-mono">
+                      {patient.uniqueId}
+                    </TableCell>
                     <TableCell className="hidden md:table-cell">
                       {patient.lastVisit}
                     </TableCell>
                     <TableCell>
-                      <Badge variant={patient.status === 'Active' ? 'default' : 'secondary'}>{patient.status}</Badge>
+                      <Badge
+                        variant={
+                          patient.status === 'Active' ? 'default' : 'secondary'
+                        }
+                      >
+                        {patient.status}
+                      </Badge>
                     </TableCell>
                     <TableCell>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button aria-haspopup="true" size="icon" variant="ghost">
+                          <Button
+                            aria-haspopup="true"
+                            size="icon"
+                            variant="ghost"
+                          >
                             <MoreHorizontal className="h-4 w-4" />
                             <span className="sr-only">Toggle menu</span>
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem onSelect={handleViewPatient}>View Details</DropdownMenuItem>
-                          <DropdownMenuItem onSelect={() => handleMessagePatient(patient.id)}>Message Patient</DropdownMenuItem>
-                          <DropdownMenuItem>Schedule Follow-up</DropdownMenuItem>
+                          <DropdownMenuItem onSelect={handleViewPatient}>
+                            View Details
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onSelect={() => handleMessagePatient(patient.id)}
+                          >
+                            Message Patient
+                          </DropdownMenuItem>
+                          <DropdownMenuItem>
+                            Schedule Follow-up
+                          </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </TableCell>
