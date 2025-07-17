@@ -14,5 +14,5 @@ export const ai = genkit({
     }),
   ],
   // Use a capable and efficient model to avoid quota issues.
-  model: 'googleai/gemini-1.5-flash-latest',
+  model: 'googleai/gemini-1.5-flash',
 });
