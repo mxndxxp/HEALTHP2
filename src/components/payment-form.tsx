@@ -1,12 +1,8 @@
 
 'use client';
-import { useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CreditCard, ScanLine, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 type PaymentFormProps = {
@@ -15,121 +11,145 @@ type PaymentFormProps = {
     onPaymentSuccess: () => void;
 };
 
+// Define the Razorpay options type for type safety
+interface RazorpayOptions {
+    key: string;
+    amount: number;
+    currency: string;
+    name: string;
+    description: string;
+    order_id: string;
+    handler: (response: { razorpay_payment_id: string }) => void;
+    prefill: {
+        name: string;
+        email: string;
+        contact: string;
+    };
+    notes: {
+        address: string;
+    };
+    theme: {
+        color: string;
+    };
+}
+
+// Extend the Window interface to include Razorpay
+declare global {
+    interface Window {
+        Razorpay: new (options: RazorpayOptions) => {
+            open: () => void;
+            on: (event: string, callback: () => void) => void;
+        };
+    }
+}
+
+
 export function PaymentForm({ amount, t, onPaymentSuccess }: PaymentFormProps) {
     const [isLoading, setIsLoading] = useState(false);
     const { toast } = useToast();
 
-    const handleUpiPayment = (e: React.MouseEvent<HTMLButtonElement>, app: string) => {
-        e.preventDefault();
-        const payeeVpa = 'healthsight@gpay'; // Example VPA
-        const payeeName = 'HealthSight Platform';
-        const transactionNote = 'Health Platform Fee';
-        
-        // Construct the UPI deep link
-        const upiUrl = `upi://pay?pa=${payeeVpa}&pn=${payeeName}&am=${amount}&cu=INR&tn=${transactionNote}`;
-        
-        // Attempt to open the UPI app
-        window.location.href = upiUrl;
+    // Add Razorpay script to the page
+    useEffect(() => {
+        const script = document.createElement('script');
+        script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+        script.async = true;
+        document.body.appendChild(script);
 
-        // Since we can't get a callback, we'll show a toast to guide the user.
-        toast({
-            title: `Opening ${app}...`,
-            description: "Please complete the payment in your UPI app. The success will be reflected here shortly.",
-        });
+        return () => {
+            document.body.removeChild(script);
+        };
+    }, []);
 
-        // In a real app, we'd poll a backend to check for payment status.
-        // Here, we'll simulate a delay then success.
-        setIsLoading(true);
-        setTimeout(() => {
-            setIsLoading(false);
-            onPaymentSuccess();
-        }, 8000); // Wait 8 seconds to simulate user paying in app
-    };
-
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
+    const handlePayment = async () => {
         setIsLoading(true);
 
-        // Simulate network request for card payment
-        setTimeout(() => {
-            setIsLoading(false);
-            onPaymentSuccess();
-            toast({
-                title: "Payment Successful",
-                description: `Your payment of ₹${amount} was processed successfully.`,
+        try {
+            // Step 1: Call our backend to create a Razorpay order
+            const orderResponse = await fetch('/api/create-razorpay-order', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ amount }),
             });
-        }, 1500);
+
+            if (!orderResponse.ok) {
+                throw new Error('Failed to create payment order.');
+            }
+            
+            const order = await orderResponse.json();
+
+            // Step 2: Open Razorpay checkout with the order details
+            const options: RazorpayOptions = {
+                key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || 'rzp_test_xxxxxxxxxxxxxx', // Use public key from env or a dummy
+                amount: order.amount,
+                currency: order.currency,
+                name: 'HealthSight Platform',
+                description: 'Comprehensive Health Report Fee',
+                order_id: order.id,
+                handler: (response) => {
+                    // This function is called after a successful payment
+                    console.log('Razorpay Payment ID:', response.razorpay_payment_id);
+                    toast({
+                        title: "Payment Successful",
+                        description: `Your payment of ₹${amount} was processed.`,
+                    });
+                    onPaymentSuccess();
+                },
+                prefill: {
+                    name: 'Jane Smith',
+                    email: 'jane.smith@example.com',
+                    contact: '+919876543210'
+                },
+                notes: {
+                    address: 'HealthSight Corp Office'
+                },
+                theme: {
+                    color: '#2563EB' // Matches primary theme color
+                }
+            };
+
+            const rzp = new window.Razorpay(options);
+            rzp.on('payment.failed', () => {
+                 toast({
+                    title: "Payment Failed",
+                    description: "Please try again or use a different payment method.",
+                    variant: 'destructive'
+                });
+            });
+
+            rzp.open();
+
+        } catch (error) {
+            console.error(error);
+            toast({
+                title: "Error",
+                description: "Could not initiate payment. Please try again.",
+                variant: 'destructive'
+            });
+        } finally {
+            setIsLoading(false);
+        }
     }
     
     return (
-        <form onSubmit={handleSubmit}>
-            <Tabs defaultValue="upi" className="w-full">
-                <TabsList className="grid w-full grid-cols-2">
-                    <TabsTrigger value="upi" disabled={isLoading}><ScanLine className="mr-2" />{t.upi.tabTitle}</TabsTrigger>
-                    <TabsTrigger value="card" disabled={isLoading}><CreditCard className="mr-2" />{t.card.tabTitle}</TabsTrigger>
-                </TabsList>
-                <TabsContent value="card" className="mt-4">
-                    <div className="space-y-4">
-                        <div className="space-y-2">
-                            <Label htmlFor="name">{t.card.nameLabel}</Label>
-                            <Input id="name" placeholder={t.card.namePlaceholder} required disabled={isLoading} />
-                        </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="card-number">{t.card.numberLabel}</Label>
-                            <Input id="card-number" placeholder={t.card.numberPlaceholder} required disabled={isLoading} />
-                        </div>
-                        <div className="grid grid-cols-3 gap-4">
-                            <div className="space-y-2">
-                                <Label htmlFor="expiry-month">{t.card.expiryMonthLabel}</Label>
-                                <Input id="expiry-month" placeholder="MM" required disabled={isLoading}/>
-                            </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="expiry-year">{t.card.expiryYearLabel}</Label>
-                                <Input id="expiry-year" placeholder="YYYY" required disabled={isLoading} />
-                            </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="cvc">{t.card.cvcLabel}</Label>
-                                <Input id="cvc" placeholder="CVC" required disabled={isLoading} />
-                            </div>
-                        </div>
-                    </div>
-                     <Button type="submit" size="lg" className="w-full mt-6" disabled={isLoading}>
-                        {isLoading ? (
-                            <>
-                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                Processing...
-                            </>
-                        ) : (
-                            t.payButton.replace('{amount}', amount)
-                        )}
-                    </Button>
-                </TabsContent>
-                <TabsContent value="upi" className="mt-4">
-                    <div className="space-y-4">
-                        <Label>{t.upi.realTimeLabel || 'Pay directly with your UPI app:'}</Label>
-                        <div className="flex justify-center gap-4">
-                            <Button onClick={(e) => handleUpiPayment(e, 'GPay')} variant="outline" type="button" className="flex-1" disabled={isLoading}>{t.upi.gpay}</Button>
-                            <Button onClick={(e) => handleUpiPayment(e, 'PhonePe')} variant="outline" type="button" className="flex-1" disabled={isLoading}>{t.upi.phonepe}</Button>
-                            <Button onClick={(e) => handleUpiPayment(e, 'Paytm')} variant="outline" type="button" className="flex-1" disabled={isLoading}>{t.upi.paytm}</Button>
-                        </div>
-                         <div className="text-center text-sm text-muted-foreground my-4">{t.upi.or}</div>
-                        <div className="space-y-2">
-                            <Label htmlFor="upi-id">{t.upi.idLabel}</Label>
-                            <Input id="upi-id" placeholder={t.upi.idPlaceholder} disabled={isLoading} />
-                        </div>
-                         <Button type="submit" size="lg" className="w-full mt-6" disabled={isLoading}>
-                            {isLoading ? (
-                                <>
-                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                    Awaiting payment completion...
-                                </>
-                            ) : (
-                                'Verify Payment'
-                            )}
-                        </Button>
-                    </div>
-                </TabsContent>
-            </Tabs>
-        </form>
+        <div className="text-center">
+             <Button 
+                onClick={handlePayment} 
+                size="lg" 
+                className="w-full mt-6" 
+                disabled={isLoading}
+            >
+                {isLoading ? (
+                    <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        {t.processingButton || 'Processing...'}
+                    </>
+                ) : (
+                    t.payButton.replace('{amount}', amount)
+                )}
+            </Button>
+            <p className="text-xs text-muted-foreground mt-4">{t.secureNote || 'Your payment is processed securely by Razorpay.'}</p>
+        </div>
     );
 }

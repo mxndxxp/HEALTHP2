@@ -422,32 +422,14 @@ export const initialUiText = {
       paymentForm: {
           title: 'Complete Payment',
           description: 'You are paying an amount of ₹{amount}.',
-          card: {
-              tabTitle: 'Credit/Debit Card',
-              nameLabel: 'Name on Card',
-              namePlaceholder: 'John Doe',
-              numberLabel: 'Card Number',
-              numberPlaceholder: '•••• •••• •••• ••••',
-              expiryMonthLabel: 'Month',
-              expiryYearLabel: 'Year',
-              cvcLabel: 'CVC',
-          },
-          upi: {
-              tabTitle: 'UPI',
-              realTimeLabel: 'Pay directly with your UPI app:',
-              idLabel: 'Or enter your UPI ID',
-              idPlaceholder: 'yourname@upi',
-              or: 'OR',
-              gpay: 'GPay',
-              phonepe: 'PhonePe',
-              paytm: 'Paytm',
-          },
-          payButton: 'Pay ₹{amount} Securely',
+          payButton: 'Pay ₹{amount} with Razorpay',
+          processingButton: 'Processing...',
+          secureNote: 'Your payment is processed securely by Razorpay.',
       },
       success: {
           title: 'Payment Successful',
           alertTitle: 'Thank you!',
-          alertDescription: 'Your payment has been received. You may now proceed to the next sections.'
+          alertDescription: 'Your payment has been received. You can now access all features, including the AI Analysis and Health Report sections.'
       }
     },
     healthReport: {
@@ -616,26 +598,9 @@ export const initialUiText = {
         paymentForm: {
           title: 'Complete Booking Payment',
           description: 'You are paying a consultation fee of ₹{amount}.',
-          card: {
-              tabTitle: 'Credit/Debit Card',
-              nameLabel: 'Name on Card',
-              namePlaceholder: 'John Doe',
-              numberLabel: 'Card Number',
-              numberPlaceholder: '•••• •••• •••• ••••',
-              expiryMonthLabel: 'Month',
-              expiryYearLabel: 'Year',
-              cvcLabel: 'CVC',
-          },
-          upi: {
-              tabTitle: 'UPI',
-              idLabel: 'UPI ID',
-              idPlaceholder: 'yourname@upi',
-              or: 'OR',
-              gpay: 'GPay',
-              phonepe: 'PhonePe',
-              paytm: 'Paytm',
-          },
           payButton: 'Pay ₹500 & Confirm Appointment',
+          processingButton: 'Processing...',
+          secureNote: 'Your payment is processed securely by Razorpay.',
       },
     }
   }
