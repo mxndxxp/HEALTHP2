@@ -117,11 +117,17 @@ export default function DashboardPage() {
       try {
           const data = await getPatientData(patientId);
           setHealthData(data);
+          // If we successfully get data, but the browser is offline, it must have come from cache.
+          if (!navigator.onLine) {
+             setError('You are offline. Displaying cached data. Some features may be limited.');
+          }
       } catch (err: any) {
           console.error("Failed to fetch patient data:", err);
           let errorMessage = 'Could not load patient data. Please try again later.';
-          if (err.code === 'unavailable') {
-            errorMessage = 'You are offline. Displaying cached data if available. Some features may be limited.';
+          if (!isOnline) {
+            errorMessage = 'You are offline. No cached data is available. Please connect to the internet to load data.';
+          } else if (err.code === 'unavailable') {
+            errorMessage = 'Could not connect to the database. Please check your internet connection and try again.';
           }
           setError(errorMessage);
           toast({
@@ -139,7 +145,7 @@ export default function DashboardPage() {
         fetchData();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [patientId]);
+  }, [patientId, isOnline]);
 
 
   const handleDataChange = (section: keyof HealthData, data: any) => {
@@ -255,7 +261,12 @@ export default function DashboardPage() {
           onSave={handleSave}
         />
         <main className="flex-1 overflow-auto bg-muted/40">
-            <ScrollArea className="h-[calc(100vh-65px)]">
+            {error && healthData && (
+                 <div className="bg-amber-100 border-b border-amber-200 text-amber-800 text-sm p-2 text-center">
+                    <p>{error}</p>
+                 </div>
+            )}
+            <ScrollArea className={cn("h-[calc(100vh-65px)]", error && healthData && "h-[calc(100vh-65px-36px)]")}>
                  <div className={cn("p-4 sm:p-6", isChat && "p-0 sm:p-0")}>
                     {ActiveComponent && <ActiveComponent {...componentProps} />}
                     {!isChat && <SectionNavigator
@@ -272,3 +283,5 @@ export default function DashboardPage() {
     </div>
   );
 }
+
+    
