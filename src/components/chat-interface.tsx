@@ -13,7 +13,7 @@ import { type Message, subscribeToChat } from '@/lib/chat-service';
 
 type ChatInterfaceProps = {
   chatId: string;
-  currentUser: 'patient' | 'doctor';
+  currentUser: string; // Now accepts any string, e.g., 'patient', 'doctor', 'Dr. Reed'
 };
 
 export function ChatInterface({ chatId, currentUser }: ChatInterfaceProps) {
@@ -78,12 +78,24 @@ export function ChatInterface({ chatId, currentUser }: ChatInterfaceProps) {
     }
   };
 
-  const getAvatar = (sender: 'patient' | 'doctor') => {
-      if (sender === 'patient') {
-          return <AvatarFallback><User /></AvatarFallback>;
+  const getAvatar = (sender: string) => {
+      // Simple logic to differentiate patient/doctor avatars
+      if (sender.toLowerCase().startsWith('dr.') || sender === 'doctor') {
+          return <AvatarFallback><Stethoscope /></AvatarFallback>;
       }
-      return <AvatarFallback><Stethoscope /></AvatarFallback>;
+      return <AvatarFallback><User /></AvatarFallback>;
   }
+  
+  const getSenderInitial = (sender: string) => {
+    const parts = sender.split(' ');
+    if (parts.length > 1) {
+        return parts[0].charAt(0) + parts[parts.length - 1].charAt(0);
+    }
+    return sender.charAt(0).toUpperCase();
+  }
+  
+  const isGroupChat = chatId === 'doctors_discussion_room';
+
 
   return (
     <div className="flex flex-1 flex-col">
@@ -109,22 +121,27 @@ export function ChatInterface({ chatId, currentUser }: ChatInterfaceProps) {
               >
                 {message.sender !== currentUser && (
                   <Avatar className="h-8 w-8">
-                    {getAvatar(message.sender)}
+                    <AvatarFallback>{getSenderInitial(message.sender)}</AvatarFallback>
                   </Avatar>
                 )}
-                <div
-                  className={cn(
-                    'max-w-[75%] rounded-lg px-3 py-2 text-sm shadow-sm',
-                    message.sender === currentUser
-                      ? 'bg-primary text-primary-foreground'
-                      : 'bg-background'
-                  )}
-                >
-                  {message.text}
+                <div className="flex flex-col gap-1">
+                    {isGroupChat && message.sender !== currentUser && (
+                        <span className="text-xs text-muted-foreground ml-2">{message.sender}</span>
+                    )}
+                    <div
+                      className={cn(
+                        'max-w-[75%] rounded-lg px-3 py-2 text-sm shadow-sm',
+                        message.sender === currentUser
+                          ? 'bg-primary text-primary-foreground'
+                          : 'bg-background'
+                      )}
+                    >
+                      {message.text}
+                    </div>
                 </div>
                  {message.sender === currentUser && (
                   <Avatar className="h-8 w-8">
-                    {getAvatar(message.sender)}
+                     <AvatarFallback>{getSenderInitial(message.sender)}</AvatarFallback>
                   </Avatar>
                 )}
               </div>

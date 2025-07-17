@@ -32,6 +32,7 @@ import {
   MessageSquare,
   Bot,
   Loader2,
+  Users,
 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -125,6 +126,10 @@ export default function DoctorDashboardPage() {
              <Button onClick={() => router.push('/doctor/ai-assistant')}>
               <Bot className="mr-2 h-4 w-4" />
               AI Medical Assistant
+            </Button>
+            <Button onClick={() => router.push('/doctor/discussion-room')}>
+                <Users className="mr-2 h-4 w-4" />
+                Discussion Room
             </Button>
           </CardContent>
         </Card>

@@ -4,7 +4,7 @@ import { collection, addDoc, serverTimestamp, query, orderBy, getDocs, onSnapsho
 export type Message = {
     id: string;
     text: string;
-    sender: 'patient' | 'doctor';
+    sender: string; // Can be 'patient', 'doctor', or a doctor's name
     timestamp: any; // Firestore timestamp object or serverTimestamp()
 };
 
