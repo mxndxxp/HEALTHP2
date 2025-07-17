@@ -12,7 +12,6 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Menu, User, Save, LogOut } from 'lucide-react';
 import type { ReactNode } from 'react';
-import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 
 type HeaderProps = {
@@ -20,18 +19,11 @@ type HeaderProps = {
   sidebar: ReactNode;
   t: any;
   showSaveButton?: boolean;
+  onSave?: () => void;
 };
 
-export function Header({ title, sidebar, t, showSaveButton = false }: HeaderProps) {
-  const { toast } = useToast();
+export function Header({ title, sidebar, t, showSaveButton = false, onSave }: HeaderProps) {
   const router = useRouter();
-
-  const handleSave = () => {
-    toast({
-      title: t.saveProgress.title,
-      description: t.saveProgress.description,
-    });
-  };
 
   const handleLogout = () => {
     router.push('/');
@@ -54,8 +46,8 @@ export function Header({ title, sidebar, t, showSaveButton = false }: HeaderProp
         <h1 className="text-xl font-semibold tracking-tight">{title}</h1>
       </div>
       <div className="flex items-center gap-4">
-        {showSaveButton && (
-           <Button variant="outline" onClick={handleSave}>
+        {showSaveButton && onSave && (
+           <Button variant="outline" onClick={onSave}>
               <Save className="mr-2 h-4 w-4" />
               {t.saveButton}
            </Button>
