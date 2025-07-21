@@ -1,5 +1,6 @@
 
 
+
 export type PatientInfo = {
   name: string;
   age: string;
@@ -213,4 +214,20 @@ export type HealthData = {
     booking: Booking;
   };
   caseHistory: CaseHistoryItem[];
+};
+
+
+export type ReportInput = {
+    patientId: string;
+    doctorId: string;
+    doctorName: string;
+    content: string;
+    signatureDataUrl: string;
+    status: 'pending' | 'approved' | 'rejected';
+}
+
+export type Report = ReportInput & {
+    id: string;
+    createdAt: any; // Firestore timestamp
+    approvedAt: any | null; // Firestore timestamp
 }

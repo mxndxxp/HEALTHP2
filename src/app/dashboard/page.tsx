@@ -10,16 +10,15 @@ import { SenseOrgans } from '@/components/sense-organs';
 import { Dashboard } from '@/components/dashboard';
 import { AiAnalysis } from '@/components/ai-analysis';
 import { ChatBot } from '@/components/chat-bot';
-import { HealthReport } from '@/components/health-report';
 import { PatientImprovementReview } from '@/components/patient-improvement-review';
 import { Consultation } from '@/components/consultation';
-import { Payment } from '@/components/payment';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import type { HealthData } from '@/lib/types';
 import { initialUiText } from '@/lib/ui-text';
 import { SectionNavigator } from '@/components/layout/section-navigator';
 import PatientChatPage from '@/app/patient/chat/[doctorId]/page';
 import { CaseHistory } from '@/components/case-history';
+import { PatientReports } from '@/components/patient-reports';
 import { cn } from '@/lib/utils';
 import {
   Activity,
@@ -35,6 +34,7 @@ import {
   MessageSquare,
   Loader2,
   BookMarked,
+  FileHeart
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -58,9 +58,8 @@ const sectionComponents: { [key: string]: React.ComponentType<any> } = {
   medicalHistory: MedicalHistory,
   lifestyle: LifestyleAssessment,
   senses: SenseOrgans,
-  payment: Payment,
   caseHistory: CaseHistory,
-  healthReport: HealthReport,
+  patientReports: PatientReports,
   aiAnalysis: AiAnalysis,
   patientImprovementReview: PatientImprovementReview,
   consultation: Consultation,
@@ -74,9 +73,8 @@ const navItems = [
   { id: 'medicalHistory', icon: HeartPulse },
   { id: 'lifestyle', icon: Activity },
   { id: 'senses', icon: Smile },
-  { id: 'payment', icon: CreditCard },
+  { id: 'patientReports', icon: FileHeart },
   { id: 'caseHistory', icon: BookMarked },
-  { id: 'healthReport', icon: FileText },
   { id: 'aiAnalysis', icon: BotMessageSquare },
   { id: 'patientImprovementReview', icon: MessageSquarePlus },
   { id: 'consultation', icon: Video },

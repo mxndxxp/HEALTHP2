@@ -136,6 +136,10 @@ export default function DoctorDashboardPage() {
                 <FilePenLine className="mr-2 h-4 w-4" />
                 Create Prescription
             </Button>
+            <Button onClick={() => router.push('/doctor/create-report')}>
+                <FilePenLine className="mr-2 h-4 w-4" />
+                Create Report
+            </Button>
           </CardContent>
         </Card>
         <Card>
