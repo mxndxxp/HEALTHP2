@@ -3,14 +3,12 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import SignatureCanvas from 'react-signature-canvas';
 import { useReactToPrint } from 'react-to-print';
 import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
@@ -28,15 +26,17 @@ import { useToast } from '@/hooks/use-toast';
 import {
   ChevronLeft,
   Download,
-  Eraser,
   Send,
   User,
   FilePenLine,
   Loader2,
+  Signature,
 } from 'lucide-react';
 import { getAllPatients } from '@/lib/patient-data-service';
 import { createReport } from '@/lib/report-service';
 import type { HealthData } from '@/lib/types';
+import { cn } from '@/lib/utils';
+
 
 const PrintableReport = React.forwardRef(({ reportData }: any, ref: any) => {
     return (
@@ -65,8 +65,10 @@ const PrintableReport = React.forwardRef(({ reportData }: any, ref: any) => {
             </main>
             <footer className="pt-8 mt-16">
                  <h3 className="font-semibold">Doctor's Signature:</h3>
-                 <div className="mt-4 border-t pt-2">
-                    {reportData.signatureDataUrl && <img src={reportData.signatureDataUrl} alt="Doctor's Signature" className="h-20 w-auto" />}
+                 <div className="mt-4 border-t pt-2 min-h-[80px] flex items-end">
+                    {reportData.signatureText && (
+                        <p className="font-signature text-4xl">{reportData.signatureText}</p>
+                    )}
                  </div>
             </footer>
         </div>
@@ -81,13 +83,13 @@ export default function CreateReportPage() {
   const [patients, setPatients] = useState<HealthData[]>([]);
   const [selectedPatientId, setSelectedPatientId] = useState('');
   const [reportContent, setReportContent] = useState('');
+  const [signatureText, setSignatureText] = useState('Dr. Evelyn Reed');
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const sigCanvas = useRef<SignatureCanvas | null>(null);
   const reportRef = useRef<HTMLDivElement>(null);
 
   // For prototype purposes, assume doctor is logged in
-  const doctorId = '1'; 
+  const doctorId = '1';
   const doctorName = 'Dr. Evelyn Reed';
 
   useEffect(() => {
@@ -104,10 +106,6 @@ export default function CreateReportPage() {
     };
     fetchPatients();
   }, [toast]);
-
-  const clearSignature = () => {
-    sigCanvas.current?.clear();
-  };
   
   const handlePrint = useReactToPrint({
       content: () => reportRef.current,
@@ -115,7 +113,7 @@ export default function CreateReportPage() {
   });
 
   const handleSubmit = async () => {
-    if (!selectedPatientId || !reportContent || sigCanvas.current?.isEmpty()) {
+    if (!selectedPatientId || !reportContent || !signatureText) {
       toast({
         title: 'Missing Information',
         description: 'Please select a patient, write a report, and provide your signature.',
@@ -126,14 +124,15 @@ export default function CreateReportPage() {
 
     setIsSubmitting(true);
     try {
-      const signatureDataUrl = sigCanvas.current.toDataURL('image/png');
+      // The signature is now text-based
+      const signatureDataUrl = signatureText; // For consistency, we can rename the field in backend later
       
       await createReport({
           patientId: selectedPatientId,
           doctorId,
           doctorName,
           content: reportContent,
-          signatureDataUrl,
+          signatureDataUrl: signatureDataUrl, // This now holds the signature text
           status: 'pending',
       });
 
@@ -213,19 +212,19 @@ export default function CreateReportPage() {
                 />
              </div>
              <div className="space-y-2">
-                <div className="flex justify-between items-center">
-                    <Label htmlFor="signature-pad">Doctor's Signature</Label>
-                    <Button variant="ghost" size="sm" onClick={clearSignature}>
-                        <Eraser className="mr-2 h-4 w-4"/> Clear
-                    </Button>
-                </div>
-                <div className="rounded-md border bg-white">
-                    <SignatureCanvas
-                        ref={sigCanvas}
-                        penColor="black"
-                        canvasProps={{ className: 'w-full h-32' }}
-                    />
-                </div>
+                <Label htmlFor="signature-text">
+                  <div className="flex items-center gap-2">
+                    <Signature className="h-4 w-4" />
+                    Doctor's Signature
+                  </div>
+                </Label>
+                <Input
+                    id="signature-text"
+                    placeholder="Type your name to generate a signature"
+                    value={signatureText}
+                    onChange={(e) => setSignatureText(e.target.value)}
+                    className="font-signature text-2xl h-12"
+                />
              </div>
           </CardContent>
         </Card>
@@ -237,7 +236,7 @@ export default function CreateReportPage() {
                      patientName: selectedPatient?.patientInfo.name || 'N/A',
                      doctorName,
                      content: reportContent,
-                     signatureDataUrl: !sigCanvas.current?.isEmpty() ? sigCanvas.current?.toDataURL() : null
+                     signatureText: signatureText,
                  }} />
             </div>
         </div>

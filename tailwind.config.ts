@@ -22,6 +22,7 @@ const config = {
         body: ['var(--font-inter)', 'sans-serif'],
         headline: ['var(--font-inter)', 'sans-serif'],
         code: ['monospace'],
+        signature: ['var(--font-dancing-script)', 'cursive'],
       },
       colors: {
         border: 'hsl(var(--border))',

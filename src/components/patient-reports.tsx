@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useReactToPrint } from 'react-to-print';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -15,6 +15,16 @@ import { Badge } from '@/components/ui/badge';
 import { Loader2, FileDown, AlertTriangle, FileHeart } from 'lucide-react';
 import type { Report } from '@/lib/types';
 import { subscribeToPatientReports } from '@/lib/report-service';
+
+const SignatureDisplay = ({ signature }: { signature: string }) => {
+    // Check if it's a data URL or just text
+    if (signature.startsWith('data:image/')) {
+        return <img src={signature} alt="Signature" className="h-16 w-32 object-contain" />;
+    }
+    // Render text as a signature
+    return <p className="font-signature text-2xl p-2">{signature}</p>;
+};
+
 
 const PrintableReport = React.forwardRef(({ reportData }: any, ref: any) => {
     if (!reportData) return null;
@@ -43,8 +53,8 @@ const PrintableReport = React.forwardRef(({ reportData }: any, ref: any) => {
             </main>
             <footer className="pt-8 mt-16">
                  <h3 className="font-semibold">Doctor's Signature:</h3>
-                 <div className="mt-4 border-t pt-2">
-                    {reportData.signatureDataUrl && <img src={reportData.signatureDataUrl} alt="Doctor's Signature" className="h-20 w-auto" />}
+                 <div className="mt-4 border-t pt-2 min-h-[80px] flex items-end">
+                    <SignatureDisplay signature={reportData.signatureDataUrl} />
                  </div>
                  <p className="text-xs text-gray-500 mt-4">Report Approved on: {new Date(reportData.approvedAt.toDate()).toLocaleString()}</p>
             </footer>
@@ -138,7 +148,9 @@ export function PatientReports({ patientId, t }: { patientId: string, t: any }) 
                                     <div className="flex justify-between items-center">
                                         <div>
                                             <p className="text-sm font-semibold">Doctor's Signature:</p>
-                                            <img src={report.signatureDataUrl} alt="Signature" className="h-16 w-32 object-contain bg-white p-1 border rounded-md" />
+                                            <div className="h-20 flex items-center justify-start bg-white p-1 border rounded-md">
+                                                <SignatureDisplay signature={report.signatureDataUrl} />
+                                            </div>
                                         </div>
                                         <Button onClick={() => handleDownloadClick(report)}>
                                             <FileDown className="mr-2 h-4 w-4" /> Download PDF

@@ -1,6 +1,6 @@
 
 'use client';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Card,
   CardContent,
@@ -45,7 +45,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Badge } from '@/components/ui/badge';
 
 export default function AdminDashboardPage() {
   const [patients, setPatients] = useState<HealthData[]>([]);
@@ -143,6 +142,15 @@ export default function AdminDashboardPage() {
   };
 
   const pendingReports = reports.filter(r => r.status === 'pending');
+
+  const SignatureDisplay = ({ signature }: { signature: string }) => {
+    // Check if it's a data URL or just text
+    if (signature.startsWith('data:image/')) {
+        return <img src={signature} alt="Signature" className="h-16 w-32 object-contain" />;
+    }
+    // Render text as a signature
+    return <p className="font-signature text-2xl p-2">{signature}</p>;
+};
 
   return (
     <div className="flex min-h-screen w-full flex-col bg-muted/40">
@@ -246,8 +254,8 @@ export default function AdminDashboardPage() {
                                             </div>
                                             <div className="flex flex-col gap-2 items-center">
                                                 <p className="font-semibold">Signature:</p>
-                                                <div className="border p-1 rounded-md bg-white">
-                                                    <img src={report.signatureDataUrl} alt="Signature" className="h-16 w-32 object-contain" />
+                                                <div className="border p-1 rounded-md bg-white flex items-center justify-center h-20 w-40">
+                                                    <SignatureDisplay signature={report.signatureDataUrl} />
                                                 </div>
                                                 <div className="flex gap-2 mt-2">
                                                     <Button size="sm" variant="outline" className="text-green-600 border-green-600 hover:bg-green-100" onClick={() => handleReportApproval(report.id, 'approved')}>
