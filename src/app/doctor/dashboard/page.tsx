@@ -21,6 +21,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -34,10 +35,11 @@ import {
   Loader2,
   Users,
   FilePenLine,
+  Search,
 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { getAllPatients } from '@/lib/patient-data-service';
 import type { HealthData } from '@/lib/types';
 
@@ -47,6 +49,7 @@ export default function DoctorDashboardPage() {
   const [patients, setPatients] = useState<HealthData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
     const fetchPatients = async () => {
@@ -64,6 +67,19 @@ export default function DoctorDashboardPage() {
     fetchPatients();
   }, []);
 
+  const filteredPatients = useMemo(() => {
+    if (!searchTerm) return patients;
+    return patients.filter(
+      (patient) =>
+        patient.patientInfo.name
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase()) ||
+        patient.patientInfo.uniqueId
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase())
+    );
+  }, [patients, searchTerm]);
+
   const handleLogout = () => {
     router.push('/');
   };
@@ -73,9 +89,9 @@ export default function DoctorDashboardPage() {
   };
 
   const handleViewPatient = (patientId: string) => {
-    // In a real app, this would use the patient's ID to fetch their data.
-    // For this prototype, we'll just navigate to the existing patient dashboard.
-    // For now, it will always show patient '1' as per dashboard logic
+    // For this prototype, we'll navigate to the patient's dashboard.
+    // The dashboard page is hardcoded to use patient '1', so this will always show patient '1's data.
+    // A full implementation would use a dynamic route like `/dashboard/${patientId}`.
     router.push('/dashboard');
   };
 
@@ -148,6 +164,16 @@ export default function DoctorDashboardPage() {
             <CardDescription>
               A list of all patients registered on the platform.
             </CardDescription>
+             <div className="relative mt-4">
+              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Input
+                type="search"
+                placeholder="Search by name or unique ID..."
+                className="w-full rounded-lg bg-background pl-8 md:w-[200px] lg:w-[320px]"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
           </CardHeader>
           <CardContent>
             {isLoading ? (
@@ -172,7 +198,7 @@ export default function DoctorDashboardPage() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {patients.map((patient) => (
+                    {filteredPatients.map((patient) => (
                       <TableRow key={patient.id}>
                         <TableCell className="font-medium">
                           {patient.patientInfo.name}
@@ -218,6 +244,11 @@ export default function DoctorDashboardPage() {
                     ))}
                   </TableBody>
                 </Table>
+            )}
+            {!isLoading && filteredPatients.length === 0 && searchTerm && (
+                <p className="text-center text-muted-foreground py-10">
+                    No patients found for "{searchTerm}".
+                </p>
             )}
           </CardContent>
         </Card>
