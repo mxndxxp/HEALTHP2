@@ -19,6 +19,7 @@ import { SectionNavigator } from '@/components/layout/section-navigator';
 import PatientChatPage from '@/app/patient/chat/[doctorId]/page';
 import { CaseHistory } from '@/components/case-history';
 import { PatientReports } from '@/components/patient-reports';
+import { DeviceConnectivity } from '@/components/device-connectivity';
 import { cn } from '@/lib/utils';
 import {
   Activity,
@@ -34,7 +35,8 @@ import {
   MessageSquare,
   Loader2,
   BookMarked,
-  FileHeart
+  FileHeart,
+  Bluetooth,
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -58,8 +60,9 @@ const sectionComponents: { [key: string]: React.ComponentType<any> } = {
   medicalHistory: MedicalHistory,
   lifestyle: LifestyleAssessment,
   senses: SenseOrgans,
-  caseHistory: CaseHistory,
   patientReports: PatientReports,
+  caseHistory: CaseHistory,
+  deviceConnectivity: DeviceConnectivity,
   aiAnalysis: AiAnalysis,
   patientImprovementReview: PatientImprovementReview,
   consultation: Consultation,
@@ -75,6 +78,7 @@ const navItems = [
   { id: 'senses', icon: Smile },
   { id: 'patientReports', icon: FileHeart },
   { id: 'caseHistory', icon: BookMarked },
+  { id: 'deviceConnectivity', icon: Bluetooth },
   { id: 'aiAnalysis', icon: BotMessageSquare },
   { id: 'patientImprovementReview', icon: MessageSquarePlus },
   { id: 'consultation', icon: Video },

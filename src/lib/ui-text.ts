@@ -8,6 +8,7 @@ export const initialUiText = {
     senses: 'Sense Organ Assessment',
     patientReports: 'Approved Reports',
     caseHistory: 'Case History',
+    deviceConnectivity: 'Device Connectivity',
     aiAnalysis: 'AI Analysis',
     patientImprovementReview: 'Patient Improvement Review',
     consultation: 'Consultation',
@@ -435,6 +436,52 @@ export const initialUiText = {
             title: "No Approved Reports Yet",
             description: "When your doctor submits a report and it's approved, it will appear here."
         }
+    },
+    deviceConnectivity: {
+        title: 'Device Connectivity & Metrics',
+        description: 'Connect your smart devices to sync and track your health data in real-time.',
+        connectButton: 'Connect Device',
+        cardiovascular: {
+            title: 'Cardiovascular Metrics',
+            heartRate: 'Heart Rate',
+            ecg: 'ECG (Electrocardiogram)',
+            bloodPressure: 'Blood Pressure',
+            bloodOxygen: 'Blood Oxygen (SpO2)',
+        },
+        activity: {
+            title: 'Activity & Fitness',
+            steps: 'Steps/Distance',
+            calories: 'Calories Burned',
+            exercise: 'Exercise Recognition',
+            vo2: 'VO₂ Max (Aerobic Capacity)',
+        },
+        sleep: {
+            title: 'Sleep Analysis',
+            stages: 'Sleep Stages',
+            quality: 'Sleep Quality Score',
+            apnea: 'Sleep Apnea Indicators',
+        },
+        stress: {
+            title: 'Stress & Mental Wellness',
+            levels: 'Stress Levels (EDA)',
+            management: 'Stress Management Score',
+            mindfulness: 'Mindfulness Guidance',
+        },
+        specialized: {
+            title: 'Specialized Health Monitoring',
+            skinTemp: 'Skin Temperature',
+            bloodGlucose: 'Blood Glucose',
+            fallDetection: 'Fall Detection',
+            menstrual: 'Menstrual/Ovulation Prediction',
+        },
+        mobile: {
+            title: 'Mobile App-Enhanced Insights',
+            medication: 'Medication Adherence',
+            ehr: 'EHR Integration',
+            telehealth: 'Telehealth Access',
+            mentalHealth: 'Mental Health Support',
+            womensHealth: "Women's Health Tracking",
+        },
     },
     aiAnalysis: {
         title: 'AI Medical Expertise Engine',
