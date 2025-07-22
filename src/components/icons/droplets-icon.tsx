@@ -1,3 +1,4 @@
+
 import * as React from "react";
 import { SVGProps } from "react";
 
@@ -18,3 +19,5 @@ export const DropletsIcon = (props: SVGProps<SVGSVGElement>) => (
     <path d="M12.56 6.5A9.3 9.3 0 0 0 10 3.2c-2.34 1.33-4 3.9-4 6.85 0 3.86 3.14 7.01 7 7.01 1.54 0 3-.5 4.2-1.36" />
   </svg>
 );
+
+    

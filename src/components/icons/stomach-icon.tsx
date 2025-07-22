@@ -1,3 +1,4 @@
+
 import * as React from "react";
 import { SVGProps } from "react";
 
@@ -18,3 +19,5 @@ export const StomachIcon = (props: SVGProps<SVGSVGElement>) => (
     <path d="M18 10h.01" />
   </svg>
 );
+
+    

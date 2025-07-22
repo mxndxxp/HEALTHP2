@@ -20,6 +20,7 @@ import PatientChatPage from '@/app/patient/chat/[doctorId]/page';
 import { CaseHistory } from '@/components/case-history';
 import { PatientReports } from '@/components/patient-reports';
 import { DeviceConnectivity } from '@/components/device-connectivity';
+import { HealthReport } from '@/components/health-report';
 import { cn } from '@/lib/utils';
 import {
   Activity,
@@ -61,6 +62,7 @@ const sectionComponents: { [key: string]: React.ComponentType<any> } = {
   lifestyle: LifestyleAssessment,
   senses: SenseOrgans,
   patientReports: PatientReports,
+  healthReport: HealthReport,
   caseHistory: CaseHistory,
   deviceConnectivity: DeviceConnectivity,
   aiAnalysis: AiAnalysis,
@@ -77,6 +79,7 @@ const navItems = [
   { id: 'lifestyle', icon: Activity },
   { id: 'senses', icon: Smile },
   { id: 'patientReports', icon: FileHeart },
+  { id: 'healthReport', icon: FileText },
   { id: 'caseHistory', icon: BookMarked },
   { id: 'deviceConnectivity', icon: Bluetooth },
   { id: 'aiAnalysis', icon: BotMessageSquare },
@@ -379,5 +382,7 @@ export default function DashboardPage() {
     </div>
   );
 }
+
+    
 
     

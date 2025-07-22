@@ -1,3 +1,4 @@
+
 'use client';
 import { useRef } from 'react';
 import { useReactToPrint } from 'react-to-print';
@@ -288,3 +289,5 @@ export function HealthReport({ data, t }: HealthReportProps) {
     </Card>
   );
 }
+
+    

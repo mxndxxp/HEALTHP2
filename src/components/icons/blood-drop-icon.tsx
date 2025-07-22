@@ -1,3 +1,4 @@
+
 import * as React from "react";
 import { SVGProps } from "react";
 
@@ -19,3 +20,5 @@ export const BloodDropIcon = (props: SVGProps<SVGSVGElement>) => (
     <path d="m11.3 11.5-2.9 2.9" />
   </svg>
 );
+
+    
