@@ -1,6 +1,7 @@
 
 
 
+
 export type PatientInfo = {
   name: string;
   age: string;
