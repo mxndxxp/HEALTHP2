@@ -584,9 +584,10 @@ export const initialUiText = {
         title: 'AI-Powered Diagnostics',
         description: 'Utilize cutting-edge AI to analyze scans, perform real-time diagnostics, and monitor advanced health metrics.',
         tabs: {
-            scans: 'AI Scan Analysis',
-            realTime: 'Real-time Diagnosis',
-            advanced: 'Advanced Monitoring',
+            scans: 'Scan Analysis',
+            realTime: 'Real-time',
+            advanced: 'Advanced',
+            fingerprint: 'Fingerprint',
         },
         scans: {
             title: 'AI-Powered Scan Analysis',
@@ -614,6 +615,11 @@ export const initialUiText = {
             bp: 'Blood Pressure',
             glucose: 'Glucose',
             inflammation: 'Inflammation',
+        },
+        fingerprint: {
+            title: 'AI Fingerprint Analysis',
+            description: 'Use your device\'s sensor to perform a futuristic health scan via your fingerprint.',
+            scanButton: 'Analyze Fingerprint',
         }
     },
     patientImprovementReview: {

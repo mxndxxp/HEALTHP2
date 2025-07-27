@@ -28,6 +28,10 @@ import {
   Thermometer,
   Droplets,
   Zap,
+  Fingerprint,
+  Waves,
+  BrainCircuit,
+  Footprints,
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import {
@@ -40,6 +44,8 @@ import {
 } from 'recharts';
 import { diagnosticScanner } from '@/ai/flows/diagnostic-scanner';
 import { eyeballScanner } from '@/ai/flows/eyeball-scanner-flow';
+import { fingerprintScanner } from '@/ai/flows/fingerprint-scanner-flow';
+import type { FingerprintScannerOutput } from '@/ai/flows/fingerprint-scanner-flow';
 
 const ecgData = Array.from({ length: 100 }, (_, i) => ({
     time: i,
@@ -59,15 +65,19 @@ export function AiDiagnostics({ t }: AiDiagnosticsProps) {
   const { toast } = useToast();
   
   const [scanFile, setScanFile] = useState<File | null>(null);
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [isAnalyzingScan, setIsAnalyzingScan] = useState(false);
   const [analysisResult, setAnalysisResult] = useState('');
   
   const [isDiagnosing, setIsDiagnosing] = useState(false);
   const [diagnosisResult, setDiagnosisResult] = useState('');
   
-  const [isScanning, setIsScanning] = useState(false);
+  const [isScanningEyeball, setIsScanningEyeball] = useState(false);
   const [isEyeballCameraOn, setIsEyeballCameraOn] = useState(false);
-  const [scanResult, setScanResult] = useState({ bp: '', glucose: '', inflammation: ''});
+  const [eyeballScanResult, setEyeballScanResult] = useState({ bp: '', glucose: '', inflammation: ''});
+  
+  const [isScanningFingerprint, setIsScanningFingerprint] = useState(false);
+  const [fingerprintResult, setFingerprintResult] = useState<FingerprintScannerOutput | null>(null);
+
 
   const fileToDataUri = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
@@ -83,7 +93,7 @@ export function AiDiagnostics({ t }: AiDiagnosticsProps) {
         toast({ title: "Please upload a scan first.", variant: 'destructive' });
         return;
     }
-    setIsAnalyzing(true);
+    setIsAnalyzingScan(true);
     setAnalysisResult('');
     try {
         const dataUri = await fileToDataUri(scanFile);
@@ -99,7 +109,7 @@ export function AiDiagnostics({ t }: AiDiagnosticsProps) {
         setAnalysisResult(`Error: ${error}`);
         toast({ title: "Analysis Failed", description: error, variant: 'destructive' });
     } finally {
-        setIsAnalyzing(false);
+        setIsAnalyzingScan(false);
     }
   };
 
@@ -184,8 +194,8 @@ export function AiDiagnostics({ t }: AiDiagnosticsProps) {
   };
 
   const handleEyeballScan = async () => {
-    setIsScanning(true);
-    setScanResult({ bp: '', glucose: '', inflammation: ''});
+    setIsScanningEyeball(true);
+    setEyeballScanResult({ bp: '', glucose: '', inflammation: ''});
 
     if (eyeballVideoRef.current && canvasRef.current) {
         const video = eyeballVideoRef.current;
@@ -198,7 +208,7 @@ export function AiDiagnostics({ t }: AiDiagnosticsProps) {
             const dataUri = canvas.toDataURL('image/jpeg');
             try {
                 const result = await eyeballScanner({ image: dataUri });
-                setScanResult({
+                setEyeballScanResult({
                     bp: result.bloodPressure,
                     glucose: result.bloodGlucose,
                     inflammation: result.inflammation,
@@ -211,10 +221,39 @@ export function AiDiagnostics({ t }: AiDiagnosticsProps) {
         }
     }
     
-    setIsScanning(false);
+    setIsScanningEyeball(false);
     setIsEyeballCameraOn(false);
     stopCamera(eyeballVideoRef);
-  }
+  };
+  
+  const handleFingerprintScan = async () => {
+      setIsScanningFingerprint(true);
+      setFingerprintResult(null);
+      try {
+          const result = await fingerprintScanner({});
+          setFingerprintResult(result);
+          toast({ title: 'Fingerprint Analysis Complete' });
+      } catch (e) {
+          const error = e instanceof Error ? e.message : 'An unexpected error occurred.';
+          toast({ title: "Analysis Failed", description: error, variant: 'destructive' });
+      } finally {
+          setIsScanningFingerprint(false);
+      }
+  };
+
+
+  const ResultCard = ({ title, icon, value }: {title: string, icon: React.ReactNode, value: string}) => (
+    <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">{title}</CardTitle>
+            {icon}
+        </CardHeader>
+        <CardContent>
+            <div className="text-2xl font-bold">{value || '-'}</div>
+        </CardContent>
+    </Card>
+  );
+
 
   return (
     <Card>
@@ -224,7 +263,7 @@ export function AiDiagnostics({ t }: AiDiagnosticsProps) {
       </CardHeader>
       <CardContent>
         <Tabs defaultValue="scans" className="w-full" onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             {Object.keys(t.tabs).map(key => (
               <TabsTrigger key={key} value={key}>
                 {t.tabs[key]}
@@ -244,8 +283,8 @@ export function AiDiagnostics({ t }: AiDiagnosticsProps) {
                   <Label htmlFor="scan-upload" className="text-center">{t.scans.uploadLabel}</Label>
                   <Input id="scan-upload" type="file" className="max-w-sm" onChange={(e) => setScanFile(e.target.files ? e.target.files[0] : null)} />
                 </div>
-                <Button onClick={handleAnalyzeScan} disabled={isAnalyzing} className="w-full">
-                  {isAnalyzing ? (
+                <Button onClick={handleAnalyzeScan} disabled={isAnalyzingScan} className="w-full">
+                  {isAnalyzingScan ? (
                     <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Analyzing...</>
                   ) : (
                     <>{t.scans.uploadButton}</>
@@ -330,8 +369,8 @@ export function AiDiagnostics({ t }: AiDiagnosticsProps) {
                                         <Camera className="mr-2 h-4 w-4"/> Enable Camera
                                     </Button>
                                 ) : (
-                                    <Button onClick={handleEyeballScan} disabled={isScanning} className="w-full">
-                                        {isScanning ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <ScanLine className="mr-2 h-4 w-4" />}
+                                    <Button onClick={handleEyeballScan} disabled={isScanningEyeball} className="w-full">
+                                        {isScanningEyeball ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <ScanLine className="mr-2 h-4 w-4" />}
                                         {t.advanced.scanButton}
                                     </Button>
                                 )}
@@ -339,20 +378,85 @@ export function AiDiagnostics({ t }: AiDiagnosticsProps) {
                             <div className="w-full grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
                                 <div className="p-2 border rounded-lg">
                                     <p className="text-sm font-semibold flex items-center justify-center gap-1"><Zap className="h-4 w-4 text-yellow-500" /> {t.advanced.bp}</p>
-                                    <p className="text-lg font-bold font-mono">{isScanning ? <Loader2 className="h-5 w-5 animate-spin mx-auto"/> : scanResult.bp || '--'}</p>
+                                    <p className="text-lg font-bold font-mono">{isScanningEyeball ? <Loader2 className="h-5 w-5 animate-spin mx-auto"/> : eyeballScanResult.bp || '--'}</p>
                                 </div>
                                 <div className="p-2 border rounded-lg">
                                     <p className="text-sm font-semibold flex items-center justify-center gap-1"><Droplets className="h-4 w-4 text-red-500" /> {t.advanced.glucose}</p>
-                                    <p className="text-lg font-bold font-mono">{isScanning ? <Loader2 className="h-5 w-5 animate-spin mx-auto"/> : scanResult.glucose || '--'}</p>
+                                    <p className="text-lg font-bold font-mono">{isScanningEyeball ? <Loader2 className="h-5 w-5 animate-spin mx-auto"/> : eyeballScanResult.glucose || '--'}</p>
                                 </div>
                                 <div className="p-2 border rounded-lg">
                                     <p className="text-sm font-semibold flex items-center justify-center gap-1"><Thermometer className="h-4 w-4 text-orange-500" /> {t.advanced.inflammation}</p>
-                                    <p className="text-lg font-bold font-mono">{isScanning ? <Loader2 className="h-5 w-5 animate-spin mx-auto"/> : scanResult.inflammation || '--'}</p>
+                                    <p className="text-lg font-bold font-mono">{isScanningEyeball ? <Loader2 className="h-5 w-5 animate-spin mx-auto"/> : eyeballScanResult.inflammation || '--'}</p>
                                 </div>
                             </div>
                         </CardContent>
                     </Card>
                  </CardContent>
+            </Card>
+          </TabsContent>
+          
+          <TabsContent value="fingerprint" className="mt-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>{t.fingerprint.title}</CardTitle>
+                <CardDescription>{t.fingerprint.description}</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                 <div className="flex flex-col items-center gap-6">
+                    <div className="relative">
+                        <Fingerprint className="h-32 w-32 text-muted-foreground"/>
+                        {isScanningFingerprint && (
+                            <div className="absolute inset-0 flex items-center justify-center bg-background/50 rounded-full">
+                                <Loader2 className="h-12 w-12 animate-spin text-primary" />
+                            </div>
+                        )}
+                    </div>
+                    <Button onClick={handleFingerprintScan} disabled={isScanningFingerprint} size="lg">
+                        {isScanningFingerprint ? 'Analyzing...' : t.fingerprint.scanButton}
+                    </Button>
+                 </div>
+                 
+                 {fingerprintResult && (
+                    <div className="space-y-6 pt-6">
+                        <div>
+                            <h3 className="font-semibold mb-4 text-lg flex items-center gap-2"><HeartPulse/> Cardiovascular Data</h3>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <ResultCard title="Heart Rate (HR)" icon={<HeartPulse className="text-red-500"/>} value={fingerprintResult.cardiovascular.heartRate} />
+                                <ResultCard title="Heart Rate Variability (HRV)" icon={<Waves className="text-blue-500"/>} value={fingerprintResult.cardiovascular.hrv} />
+                            </div>
+                        </div>
+                         <div>
+                            <h3 className="font-semibold mb-4 text-lg flex items-center gap-2"><Droplets/> Perfusion/Vascular Data</h3>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <ResultCard title="Blood Oxygen (SpO2)" icon={<Thermometer className="text-orange-500"/>} value={fingerprintResult.perfusion.spo2} />
+                                <ResultCard title="Capillary Refill Time" icon={<Zap className="text-yellow-500"/>} value={fingerprintResult.perfusion.capillaryRefill} />
+                            </div>
+                        </div>
+                        <div>
+                            <h3 className="font-semibold mb-4 text-lg flex items-center gap-2"><BrainCircuit/> Neurological Indicators</h3>
+                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <ResultCard title="Tremor Detection" icon={<Waves className="text-gray-500"/>} value={fingerprintResult.neurological.tremor} />
+                                <ResultCard title="Sweat Gland Activity" icon={<Droplets className="text-cyan-500"/>} value={fingerprintResult.neurological.sweatActivity} />
+                            </div>
+                        </div>
+                        <div>
+                            <h3 className="font-semibold mb-4 text-lg flex items-center gap-2"><Footprints/> Metabolic Screening</h3>
+                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <ResultCard title="Blood Glucose (Experimental)" icon={<Droplets className="text-red-500"/>} value={fingerprintResult.metabolic.glucose} />
+                                <ResultCard title="Alcohol Level (Emerging)" icon={<Zap className="text-purple-500"/>} value={fingerprintResult.metabolic.alcohol} />
+                            </div>
+                        </div>
+                        <div>
+                            <h3 className="font-semibold mb-4 text-lg flex items-center gap-2"><Fingerprint/> Dermatological Information</h3>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <ResultCard title="Skin Hydration" icon={<Waves className="text-blue-400"/>} value={fingerprintResult.dermatological.hydration} />
+                                <ResultCard title="Wound Healing Tracking" icon={<HeartPulse className="text-green-500"/>} value={fingerprintResult.dermatological.woundHealing} />
+                            </div>
+                        </div>
+                    </div>
+                 )}
+
+              </CardContent>
             </Card>
           </TabsContent>
         </Tabs>

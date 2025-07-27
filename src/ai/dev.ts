@@ -10,3 +10,4 @@ import '@/ai/flows/translator.ts';
 import '@/ai/flows/doctor-ai-assistant.ts';
 import '@/ai/flows/diagnostic-scanner.ts';
 import '@/ai/flows/eyeball-scanner-flow.ts';
+import '@/ai/flows/fingerprint-scanner-flow.ts';
