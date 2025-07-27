@@ -69,8 +69,8 @@ export function DeviceConnectivity({ t }: DeviceConnectivityProps) {
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>{text?.title}</CardTitle>
-          <CardDescription>{text?.description}</CardDescription>
+          <CardTitle>{text?.title ?? 'Device Connectivity'}</CardTitle>
+          <CardDescription>{text?.description ?? 'Manage device connections and permissions'}</CardDescription>
         </CardHeader>
         <CardContent>
             <Button>
