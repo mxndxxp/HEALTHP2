@@ -1,12 +1,12 @@
+
 'use client';
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-  CardFooter,
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { doctorAiAssistant } from '@/ai/flows/doctor-ai-assistant';
@@ -24,7 +24,7 @@ import {
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
-import { getPatientData } from '@/lib/patient-data-service';
+import { getPatientData, getAllPatients } from '@/lib/patient-data-service';
 import type { HealthData } from '@/lib/types';
 import {
     Select,
@@ -34,22 +34,35 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 
-const patients = [
-  { id: '1', name: 'Jane Smith' },
-  { id: '2', name: 'Robert Brown' },
-  { id: '3', name: 'Emily Davis' },
-  { id: '4', name: 'Michael Wilson' },
-  { id: '5', name: 'Sarah Johnson' },
-];
 
 export default function DoctorAIAssistantPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingPatients, setIsLoadingPatients] = useState(true);
   const [patientId, setPatientId] = useState<string | null>(null);
+  const [patients, setPatients] = useState<HealthData[]>([]);
   const [patientData, setPatientData] = useState<HealthData | null>(null);
   const [result, setResult] = useState<DoctorAiAssistantOutput | null>(null);
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
+
+  useEffect(() => {
+    const fetchPatients = async () => {
+      try {
+        const patientList = await getAllPatients();
+        setPatients(patientList);
+      } catch (err) {
+        toast({
+          title: "Error fetching patients",
+          description: (err as Error).message,
+          variant: 'destructive',
+        });
+      } finally {
+        setIsLoadingPatients(false);
+      }
+    };
+    fetchPatients();
+  }, [toast]);
 
   const handlePatientSelect = async (selectedPatientId: string) => {
     setPatientId(selectedPatientId);
@@ -134,16 +147,16 @@ export default function DoctorAIAssistantPage() {
           </CardHeader>
           <CardContent>
             <div className="flex flex-col sm:flex-row gap-4">
-                <Select onValueChange={handlePatientSelect} disabled={isLoading}>
+                <Select onValueChange={handlePatientSelect} disabled={isLoading || isLoadingPatients}>
                     <SelectTrigger className="w-full sm:w-[280px]">
-                        <SelectValue placeholder="Select a patient..." />
+                        <SelectValue placeholder={isLoadingPatients ? 'Loading patients...' : 'Select a patient...'} />
                     </SelectTrigger>
                     <SelectContent>
                         {patients.map(p => (
-                            <SelectItem key={p.id} value={p.id}>
+                            <SelectItem key={p.id} value={p.id!}>
                                 <div className="flex items-center gap-2">
                                     <User className="h-4 w-4"/>
-                                    {p.name}
+                                    {p.patientInfo.name} ({p.id})
                                 </div>
                             </SelectItem>
                         ))}

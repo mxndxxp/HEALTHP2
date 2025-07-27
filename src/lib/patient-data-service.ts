@@ -244,35 +244,20 @@ export const addCaseHistoryEvent = async (patientId: string, event: Omit<CaseHis
 
     const patientDocRef = doc(db, 'patients', patientId);
     
-    try {
-        // First, get the current document data
-        const docSnap = await getDoc(patientDocRef);
-        
-        if (docSnap.exists()) {
-            const currentHistory = docSnap.data().caseHistory || [];
-            
-            // Create the new event with a client-side date for optimistic updates
-            const newEvent: CaseHistoryItem = {
-                ...event,
-                id: Date.now(),
-                timestamp: new Date(), // Use client-side date
-            };
+    const newEvent = {
+        ...event,
+        id: Date.now(), // Use client-side timestamp for unique ID
+        timestamp: serverTimestamp(),
+    };
 
-            // Update the document with the new array
-            await updateDoc(patientDocRef, {
-                caseHistory: [...currentHistory, newEvent]
-            });
-        }
+    try {
+        await updateDoc(patientDocRef, {
+            caseHistory: arrayUnion(newEvent)
+        });
     } catch (error) {
         console.error("Error adding case history event:", error);
-        // Fallback for safety, though less ideal
-        const fallbackEvent = {
-            ...event,
-            id: Date.now(),
-            timestamp: serverTimestamp(),
-        };
-        await updateDoc(patientDocRef, {
-            caseHistory: arrayUnion(fallbackEvent)
-        });
+        // If update fails (e.g., document doesn't exist), you might want to set it instead.
+        // This is a fallback and might not be ideal for all cases.
+        await setDoc(patientDocRef, { caseHistory: [newEvent] }, { merge: true });
     }
 };

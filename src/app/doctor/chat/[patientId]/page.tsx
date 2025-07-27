@@ -51,7 +51,10 @@ export default function DoctorChatPage() {
                 </Button>
                 <div className="flex items-center gap-3">
                     {isLoading ? (
-                        <Loader2 className="h-6 w-6 animate-spin"/>
+                        <div className="flex items-center gap-3">
+                            <Loader2 className="h-6 w-6 animate-spin"/>
+                             <p>Loading Patient...</p>
+                        </div>
                     ) : patient ? (
                         <>
                            <Avatar>
