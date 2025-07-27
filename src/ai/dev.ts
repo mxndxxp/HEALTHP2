@@ -1,3 +1,4 @@
+'use server';
 // IMPORTANT: Load environment variables before anything else
 import {config} from 'dotenv';
 config();
@@ -8,3 +9,4 @@ import '@/ai/flows/intelligent-chatbot.ts';
 import '@/ai/flows/translator.ts';
 import '@/ai/flows/doctor-ai-assistant.ts';
 import '@/ai/flows/diagnostic-scanner.ts';
+import '@/ai/flows/eyeball-scanner-flow.ts';

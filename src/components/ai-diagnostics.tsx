@@ -22,12 +22,10 @@ import {
   Upload,
   Camera,
   HeartPulse,
-  BrainCircuit,
   Eye,
   ScanLine,
   Loader2,
   Thermometer,
-  AreaChart,
   Droplets,
   Zap,
 } from 'lucide-react';
@@ -41,6 +39,7 @@ import {
   Tooltip,
 } from 'recharts';
 import { diagnosticScanner } from '@/ai/flows/diagnostic-scanner';
+import { eyeballScanner } from '@/ai/flows/eyeball-scanner-flow';
 
 const ecgData = Array.from({ length: 100 }, (_, i) => ({
     time: i,
@@ -54,6 +53,7 @@ type AiDiagnosticsProps = {
 export function AiDiagnostics({ t }: AiDiagnosticsProps) {
   const [activeTab, setActiveTab] = useState('scans');
   const videoRef = useRef<HTMLVideoElement>(null);
+  const eyeballVideoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [hasCameraPermission, setHasCameraPermission] = useState(true);
   const { toast } = useToast();
@@ -66,6 +66,7 @@ export function AiDiagnostics({ t }: AiDiagnosticsProps) {
   const [diagnosisResult, setDiagnosisResult] = useState('');
   
   const [isScanning, setIsScanning] = useState(false);
+  const [isEyeballCameraOn, setIsEyeballCameraOn] = useState(false);
   const [scanResult, setScanResult] = useState({ bp: '', glucose: '', inflammation: ''});
 
   const fileToDataUri = (file: File): Promise<string> => {
@@ -101,8 +102,16 @@ export function AiDiagnostics({ t }: AiDiagnosticsProps) {
         setIsAnalyzing(false);
     }
   };
+
+  const stopCamera = (ref: React.RefObject<HTMLVideoElement>) => {
+    if (ref.current && ref.current.srcObject) {
+      const tracks = (ref.current.srcObject as MediaStream).getTracks();
+      tracks.forEach(track => track.stop());
+      ref.current.srcObject = null;
+    }
+  };
   
-   const handleStartDiagnosis = async () => {
+  const handleStartDiagnosis = async () => {
     setIsDiagnosing(true);
     setDiagnosisResult('Starting live diagnosis...');
     try {
@@ -152,25 +161,59 @@ export function AiDiagnostics({ t }: AiDiagnosticsProps) {
           }
       }
 
-      if(videoRef.current && videoRef.current.srcObject) {
-          const tracks = (videoRef.current.srcObject as MediaStream).getTracks();
-          tracks.forEach(track => track.stop());
-          videoRef.current.srcObject = null;
-      }
+      stopCamera(videoRef);
   }
 
-  const handleEyeballScan = () => {
+  const handleStartEyeballCamera = async () => {
+    setIsEyeballCameraOn(true);
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        if (eyeballVideoRef.current) {
+            eyeballVideoRef.current.srcObject = stream;
+        }
+        setHasCameraPermission(true);
+    } catch (error) {
+        console.error('Error accessing camera:', error);
+        setHasCameraPermission(false);
+        setIsEyeballCameraOn(false);
+        toast({
+          variant: 'destructive',
+          title: t.realTime.cameraError,
+        });
+    }
+  };
+
+  const handleEyeballScan = async () => {
     setIsScanning(true);
     setScanResult({ bp: '', glucose: '', inflammation: ''});
-    setTimeout(() => {
-      setScanResult({
-        bp: '122/78 mmHg',
-        glucose: '95 mg/dL',
-        inflammation: 'Low (CRP: 0.8 mg/L)',
-      });
-      setIsScanning(false);
-      toast({ title: 'Eyeball Scan Complete' });
-    }, 3000);
+
+    if (eyeballVideoRef.current && canvasRef.current) {
+        const video = eyeballVideoRef.current;
+        const canvas = canvasRef.current;
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        const context = canvas.getContext('2d');
+        if (context) {
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+            const dataUri = canvas.toDataURL('image/jpeg');
+            try {
+                const result = await eyeballScanner({ image: dataUri });
+                setScanResult({
+                    bp: result.bloodPressure,
+                    glucose: result.bloodGlucose,
+                    inflammation: result.inflammation,
+                });
+                toast({ title: 'Eyeball Scan Complete' });
+            } catch (e) {
+                const error = e instanceof Error ? e.message : 'An unexpected error occurred.';
+                toast({ title: "Scan Failed", description: error, variant: 'destructive' });
+            }
+        }
+    }
+    
+    setIsScanning(false);
+    setIsEyeballCameraOn(false);
+    stopCamera(eyeballVideoRef);
   }
 
   return (
@@ -277,33 +320,34 @@ export function AiDiagnostics({ t }: AiDiagnosticsProps) {
                             <CardTitle className="flex items-center gap-2 text-base"><Eye/>{t.advanced.eyeballTitle}</CardTitle>
                             <CardDescription>{t.advanced.eyeballDescription}</CardDescription>
                         </CardHeader>
-                        <CardContent className="flex flex-col md:flex-row items-center gap-6">
-                            <div className="relative">
-                               <svg viewBox="0 0 100 100" width="150" height="150">
-                                <circle cx="50" cy="50" r="48" fill="#e0f2fe" stroke="#0284c7" strokeWidth="2" />
-                                <circle cx="50" cy="50" r="25" fill="#0c4a6e" />
-                                <circle cx="50" cy="50" r="12" fill="black" />
-                                {isScanning && <circle cx="50" cy="50" r="48" fill="none" stroke="#fb923c" strokeWidth="3" strokeDasharray="10 5" className="animate-[spin_2s_linear_infinite]" />}
-                               </svg>
+                        <CardContent className="flex flex-col items-center gap-6">
+                            <div className="w-full aspect-video bg-black rounded-lg flex items-center justify-center">
+                               <video ref={eyeballVideoRef} className="w-full h-full object-cover rounded-lg" autoPlay muted />
                             </div>
-                            <div className="flex-1 w-full space-y-4">
-                                <Button onClick={handleEyeballScan} disabled={isScanning} className="w-full">
-                                    {isScanning ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <ScanLine className="mr-2 h-4 w-4" />}
-                                    {t.advanced.scanButton}
-                                </Button>
-                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
-                                    <div className="p-2 border rounded-lg">
-                                        <p className="text-sm font-semibold flex items-center justify-center gap-1"><Zap className="h-4 w-4 text-yellow-500" /> {t.advanced.bp}</p>
-                                        <p className="text-lg font-bold font-mono">{isScanning ? <Loader2 className="h-5 w-5 animate-spin mx-auto"/> : scanResult.bp || '--'}</p>
-                                    </div>
-                                    <div className="p-2 border rounded-lg">
-                                        <p className="text-sm font-semibold flex items-center justify-center gap-1"><Droplets className="h-4 w-4 text-red-500" /> {t.advanced.glucose}</p>
-                                        <p className="text-lg font-bold font-mono">{isScanning ? <Loader2 className="h-5 w-5 animate-spin mx-auto"/> : scanResult.glucose || '--'}</p>
-                                    </div>
-                                    <div className="p-2 border rounded-lg">
-                                        <p className="text-sm font-semibold flex items-center justify-center gap-1"><Thermometer className="h-4 w-4 text-orange-500" /> {t.advanced.inflammation}</p>
-                                        <p className="text-lg font-bold font-mono">{isScanning ? <Loader2 className="h-5 w-5 animate-spin mx-auto"/> : scanResult.inflammation || '--'}</p>
-                                    </div>
+                            <div className="flex flex-col sm:flex-row gap-4 w-full">
+                                {!isEyeballCameraOn ? (
+                                    <Button onClick={handleStartEyeballCamera} className="w-full">
+                                        <Camera className="mr-2 h-4 w-4"/> Enable Camera
+                                    </Button>
+                                ) : (
+                                    <Button onClick={handleEyeballScan} disabled={isScanning} className="w-full">
+                                        {isScanning ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <ScanLine className="mr-2 h-4 w-4" />}
+                                        {t.advanced.scanButton}
+                                    </Button>
+                                )}
+                            </div>
+                            <div className="w-full grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
+                                <div className="p-2 border rounded-lg">
+                                    <p className="text-sm font-semibold flex items-center justify-center gap-1"><Zap className="h-4 w-4 text-yellow-500" /> {t.advanced.bp}</p>
+                                    <p className="text-lg font-bold font-mono">{isScanning ? <Loader2 className="h-5 w-5 animate-spin mx-auto"/> : scanResult.bp || '--'}</p>
+                                </div>
+                                <div className="p-2 border rounded-lg">
+                                    <p className="text-sm font-semibold flex items-center justify-center gap-1"><Droplets className="h-4 w-4 text-red-500" /> {t.advanced.glucose}</p>
+                                    <p className="text-lg font-bold font-mono">{isScanning ? <Loader2 className="h-5 w-5 animate-spin mx-auto"/> : scanResult.glucose || '--'}</p>
+                                </div>
+                                <div className="p-2 border rounded-lg">
+                                    <p className="text-sm font-semibold flex items-center justify-center gap-1"><Thermometer className="h-4 w-4 text-orange-500" /> {t.advanced.inflammation}</p>
+                                    <p className="text-lg font-bold font-mono">{isScanning ? <Loader2 className="h-5 w-5 animate-spin mx-auto"/> : scanResult.inflammation || '--'}</p>
                                 </div>
                             </div>
                         </CardContent>
