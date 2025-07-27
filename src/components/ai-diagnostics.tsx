@@ -1,5 +1,5 @@
 'use client';
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import {
   Card,
   CardContent,
@@ -32,7 +32,6 @@ import {
   Zap,
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { Progress } from './ui/progress';
 import {
   Line,
   LineChart,
@@ -41,6 +40,7 @@ import {
   YAxis,
   Tooltip,
 } from 'recharts';
+import { diagnosticScanner } from '@/ai/flows/diagnostic-scanner';
 
 const ecgData = Array.from({ length: 100 }, (_, i) => ({
     time: i,
@@ -54,24 +54,52 @@ type AiDiagnosticsProps = {
 export function AiDiagnostics({ t }: AiDiagnosticsProps) {
   const [activeTab, setActiveTab] = useState('scans');
   const videoRef = useRef<HTMLVideoElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   const [hasCameraPermission, setHasCameraPermission] = useState(true);
   const { toast } = useToast();
   
+  const [scanFile, setScanFile] = useState<File | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisResult, setAnalysisResult] = useState('');
+  
   const [isDiagnosing, setIsDiagnosing] = useState(false);
   const [diagnosisResult, setDiagnosisResult] = useState('');
+  
   const [isScanning, setIsScanning] = useState(false);
   const [scanResult, setScanResult] = useState({ bp: '', glucose: '', inflammation: ''});
 
-  const handleAnalyzeScan = () => {
+  const fileToDataUri = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  };
+  
+  const handleAnalyzeScan = async () => {
+    if (!scanFile) {
+        toast({ title: "Please upload a scan first.", variant: 'destructive' });
+        return;
+    }
     setIsAnalyzing(true);
     setAnalysisResult('');
-    setTimeout(() => {
-      setAnalysisResult('AI analysis complete: Found potential indicators of early-stage pneumonia in the lower left lobe. Further investigation is recommended.');
-      setIsAnalyzing(false);
-      toast({ title: 'Scan Analysis Complete' });
-    }, 2000);
+    try {
+        const dataUri = await fileToDataUri(scanFile);
+        const result = await diagnosticScanner({
+            image: dataUri,
+            prompt: 'Analyze this medical scan image and provide a diagnostic summary. Identify any anomalies or key findings.'
+        });
+        setAnalysisResult(`**Diagnostic Summary:**\n${result.summary}\n\n**Key Findings:**\n${result.findings}`);
+        toast({ title: 'Scan Analysis Complete' });
+    } catch(e) {
+        console.error(e);
+        const error = e instanceof Error ? e.message : 'An unexpected error occurred during analysis.';
+        setAnalysisResult(`Error: ${error}`);
+        toast({ title: "Analysis Failed", description: error, variant: 'destructive' });
+    } finally {
+        setIsAnalyzing(false);
+    }
   };
   
    const handleStartDiagnosis = async () => {
@@ -94,14 +122,41 @@ export function AiDiagnostics({ t }: AiDiagnosticsProps) {
     }
   };
 
-  const handleStopDiagnosis = () => {
+  const handleStopDiagnosis = async () => {
       setIsDiagnosing(false);
+      setDiagnosisResult('Capturing snapshot and analyzing...');
+
+      if (videoRef.current && canvasRef.current) {
+          const video = videoRef.current;
+          const canvas = canvasRef.current;
+          canvas.width = video.videoWidth;
+          canvas.height = video.videoHeight;
+          const context = canvas.getContext('2d');
+          if (context) {
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+            const dataUri = canvas.toDataURL('image/jpeg');
+
+            try {
+                const result = await diagnosticScanner({
+                    image: dataUri,
+                    prompt: 'Perform a visual diagnosis based on this image from a patient\'s camera. Describe any visible conditions or anomalies.'
+                });
+                setDiagnosisResult(`**Diagnostic Summary:**\n${result.summary}\n\n**Key Findings:**\n${result.findings}`);
+                toast({ title: "Real-time Diagnosis Complete" });
+            } catch(e) {
+                 console.error(e);
+                const error = e instanceof Error ? e.message : 'An unexpected error occurred during analysis.';
+                setDiagnosisResult(`Error: ${error}`);
+                toast({ title: "Diagnosis Failed", description: error, variant: 'destructive' });
+            }
+          }
+      }
+
       if(videoRef.current && videoRef.current.srcObject) {
           const tracks = (videoRef.current.srcObject as MediaStream).getTracks();
           tracks.forEach(track => track.stop());
           videoRef.current.srcObject = null;
       }
-      setDiagnosisResult('Diagnosis complete: Observed mild skin inflammation. Recommend consulting a dermatologist.');
   }
 
   const handleEyeballScan = () => {
@@ -144,7 +199,7 @@ export function AiDiagnostics({ t }: AiDiagnosticsProps) {
                 <div className="flex flex-col items-center justify-center p-6 border-2 border-dashed rounded-lg space-y-2">
                   <Upload className="w-12 h-12 text-muted-foreground" />
                   <Label htmlFor="scan-upload" className="text-center">{t.scans.uploadLabel}</Label>
-                  <Input id="scan-upload" type="file" className="max-w-sm" />
+                  <Input id="scan-upload" type="file" className="max-w-sm" onChange={(e) => setScanFile(e.target.files ? e.target.files[0] : null)} />
                 </div>
                 <Button onClick={handleAnalyzeScan} disabled={isAnalyzing} className="w-full">
                   {isAnalyzing ? (
@@ -153,7 +208,7 @@ export function AiDiagnostics({ t }: AiDiagnosticsProps) {
                     <>{t.scans.uploadButton}</>
                   )}
                 </Button>
-                <Textarea readOnly value={analysisResult} placeholder={t.scans.analysisPlaceholder} rows={4} />
+                <Textarea readOnly value={analysisResult} placeholder={t.scans.analysisPlaceholder} rows={4} className="whitespace-pre-wrap"/>
               </CardContent>
             </Card>
           </TabsContent>
@@ -167,6 +222,7 @@ export function AiDiagnostics({ t }: AiDiagnosticsProps) {
                 <CardContent className="space-y-4">
                     <div className="aspect-video w-full bg-black rounded-lg flex items-center justify-center">
                        <video ref={videoRef} className="w-full h-full object-cover rounded-lg" autoPlay muted />
+                       <canvas ref={canvasRef} className="hidden"></canvas>
                        {!hasCameraPermission && !isDiagnosing && (
                            <Alert variant="destructive" className="max-w-md">
                                 <Camera />
@@ -184,7 +240,7 @@ export function AiDiagnostics({ t }: AiDiagnosticsProps) {
                             <Loader2 className="mr-2 h-4 w-4 animate-spin" />{t.realTime.stopDiagnosis}
                         </Button>
                     )}
-                     <Textarea readOnly value={diagnosisResult} placeholder={t.realTime.diagnosisPlaceholder} rows={3} />
+                     <Textarea readOnly value={diagnosisResult} placeholder={t.realTime.diagnosisPlaceholder} rows={4} className="whitespace-pre-wrap" />
                 </CardContent>
              </Card>
           </TabsContent>
