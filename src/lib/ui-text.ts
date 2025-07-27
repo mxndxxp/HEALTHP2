@@ -11,6 +11,7 @@ export const initialUiText = {
     caseHistory: 'Case History',
     deviceConnectivity: 'Device Connectivity',
     aiAnalysis: 'AI Analysis',
+    aiDiagnostics: 'AI Diagnostics',
     patientImprovementReview: 'Patient Improvement Review',
     consultation: 'Consultation',
     doctorChat: 'Doctor Chat',
@@ -579,6 +580,42 @@ export const initialUiText = {
         treatments: 'Suggested Treatment & Next Steps',
         recommendations: 'Lifestyle & Wellness Recommendations',
     },
+     aiDiagnostics: {
+        title: 'AI-Powered Diagnostics',
+        description: 'Utilize cutting-edge AI to analyze scans, perform real-time diagnostics, and monitor advanced health metrics.',
+        tabs: {
+            scans: 'AI Scan Analysis',
+            realTime: 'Real-time Diagnosis',
+            advanced: 'Advanced Monitoring',
+        },
+        scans: {
+            title: 'AI-Powered Scan Analysis',
+            description: 'Upload your medical scans (X-Ray, CT, MRI) for an AI-driven analysis to detect anomalies and generate insights.',
+            uploadLabel: 'Upload Scan Image',
+            uploadButton: 'Analyze Scan',
+            analysisPlaceholder: 'Your AI analysis will appear here...',
+        },
+        realTime: {
+            title: 'Real-time AI Diagnosis',
+            description: 'Use your device\'s camera for a live AI-powered visual diagnosis. Please focus the camera on the area of concern.',
+            cameraError: 'Camera access denied. Please enable camera permissions in your browser settings.',
+            startDiagnosis: 'Start Diagnosis',
+            stopDiagnosis: 'Stop Diagnosis',
+            diagnosisPlaceholder: 'Live diagnostic feedback will appear here...',
+        },
+        advanced: {
+            title: 'Advanced Sensor Monitoring',
+            description: 'Explore futuristic, non-invasive monitoring technologies.',
+            ecgTitle: 'ECG & Echocardiogram',
+            ecgDescription: 'Simulated real-time heart monitoring.',
+            eyeballTitle: 'Eyeball Sensor Technology',
+            eyeballDescription: 'Cutting-edge analysis of blood pressure, glucose, and inflammation markers through your eye.',
+            scanButton: 'Scan Now',
+            bp: 'Blood Pressure',
+            glucose: 'Glucose',
+            inflammation: 'Inflammation',
+        }
+    },
     patientImprovementReview: {
         title: 'Patient Improvement Review',
         description: 'Track symptoms and recovery progress over time.',
@@ -639,15 +676,14 @@ export const initialUiText = {
                 cameraErrorDesc: 'Please allow camera access in your browser to use this feature.',
             },
         },
-        paymentForm: {
-          title: 'Complete Booking Payment',
-          description: 'You are paying a consultation fee of ₹{amount}.',
-          payButton: 'Pay ₹500 & Confirm Appointment',
-          processingButton: 'Processing...',
-          secureNote: 'Your payment is processed securely by Razorpay.',
-      },
+        payment: {
+            title: 'Confirm Appointment',
+            description: 'Your appointment is being confirmed.',
+            success: {
+                alertTitle: 'Booking Confirmed!',
+                alertDescription: 'You can now proceed to the consultation tab.',
+            }
+        },
     }
   }
 };
-
-    

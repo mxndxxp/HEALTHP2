@@ -29,16 +29,16 @@ export function Payment({ t, onPaymentSuccess }: PaymentProps) {
        <div className="max-w-2xl mx-auto">
             <Card>
                 <CardHeader>
-                    <CardTitle>{t.title}</CardTitle>
-                    <CardDescription>{t.description}</CardDescription>
+                    <CardTitle>{t.payment.title}</CardTitle>
+                    <CardDescription>{t.payment.description}</CardDescription>
                 </CardHeader>
                 <CardContent className="text-center">
                      {isPaid ? (
                         <Alert variant="default" className="border-green-200 bg-green-50/50 text-left">
                             <CheckCircle className="h-4 w-4 !text-green-600"/>
-                            <AlertTitle className="text-green-800">{t.success.alertTitle}</AlertTitle>
+                            <AlertTitle className="text-green-800">{t.payment.success.alertTitle}</AlertTitle>
                             <AlertDescription className="text-green-700">
-                                {t.success.alertDescription}
+                                {t.payment.success.alertDescription}
                             </AlertDescription>
                         </Alert>
                      ) : (

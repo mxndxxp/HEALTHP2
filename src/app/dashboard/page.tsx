@@ -21,6 +21,7 @@ import { CaseHistory } from '@/components/case-history';
 import { PatientReports } from '@/components/patient-reports';
 import { DeviceConnectivity } from '@/components/device-connectivity';
 import { HealthReport } from '@/components/health-report';
+import { AiDiagnostics } from '@/components/ai-diagnostics';
 import { cn } from '@/lib/utils';
 import {
   Activity,
@@ -38,6 +39,7 @@ import {
   BookMarked,
   FileHeart,
   Bluetooth,
+  ScanLine,
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -66,6 +68,7 @@ const sectionComponents: { [key: string]: React.ComponentType<any> } = {
   caseHistory: CaseHistory,
   deviceConnectivity: DeviceConnectivity,
   aiAnalysis: AiAnalysis,
+  aiDiagnostics: AiDiagnostics,
   patientImprovementReview: PatientImprovementReview,
   consultation: Consultation,
   // We assume the main doctor for the patient has ID '1' for this prototype
@@ -83,6 +86,7 @@ const navItems = [
   { id: 'caseHistory', icon: BookMarked },
   { id: 'deviceConnectivity', icon: Bluetooth },
   { id: 'aiAnalysis', icon: BotMessageSquare },
+  { id: 'aiDiagnostics', icon: ScanLine },
   { id: 'patientImprovementReview', icon: MessageSquarePlus },
   { id: 'consultation', icon: Video },
   { id: 'doctorChat', icon: MessageSquare },
@@ -382,9 +386,3 @@ export default function DashboardPage() {
     </div>
   );
 }
-
-    
-
-    
-
-    
