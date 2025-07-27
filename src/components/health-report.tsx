@@ -14,7 +14,6 @@ import { Separator } from '@/components/ui/separator';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import type { HealthData } from '@/lib/types';
 import { User, FileDown, ShieldCheck } from 'lucide-react';
-import Image from 'next/image';
 import { HeartIcon } from '@/components/icons/heart-icon';
 import { ThyroidIcon } from '@/components/icons/thyroid-icon';
 import { LungsIcon } from '@/components/icons/lungs-icon';
@@ -24,6 +23,7 @@ import { BloodDropIcon } from '@/components/icons/blood-drop-icon';
 import { StomachIcon } from '@/components/icons/stomach-icon';
 import { TestTubeIcon } from '@/components/icons/test-tube-icon';
 import { DropletsIcon } from '@/components/icons/droplets-icon';
+import { InteractiveHumanBody } from './interactive-human-body';
 
 type HealthReportProps = {
   data: HealthData;
@@ -158,7 +158,7 @@ export function HealthReport({ data, t }: HealthReportProps) {
                             </div>
 
                             <div className="flex justify-center">
-                                <Image src="https://placehold.co/400x600.png" alt="Human Body Diagram" width={300} height={525} data-ai-hint="3d human anatomy"/>
+                                <InteractiveHumanBody />
                             </div>
 
                              <div className="space-y-8">
@@ -290,4 +290,3 @@ export function HealthReport({ data, t }: HealthReportProps) {
   );
 }
 
-    
