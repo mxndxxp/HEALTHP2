@@ -241,13 +241,38 @@ export const getAllPatients = async (): Promise<HealthData[]> => {
 
 export const addCaseHistoryEvent = async (patientId: string, event: Omit<CaseHistoryItem, 'id' | 'timestamp'>) => {
     if (!patientId) return;
+
     const patientDocRef = doc(db, 'patients', patientId);
-    const newEvent = {
-        ...event,
-        id: Date.now(),
-        timestamp: serverTimestamp(),
-    };
-    await updateDoc(patientDocRef, {
-        caseHistory: arrayUnion(newEvent)
-    });
+    
+    try {
+        // First, get the current document data
+        const docSnap = await getDoc(patientDocRef);
+        
+        if (docSnap.exists()) {
+            const currentHistory = docSnap.data().caseHistory || [];
+            
+            // Create the new event with a client-side date for optimistic updates
+            const newEvent: CaseHistoryItem = {
+                ...event,
+                id: Date.now(),
+                timestamp: new Date(), // Use client-side date
+            };
+
+            // Update the document with the new array
+            await updateDoc(patientDocRef, {
+                caseHistory: [...currentHistory, newEvent]
+            });
+        }
+    } catch (error) {
+        console.error("Error adding case history event:", error);
+        // Fallback for safety, though less ideal
+        const fallbackEvent = {
+            ...event,
+            id: Date.now(),
+            timestamp: serverTimestamp(),
+        };
+        await updateDoc(patientDocRef, {
+            caseHistory: arrayUnion(fallbackEvent)
+        });
+    }
 };
