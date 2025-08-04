@@ -40,7 +40,7 @@ const reverseGeocodeFlow = ai.defineFlow(
   async ({ latitude, longitude }) => {
     const apiKey = process.env.GOOGLE_MAPS_API_KEY;
     if (!apiKey) {
-      throw new Error('Google Maps API key is not configured.');
+      throw new Error('The Google Maps API key is not configured in the .env file. Please add a valid key to use this feature.');
     }
 
     const url = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${apiKey}`;
@@ -49,13 +49,16 @@ const reverseGeocodeFlow = ai.defineFlow(
     const data = await response.json();
 
     if (data.status !== 'OK' || !data.results || data.results.length === 0) {
-      throw new Error(`Geocoding failed: ${data.status} - ${data.error_message || 'No results found.'}`);
+      throw new Error(`Geocoding failed. Status: ${data.status}. Error: ${data.error_message || 'No results found. Please check if your API key is valid and has the Geocoding API enabled.'}`);
     }
 
     const result = data.results[0];
     const addressComponents = result.address_components;
 
-    const getComponent = (type: string) => addressComponents.find((c: any) => c.types.includes(type))?.long_name || '';
+    const getComponent = (type: string, useShortName = false) => {
+        const component = addressComponents.find((c: any) => c.types.includes(type));
+        return component ? (useShortName ? component.short_name : component.long_name) : '';
+    };
 
     const streetNumber = getComponent('street_number');
     const route = getComponent('route');
