@@ -358,7 +358,7 @@ export default function DashboardPage() {
           showSaveButton={showSaveButton}
           onSave={handleSave}
         />
-        <main className="flex-1 overflow-auto bg-muted/40">
+        <main className="flex-1 overflow-auto bg-background">
             {error && healthData && (
                  <div className="bg-amber-100 border-b border-amber-200 text-amber-800 text-sm p-2 text-center flex justify-center items-center gap-2">
                     <div className={`w-2.5 h-2.5 rounded-full mr-2 ${isOnline ? 'bg-green-500' : 'bg-yellow-500'}`}></div>
