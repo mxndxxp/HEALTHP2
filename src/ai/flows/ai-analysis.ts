@@ -10,6 +10,7 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
+import { googleAI } from '@genkit-ai/googleai';
 
 const AiAnalysisInputSchema = z.object({
   patientData: z.string().describe("A JSON string of the patient's comprehensive health data, excluding uploaded files."),
@@ -35,6 +36,7 @@ const aiAnalysisPrompt = ai.definePrompt({
   name: 'aiAnalysisPrompt',
   input: {schema: AiAnalysisInputSchema},
   output: {schema: AiAnalysisOutputSchema},
+  model: googleAI.model('gemini-1.5-flash-latest'),
   prompt: `You are a highly advanced AI with deep learning capabilities, trained extensively on medical data to function as an expert medical diagnostician. Your purpose is to provide a detailed, data-driven analysis of a patient's health report. Your analysis must be clear, structured, and actionable, presented in point-by-point markdown lists for clarity.
 
 IMPORTANT: Your suggestions are for informational purposes and to guide the patient and their healthcare provider. Always include a disclaimer that this analysis is not a substitute for a direct consultation with a qualified medical professional.

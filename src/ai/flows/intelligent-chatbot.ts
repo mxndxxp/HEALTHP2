@@ -9,6 +9,7 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
+import { googleAI } from '@genkit-ai/googleai';
 
 const IntelligentChatbotInputSchema = z.object({
   message: z.string().describe('The user message to the chatbot.'),
@@ -29,6 +30,7 @@ const prompt = ai.definePrompt({
   name: 'intelligentChatbotPrompt',
   input: {schema: IntelligentChatbotInputSchema},
   output: {schema: IntelligentChatbotOutputSchema},
+  model: googleAI.model('gemini-1.5-flash-latest'),
   prompt: `You are an intelligent chatbot assistant with a medical background. Your goal is to provide medical advice, navigation support, and explanations to the user.
 
   You have access to the following patient data:

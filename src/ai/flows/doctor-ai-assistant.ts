@@ -10,6 +10,7 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
+import { googleAI } from '@genkit-ai/googleai';
 
 const DoctorAiAssistantInputSchema = z.object({
   patientData: z.string().describe("A JSON string of the patient's comprehensive health data, excluding uploaded files."),
@@ -35,6 +36,7 @@ const doctorAiAssistantPrompt = ai.definePrompt({
   name: 'doctorAiAssistantPrompt',
   input: {schema: DoctorAiAssistantInputSchema},
   output: {schema: DoctorAiAssistantOutputSchema},
+  model: googleAI.model('gemini-1.5-flash-latest'),
   prompt: `You are a highly advanced AI Medical Assistant for doctors. Your purpose is to provide a detailed, data-driven analysis of a patient's health report to support a medical professional's decision-making process. Your analysis must be clear, structured, and based on evidence from the provided data.
 
 Analyze the patient's comprehensive health report provided below. This includes their self-reported data in JSON format and any uploaded medical documents or photos. Based on your complete analysis, generate the following sections for the attending physician:
