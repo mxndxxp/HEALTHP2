@@ -50,6 +50,7 @@ import { Button } from './ui/button';
 import type { HealthData, PatientInfo } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import { useState } from 'react';
+import { reverseGeocode } from '@/ai/flows/reverse-geocode';
 
 const IconLabel = ({
   icon: Icon,
@@ -155,31 +156,31 @@ export function PatientInformation({ data, setData, t }: PatientInformationProps
     });
 
     navigator.geolocation.getCurrentPosition(
-      (position) => {
-        // In a real app, you would use a reverse geocoding API here.
-        // For this prototype, we'll simulate the result.
-        toast({
-          title: 'Location Found!',
-          description: 'Address has been filled in.',
-        });
+      async (position) => {
+        try {
+          const { latitude, longitude } = position.coords;
+          const address = await reverseGeocode({ latitude, longitude });
 
-        const simulatedAddress = {
-            line1: '123 Innovation Drive',
-            line2: 'Suite 101',
-            city: 'Techville',
-            district: 'Silicon County',
-            state: 'California',
-            postalCode: '94043',
-        };
+          handleFieldChange('address.line1', address.line1);
+          handleFieldChange('address.line2', address.line2 || '');
+          handleFieldChange('address.city', address.city);
+          handleFieldChange('address.district', address.district);
+          handleFieldChange('address.state', address.state);
+          handleFieldChange('address.postalCode', address.postalCode);
 
-        handleFieldChange('address.line1', simulatedAddress.line1);
-        handleFieldChange('address.line2', simulatedAddress.line2);
-        handleFieldChange('address.city', simulatedAddress.city);
-        handleFieldChange('address.district', simulatedAddress.district);
-        handleFieldChange('address.state', simulatedAddress.state);
-        handleFieldChange('address.postalCode', simulatedAddress.postalCode);
-        
-        setIsFetchingLocation(false);
+          toast({
+            title: 'Location Found!',
+            description: 'Address has been filled in automatically.',
+          });
+        } catch (error) {
+           toast({
+            title: 'Could Not Get Address',
+            description: `Error: ${error instanceof Error ? error.message : 'An unknown error occurred.'}`,
+            variant: 'destructive',
+          });
+        } finally {
+            setIsFetchingLocation(false);
+        }
       },
       (error) => {
         toast({
