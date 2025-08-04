@@ -1,3 +1,4 @@
+
 'use client';
 import { useRef } from 'react';
 import type { ChangeEvent } from 'react';
@@ -41,11 +42,14 @@ import {
   Handshake,
   CalendarDays,
   Sparkles,
+  LocateFixed,
+  Loader2,
 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { Button } from './ui/button';
 import type { HealthData, PatientInfo } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
+import { useState } from 'react';
 
 const IconLabel = ({
   icon: Icon,
@@ -68,6 +72,7 @@ type PatientInformationProps = {
 
 export function PatientInformation({ data, setData, t }: PatientInformationProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isFetchingLocation, setIsFetchingLocation] = useState(false);
   const patientData = data.patientInfo;
   const { toast } = useToast();
 
@@ -131,6 +136,60 @@ export function PatientInformation({ data, setData, t }: PatientInformationProps
     };
 
     setData(newData);
+  };
+
+  const handleFetchLocation = () => {
+    if (!navigator.geolocation) {
+      toast({
+        title: 'Geolocation Not Supported',
+        description: 'Your browser does not support geolocation.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setIsFetchingLocation(true);
+    toast({
+      title: 'Fetching Location...',
+      description: 'Please wait while we determine your location.',
+    });
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        // In a real app, you would use a reverse geocoding API here.
+        // For this prototype, we'll simulate the result.
+        toast({
+          title: 'Location Found!',
+          description: 'Address has been filled in.',
+        });
+
+        const simulatedAddress = {
+            line1: '123 Innovation Drive',
+            line2: 'Suite 101',
+            city: 'Techville',
+            district: 'Silicon County',
+            state: 'California',
+            postalCode: '94043',
+        };
+
+        handleFieldChange('address.line1', simulatedAddress.line1);
+        handleFieldChange('address.line2', simulatedAddress.line2);
+        handleFieldChange('address.city', simulatedAddress.city);
+        handleFieldChange('address.district', simulatedAddress.district);
+        handleFieldChange('address.state', simulatedAddress.state);
+        handleFieldChange('address.postalCode', simulatedAddress.postalCode);
+        
+        setIsFetchingLocation(false);
+      },
+      (error) => {
+        toast({
+          title: 'Could Not Fetch Location',
+          description: `Error: ${error.message}`,
+          variant: 'destructive',
+        });
+        setIsFetchingLocation(false);
+      }
+    );
   };
 
   return (
@@ -241,9 +300,19 @@ export function PatientInformation({ data, setData, t }: PatientInformationProps
           </div>
 
           <div className="md:col-span-3 space-y-4 border-t pt-8 mt-2">
-             <Label>
-              <IconLabel icon={MapPin}>{t.address.label}</IconLabel>
-            </Label>
+            <div className="flex justify-between items-center">
+              <Label>
+                <IconLabel icon={MapPin}>{t.address.label}</IconLabel>
+              </Label>
+              <Button variant="outline" size="sm" onClick={handleFetchLocation} disabled={isFetchingLocation}>
+                {isFetchingLocation ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                  <LocateFixed className="mr-2 h-4 w-4" />
+                )}
+                Use Current Location
+              </Button>
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                  <Input id="address1" placeholder={t.address.line1} value={patientData.address.line1} onChange={(e) => handleFieldChange('address.line1', e.target.value)} />
                  <Input id="address2" placeholder={t.address.line2} value={patientData.address.line2} onChange={(e) => handleFieldChange('address.line2', e.target.value)} />
