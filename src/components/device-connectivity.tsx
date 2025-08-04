@@ -32,7 +32,10 @@ import {
   Phone,
   MessageCircle,
   Female,
+  Loader2,
 } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import { useState } from 'react';
 
 type MetricCardProps = {
   icon: React.ReactNode;
@@ -64,6 +67,70 @@ type DeviceConnectivityProps = {
 
 export function DeviceConnectivity({ t }: DeviceConnectivityProps) {
   const text = t;
+  const { toast } = useToast();
+  const [isConnecting, setIsConnecting] = useState(false);
+
+  const handleConnectDevice = async () => {
+    if (!navigator.bluetooth) {
+      toast({
+        title: 'Web Bluetooth Not Supported',
+        description: 'Your browser does not support the Web Bluetooth API. Please use a compatible browser like Chrome.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setIsConnecting(true);
+    toast({
+      title: 'Scanning for devices...',
+      description: 'Please select a Bluetooth device from the browser prompt.',
+    });
+
+    try {
+      const device = await navigator.bluetooth.requestDevice({
+        acceptAllDevices: false,
+        filters: [
+          // Example filter for a common Heart Rate service
+          { services: ['heart_rate'] }
+        ],
+        optionalServices: ['battery_service'], // Add other optional services you might need
+      });
+      
+      toast({
+        title: 'Device Selected',
+        description: `Connecting to ${device.name || `ID: ${device.id}`}...`,
+      });
+
+      const server = await device.gatt?.connect();
+      
+      console.log('Connected to device:', device);
+      console.log('GATT Server:', server);
+
+      toast({
+        title: 'Connection Successful!',
+        description: `Successfully connected to ${device.name || `ID: ${device.id}`}. Check console for details.`,
+      });
+
+    } catch (error) {
+      console.error('Bluetooth connection error:', error);
+      const errorMessage = (error as Error).message;
+      if (errorMessage.includes('User cancelled')) {
+        toast({
+          title: 'Scan Cancelled',
+          description: 'You cancelled the device selection.',
+          variant: 'destructive',
+        });
+      } else {
+        toast({
+          title: 'Connection Failed',
+          description: `Could not connect to the device. Error: ${errorMessage}`,
+          variant: 'destructive',
+        });
+      }
+    } finally {
+      setIsConnecting(false);
+    }
+  };
   
   return (
     <div className="space-y-6">
@@ -73,9 +140,13 @@ export function DeviceConnectivity({ t }: DeviceConnectivityProps) {
           <CardDescription>{text?.description ?? 'Manage device connections and permissions'}</CardDescription>
         </CardHeader>
         <CardContent>
-            <Button>
-                <Bluetooth className="mr-2 h-4 w-4" />
-                {text?.connectButton}
+            <Button onClick={handleConnectDevice} disabled={isConnecting}>
+                {isConnecting ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                    <Bluetooth className="mr-2 h-4 w-4" />
+                )}
+                {isConnecting ? 'Scanning...' : text?.connectButton}
             </Button>
         </CardContent>
       </Card>
@@ -159,5 +230,3 @@ export function DeviceConnectivity({ t }: DeviceConnectivityProps) {
     </div>
   );
 }
-
-    

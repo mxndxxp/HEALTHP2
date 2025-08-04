@@ -13,7 +13,7 @@ import { googleAI } from '@genkit-ai/googleai';
 
 const DiagnosticScannerInputSchema = z.object({
   image: z.string().describe("An image of a medical scan or a photo of a physical condition, as a data URI that must include a MIME type and use Base64 encoding. Expected format: 'data:<mimetype>;base64,<encoded_data>'."),
-  prompt: z.string().describe('A specific prompt guiding the analysis, e.g., "Analyze this chest X-ray for signs of pneumonia."'),
+  prompt: z.string().describe('A specific prompt guiding the analysis, e.g., "Analyze this chest X-ray for signs of pneumonia." or "Perform a visual diagnosis based on this image from a patient\'s camera."'),
 });
 export type DiagnosticScannerInput = z.infer<typeof DiagnosticScannerInputSchema>;
 
@@ -32,7 +32,7 @@ const diagnosticScannerPrompt = ai.definePrompt({
   input: {schema: DiagnosticScannerInputSchema},
   output: {schema: DiagnosticScannerOutputSchema},
   model: googleAI.model('gemini-1.5-flash-latest'),
-  prompt: `You are a specialized AI medical imaging analyst. Your task is to analyze the provided image based on the user's prompt and provide a concise diagnostic report.
+  prompt: `You are a specialized AI medical imaging analyst. Your task is to analyze the provided image based on the user's prompt and provide a concise diagnostic report. The image could be a formal medical scan (X-ray, MRI) or a photo from a user's camera.
 
 User's Request: "{{prompt}}"
 
