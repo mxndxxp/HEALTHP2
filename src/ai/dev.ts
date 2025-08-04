@@ -12,3 +12,4 @@ import '@/ai/flows/diagnostic-scanner.ts';
 import '@/ai/flows/eyeball-scanner-flow.ts';
 import '@/ai/flows/fingerprint-scanner-flow.ts';
 import '@/ai/flows/reverse-geocode.ts';
+import '@/ai/flows/create-razorpay-order.ts';

@@ -636,8 +636,8 @@ export const initialUiText = {
             },
         },
         payment: {
-            title: 'Confirm Appointment',
-            description: 'Your appointment is being confirmed.',
+            title: 'Confirm Appointment & Pay',
+            description: 'Please complete the payment to confirm your consultation booking.',
             success: {
                 alertTitle: 'Booking Confirmed!',
                 alertDescription: 'You can now proceed to the consultation tab.',

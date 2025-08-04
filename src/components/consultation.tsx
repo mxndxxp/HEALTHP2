@@ -55,7 +55,7 @@ export function Consultation({ data, onDataChange, t, patientId }: ConsultationP
   const { toast: appToast } = useAppToast();
 
 
-  const { consultation } = data;
+  const { consultation, patientInfo } = data;
   const { booking, doctors } = consultation;
 
   const handleBookingChange = (field: keyof typeof booking, value: any) => {
@@ -237,7 +237,12 @@ export function Consultation({ data, onDataChange, t, patientId }: ConsultationP
 
                  <div className="lg:col-span-1">
                     {booking.doctorId && !bookingConfirmed ? (
-                        <Payment t={t} onPaymentSuccess={handleBookingConfirmation} />
+                        <Payment 
+                            t={t} 
+                            onPaymentSuccess={handleBookingConfirmation} 
+                            doctor={selectedDoctor}
+                            patient={patientInfo}
+                        />
                     ) : bookingConfirmed ? (
                         <Card className="flex flex-col items-center justify-center h-full text-center">
                             <CardHeader>
