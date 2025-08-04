@@ -366,7 +366,7 @@ export default function DashboardPage() {
                  </div>
             )}
             <ScrollArea className={cn("h-[calc(100vh-65px)]", error && healthData && "h-[calc(100vh-65px-36px)]")}>
-                 <div className={cn("p-4 sm:p-6", isChat && "p-0 sm:p-0")}>
+                 <div className="p-4 sm:p-6">
                     {ActiveComponent && <ActiveComponent {...componentProps} />}
                     {!isChat && <SectionNavigator
                       activeSection={activeSection}
