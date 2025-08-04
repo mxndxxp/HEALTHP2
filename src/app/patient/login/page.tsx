@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -13,13 +14,33 @@ import { Label } from '@/components/ui/label';
 import { ClipboardList } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import { sendConfirmationEmail } from '@/lib/email-service';
+import { useToast } from '@/hooks/use-toast';
+
 
 export default function PatientLoginPage() {
   const router = useRouter();
+  const { toast } = useToast();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    router.push('/dashboard');
+    try {
+        await sendConfirmationEmail({ email, name: 'Patient User', role: 'Patient' }, 'login');
+        toast({
+            title: 'Login Successful',
+            description: 'A confirmation email has been sent (check console).',
+        });
+        router.push('/dashboard');
+    } catch (error) {
+        toast({
+            title: 'Login Failed',
+            description: 'Could not send confirmation.',
+            variant: 'destructive',
+        });
+    }
   };
 
   return (
@@ -46,11 +67,19 @@ export default function PatientLoginPage() {
                 type="email"
                 placeholder="patient@example.com"
                 required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
               />
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
-              <Input id="password" type="password" required />
+              <Input 
+                id="password" 
+                type="password" 
+                required 
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
             </div>
             <Button type="submit" className="w-full">
               Login

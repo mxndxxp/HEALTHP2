@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -13,14 +14,32 @@ import { Label } from '@/components/ui/label';
 import { Stethoscope } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import { sendConfirmationEmail } from '@/lib/email-service';
+import { useToast } from '@/hooks/use-toast';
 
 export default function DoctorSignupPage() {
   const router = useRouter();
+  const { toast } = useToast();
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
 
-  const handleSignup = (e: React.FormEvent) => {
+  const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Redirect to the new doctor dashboard
-    router.push('/doctor/dashboard');
+    try {
+        await sendConfirmationEmail({ email, name, role: 'Doctor' }, 'signup');
+        toast({
+            title: 'Signup Successful',
+            description: 'A confirmation email has been sent (check console).',
+        });
+        router.push('/doctor/dashboard');
+    } catch (error) {
+        toast({
+            title: 'Signup Failed',
+            description: 'Could not send confirmation.',
+            variant: 'destructive',
+        });
+    }
   };
 
   return (
@@ -42,7 +61,13 @@ export default function DoctorSignupPage() {
           <form onSubmit={handleSignup} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="full-name">Full Name</Label>
-              <Input id="full-name" placeholder="Dr. Jane Smith" required />
+              <Input 
+                id="full-name" 
+                placeholder="Dr. Jane Smith" 
+                required 
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+              />
             </div>
              <div className="space-y-2">
               <Label htmlFor="specialization">Specialization</Label>
@@ -55,6 +80,8 @@ export default function DoctorSignupPage() {
                 type="email"
                 placeholder="doctor@example.com"
                 required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
               />
             </div>
              <div className="space-y-2">

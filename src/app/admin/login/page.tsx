@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -13,13 +14,31 @@ import { Label } from '@/components/ui/label';
 import { ShieldAlert } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import { sendConfirmationEmail } from '@/lib/email-service';
+import { useToast } from '@/hooks/use-toast';
 
 export default function AdminLoginPage() {
   const router = useRouter();
+  const { toast } = useToast();
+  const [email, setEmail] = useState('');
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    router.push('/admin/dashboard');
+     try {
+        await sendConfirmationEmail({ email, name: 'Admin User', role: 'Admin' }, 'login');
+        toast({
+            title: 'Login Successful',
+            description: 'A confirmation email has been sent (check console).',
+        });
+        router.push('/admin/dashboard');
+    } catch (error) {
+        toast({
+            title: 'Login Failed',
+            description: 'Could not send confirmation.',
+            variant: 'destructive',
+        });
+    }
   };
 
   return (
@@ -46,6 +65,8 @@ export default function AdminLoginPage() {
                 type="email"
                 placeholder="admin@example.com"
                 required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
               />
             </div>
             <div className="space-y-2">
